@@ -18,3 +18,4 @@ jobs:
       - run: python scripts/validate_crash_safe_development.py
       - run: python scripts/validate_engineering_guardian.py
       - run: python scripts/validate_provider_execution_adapter.py
+      - run: python scripts/validate_credential_broker_external_worker.py

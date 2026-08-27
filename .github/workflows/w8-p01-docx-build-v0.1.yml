@@ -8,6 +8,13 @@ on:
       - 'docs/publications/W8_P01_JAAMAS_INFORMATION_SHEET_v0.3.md'
       - 'docs/publications/W8_P01_JAAMAS_COVER_LETTER_v0.1.md'
       - '.github/workflows/w8-p01-docx-build-v0.1.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/publications/manuscript/W8_P01_MANUSCRIPT_JAAMAS_v0.4.md'
+      - 'docs/publications/W8_P01_JAAMAS_INFORMATION_SHEET_v0.3.md'
+      - 'docs/publications/W8_P01_JAAMAS_COVER_LETTER_v0.1.md'
+      - '.github/workflows/w8-p01-docx-build-v0.1.yml'
   workflow_dispatch:
 
 permissions:
@@ -83,8 +90,6 @@ jobs:
           from docx.enum.text import WD_ALIGN_PARAGRAPH
           from docx.oxml import OxmlElement
           from docx.oxml.ns import qn
-          from docx.enum.section import WD_SECTION
-          from docx.enum.style import WD_STYLE_TYPE
 
           d=Document()
           sec=d.sections[0]
@@ -112,7 +117,6 @@ jobs:
               c._element.rPr.rFonts.set(qn('w:eastAsia'),'Times New Roman')
               c.paragraph_format.alignment=WD_ALIGN_PARAGRAPH.CENTER
 
-          # Footer page number field.
           p=sec.footer.paragraphs[0]
           p.alignment=WD_ALIGN_PARAGRAPH.CENTER
           run=p.add_run()

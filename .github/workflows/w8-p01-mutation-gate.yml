@@ -1,0 +1,45 @@
+name: W8-P01 Mutation Gate
+
+on:
+  push:
+    branches:
+      - work/w8-p01-governance-experiment-v0.1
+    paths:
+      - 'experiments/flagship_governance_v0_1/model_v2.py'
+      - 'experiments/flagship_governance_v0_1/run_experiment_v2.py'
+      - 'experiments/flagship_governance_v0_1/mutation_gate_v1.py'
+      - 'experiments/flagship_governance_v0_1/tests/test_mutation_gate_v1.py'
+      - '.github/workflows/w8-p01-mutation-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mutation-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unit tests
+        run: python -m unittest experiments/flagship_governance_v0_1/tests/test_mutation_gate_v1.py -v
+      - name: Run mutation gate
+        run: |
+          python experiments/flagship_governance_v0_1/mutation_gate_v1.py \
+            --trials 500 \
+            --seed 20260827 \
+            --output experiments/flagship_governance_v0_1/results_mutation
+      - name: Hash mutation evidence
+        run: |
+          cd experiments/flagship_governance_v0_1/results_mutation
+          sha256sum mutation_gate_v1.json | tee SHA256SUMS_mutation.txt
+      - name: Upload mutation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-mutation-gate-v1
+          path: experiments/flagship_governance_v0_1/results_mutation/
+          retention-days: 90
+          if-no-files-found: error

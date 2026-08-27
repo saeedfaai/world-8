@@ -9,12 +9,20 @@ Runtime truth remains the live deployed state; DCP remains the development coord
 ## Start here
 Read [`START_HERE.md`](START_HERE.md) before making governed changes.
 
-## External references
+## Identity, research & external links
 
-> Owner-controlled references. Review privacy/exposure before making this repository public.
+The canonical human-readable registry for author identity, contact information, research profiles, publication links, continuity resources, public discussion references, legacy repositories, and external-service verification status is:
 
-- **Zenodo (current record):** https://zenodo.org/records/22085394
-- **Zenodo DOI:** https://doi.org/10.5281/zenodo.22085394
-- **MyHeritage:** https://www.myheritage.com/research?s=1&formId=master&formMode=1&qname=Name+ln%3Asaeed&qevents-event%3DBirth+ln%3AAbbas%20%28Saeed%29
+[`EXTERNAL_LINKS.md`](EXTERNAL_LINKS.md)
+
+Key verified references:
+- **Author / owner:** Saeed Farrokhi
+- **Email:** saeedfa@gmail.com
+- **LinkedIn:** https://www.linkedin.com/in/saeedfarokhi
+- **Zenodo:** https://zenodo.org/records/22058813
+- **Company:** https://taminyaran.com
+- **GitHub:** https://github.com/saeedfaai
+
+Unverified identities such as ORCID, university email, ResearchGate, Academia.edu, SSRN, Medium, Devpost, Google Scholar and MyHeritage are tracked in `EXTERNAL_LINKS.md` and must not be guessed.
 
 Core principle: **Parallelize work; serialize truth.**

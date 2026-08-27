@@ -71,8 +71,8 @@ def main() -> None:
     require(doc, "automatic_retry=false", "documentation failover rule")
     require(doc, "ADMIN_BLOCKED / INSUFFICIENT_QUOTA", "documentation circuit breaker")
     require(doc, "envref:GROQ_API_KEY4", "documentation corrected Groq binding")
-    require(doc, "GROQ_CANARY_SUCCEEDED", "documentation successful canary state")
-    require(doc, "SCALE_5_ELIGIBLE_NOT_STARTED", "documentation next scale gate")
+    require(doc, "GROQ_SCALE_5_SUCCEEDED", "documentation successful scale-5 state")
+    require(doc, "SCALE_20_ELIGIBLE_NOT_STARTED", "documentation next scale gate")
     require(wf, "python scripts/validate_provider_failover_mesh.py", "workflow validator step")
 
     print(f"PASS: Provider Failover Mesh invariants ({len(sql_files)} migration files)")

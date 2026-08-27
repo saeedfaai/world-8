@@ -1,0 +1,175 @@
+name: Publish Zenodo v0.1.0
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.zenodo-publish-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+      RELEASE_COMMIT: b14f2feea0fa233851a774d6ebd295b63cde75c0
+      RELEASE_TAG: V0.1.0
+    steps:
+      - name: Checkout current canonical branch for receipt
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Checkout exact released source separately
+        uses: actions/checkout@v4
+        with:
+          ref: b14f2feea0fa233851a774d6ebd295b63cde75c0
+          path: release-src
+          fetch-depth: 1
+      - name: Verify and build exact source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C release-src rev-parse HEAD)" = "$RELEASE_COMMIT"
+          mkdir -p zenodo-package ops
+          git -C release-src archive --format=zip --prefix=world8-v0.1.0/ -o "$GITHUB_WORKSPACE/zenodo-package/world8-v0.1.0-source.zip" HEAD
+          sha256sum zenodo-package/world8-v0.1.0-source.zip > zenodo-package/SHA256SUMS.txt
+          cat > zenodo-package/RELEASE_RECEIPT.txt <<EOF
+          World 8 v0.1.0 — Zenodo Publication Receipt
+          GitHub: https://github.com/saeedfaai/world-8
+          Release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0
+          Tag: V0.1.0
+          Exact commit: $RELEASE_COMMIT
+          Classification: DEVELOPMENT PRE-RELEASE / NON-PRODUCTION
+          EOF
+      - name: Publish exact snapshot through Zenodo REST API
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${ZENODO_TOKEN:-}" ]; then
+            jq -n '{provider:"zenodo",status:"SECRET_MISSING",required_secret:"ZENODO_TOKEN"}' > ops/zenodo-v0.1.0-publish-result.json
+            cat ops/zenodo-v0.1.0-publish-result.json
+            exit 2
+          fi
+          python - <<'PY'
+          import json, os, pathlib, requests, sys
+
+          token = os.environ['ZENODO_TOKEN']
+          commit = os.environ['RELEASE_COMMIT']
+          headers = {'Authorization': f'Bearer {token}', 'Accept': 'application/json'}
+          json_headers = {**headers, 'Content-Type': 'application/json'}
+          base = 'https://zenodo.org/api/deposit/depositions'
+          title = 'World 8 v0.1.0 — Foundation & Development Control Plane Baseline'
+          version = '0.1.0'
+
+          def clean_result(dep, status):
+              md = dep.get('metadata') or {}
+              doi = md.get('doi') or (md.get('prereserve_doi') or {}).get('doi')
+              return {
+                  'provider': 'zenodo',
+                  'status': status,
+                  'record_id': dep.get('record_id') or dep.get('id'),
+                  'doi': doi,
+                  'record_url': (dep.get('links') or {}).get('record_html') or (dep.get('links') or {}).get('html'),
+                  'submitted': dep.get('submitted'),
+                  'state': dep.get('state'),
+                  'release_tag': 'V0.1.0',
+                  'release_commit': commit,
+              }
+
+          # Idempotency guard: reuse an exact matching draft or stop on an existing publication.
+          r = requests.get(base, headers=headers, params={'size': 100}, timeout=45)
+          r.raise_for_status()
+          existing = None
+          for dep in r.json():
+              md = dep.get('metadata') or {}
+              if md.get('title') == title and str(md.get('version') or '') == version:
+                  existing = dep
+                  break
+
+          if existing and existing.get('submitted'):
+              result = clean_result(existing, 'ALREADY_PUBLISHED')
+              pathlib.Path('ops/zenodo-v0.1.0-publish-result.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
+              print(json.dumps(result, indent=2))
+              sys.exit(0)
+
+          if existing:
+              dep = existing
+          else:
+              r = requests.post(base, json={}, headers=json_headers, timeout=45)
+              r.raise_for_status()
+              dep = r.json()
+
+          dep_id = dep['id']
+          bucket = dep['links']['bucket']
+
+          # Upload exact source archive and public checksum/receipt files.
+          for name in ['world8-v0.1.0-source.zip', 'SHA256SUMS.txt', 'RELEASE_RECEIPT.txt']:
+              p = pathlib.Path('zenodo-package') / name
+              with p.open('rb') as f:
+                  rr = requests.put(f'{bucket}/{name}', data=f, headers=headers, timeout=180)
+              rr.raise_for_status()
+
+          metadata = {
+              'metadata': {
+                  'title': title,
+                  'upload_type': 'software',
+                  'description': (
+                      'World 8 v0.1.0 is the first formal development pre-release baseline from the canonical world-8 repository. '
+                      'It establishes the architecture baseline, Development Control Plane, developer-admission workflow, identity and authority controls, '
+                      'governed workspace/lease/evidence foundations, migrations, validation tooling, and publication/continuity registry. '
+                      'This snapshot is non-production and does not claim a complete society runtime, complete Forecast Hall or Market Data runtime, '
+                      'autonomous production trading, production-grade distributed atomicity, or full security/load/chaos validation.'
+                  ),
+                  'creators': [
+                      {'name': 'Farrokhi, Saeed', 'affiliation': 'Mechanical Engineering, University of Tehran'}
+                  ],
+                  'version': version,
+                  'keywords': [
+                      'World 8', 'multi-agent systems', 'agent architecture', 'development control plane',
+                      'persistent identity', 'forecasting architecture', 'governance', 'AI agents'
+                  ],
+                  'related_identifiers': [
+                      {'identifier': 'https://github.com/saeedfaai/world-8/releases/tag/V0.1.0', 'relation': 'isSupplementTo', 'scheme': 'url'},
+                      {'identifier': 'https://github.com/saeedfaai/world-8', 'relation': 'isSupplementTo', 'scheme': 'url'}
+                  ],
+                  'notes': (
+                      'Exact Git tag V0.1.0 resolves to commit b14f2feea0fa233851a774d6ebd295b63cde75c0. '
+                      'GitHub is the living canonical source; this Zenodo record is the immutable software snapshot. '
+                      'World 8 0.x releases are development pre-releases / non-production. '
+                      'Prior World 8/Z0-A DOI 10.5281/zenodo.22085394 remains preserved in append-only publication lineage.'
+                  )
+              }
+          }
+          r = requests.put(f'{base}/{dep_id}', json=metadata, headers=json_headers, timeout=45)
+          r.raise_for_status()
+
+          r = requests.post(f'{base}/{dep_id}/actions/publish', headers=headers, timeout=90)
+          r.raise_for_status()
+          published = r.json()
+          result = clean_result(published, 'PUBLISHED')
+          pathlib.Path('ops/zenodo-v0.1.0-publish-result.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
+          print(json.dumps(result, indent=2))
+          PY
+      - name: Commit sanitized DOI receipt to canonical main
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/zenodo-v0.1.0-publish-result.json
+          git commit -m "publication: record Zenodo v0.1.0 DOI receipt" || exit 0
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Upload sanitized publication receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenodo-v0.1.0-publication-receipt
+          path: ops/zenodo-v0.1.0-publish-result.json
+          if-no-files-found: warn
+          retention-days: 90

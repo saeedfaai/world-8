@@ -1,58 +1,59 @@
-from pathlib import Path
+# World 8 Provider Execution Adapter v0.1
 
-ROOT = Path(__file__).resolve().parents[1]
-MIGRATION = ROOT / "supabase/migrations/20260827155324_world8_provider_execution_adapter_foundation_v01.sql"
-DOC = ROOT / "docs/engineering/PROVIDER_EXECUTION_ADAPTER.md"
+Status: FOUNDATION IMPLEMENTED IN RUNTIME / VALIDATED LOCALLY / LIVE EXTERNAL PROVIDER NOT READY
 
-assert MIGRATION.exists(), "provider execution adapter migration missing"
-assert DOC.exists(), "provider execution adapter documentation missing"
+## Purpose
 
-sql = MIGRATION.read_text(encoding="utf-8")
-doc = DOC.read_text(encoding="utf-8")
+The Provider Execution Adapter is the bridge between a governed N-Mason assignment and an actual model-provider execution lifecycle. It does not create a second Actor identity system and it does not make provider/model part of Actor identity.
 
-required_sql = [
-    "world8_provider_execution_adapters",
-    "world8_provider_execution_requests",
-    "world8_provider_execution_receipts",
-    "world8_provider_execution_adapter_register_v1",
-    "world8_provider_execution_readiness_v1",
-    "world8_provider_execution_enqueue_v1",
-    "world8_provider_execution_claim_v1",
-    "world8_provider_execution_heartbeat_v1",
-    "world8_provider_execution_complete_v1",
-    "world8_provider_execution_fail_v1",
-    "world8_provider_execution_snapshot_v1",
-    "world8_actor_start_execution_v1",
-    "world8_mason_pool_bind_execution_v1",
-    "OPAQUE_CREDENTIAL_REF_REQUIRED",
-    "CREDENTIAL_BROKER_NOT_IMPLEMENTED",
-    "WORLD8_PROVIDER_EXECUTION_RECEIPTS_APPEND_ONLY",
-    "EXECUTION_IDEMPOTENCY_COLLISION",
-    "ASSIGNMENT_ACTOR_WORK_WORKSPACE_BINDING_REQUIRED",
-    "EXECUTION_REQUEST_SECRET_OR_PRIVATE_REASONING_REJECTED",
-    "live_provider_invoked",
-]
-for marker in required_sql:
-    assert marker in sql, f"missing provider execution invariant: {marker}"
+**Actor identity persists; provider/model belongs only to Execution.**
 
-# v0.1 is deliberately fail-closed for real external providers.
-assert "adapter_kind='MOCK_INTERNAL'" in sql
-assert "gate_state','BLOCKED'" in sql
-assert "credential_state" in sql
-assert "credential_ref !~ '^(secretref:|vault:|envref:|connector:)" in sql
-assert "grant execute" in sql and "service_role" in sql
-assert "from public,anon,authenticated" in sql
+The adapter reuses:
+- `world8_actor_executions`
+- `world8_mason_assignments`
+- Work / Workspace / Admission / Lease
+- Guardian context
+- Diagnostic Memory
 
-required_doc = [
-    "Actor identity persists",
-    "provider/model belongs only to Execution",
-    "OPAQUE_REF_ONLY",
-    "CREDENTIAL_BROKER_NOT_IMPLEMENTED",
-    "No raw provider secrets",
-    "No claim of live provider invocation",
-    "100 concurrent Mason",
-]
-for marker in required_doc:
-    assert marker in doc, f"missing provider execution documentation invariant: {marker}"
+## Credential boundary
 
-print("Provider Execution Adapter validation: PASS")
+Credential mode is **OPAQUE_REF_ONLY**.
+
+Allowed references are opaque identifiers such as `envref:...`, `vault:...`, `secretref:...`, or `connector:...`.
+
+**No raw provider secrets** may be stored in execution requests, receipts, metadata, task text, or context refs. Private reasoning / chain-of-thought fields are rejected by the same boundary.
+
+A real external adapter remains fail-closed while the credential broker is absent. Current readiness reason is:
+
+`CREDENTIAL_BROKER_NOT_IMPLEMENTED`
+
+## Lifecycle
+
+`Assignment/Work/Workspace -> enqueue -> claim -> world8_actor_executions -> heartbeat -> result/failure receipt`
+
+The execution request is idempotent. Claiming creates the provider/model-specific Execution and, when an N-Mason assignment is present, binds that execution back to the assignment. Result receipts are append-only.
+
+## v0.1 safety state
+
+- Mock internal adapter: lifecycle testing only.
+- Real external adapter: registered but not live-ready until credential verification and an external network worker exist.
+- No provider network call is performed by this DCP foundation.
+- No claim of live provider invocation is allowed from mock lifecycle evidence.
+- No autonomous canonical promotion or merge is introduced.
+- Guardian authority remains NONE.
+
+## Scale evidence
+
+World 8 has already passed a **100 concurrent Mason** orchestration/Guardian scale run: 100 Work lanes, 100 active Sessions, 100 active Guardian Companions, zero degraded attaches, overlap awareness and existing-governance pre-action gates functioning under load. That proves the control plane can host the concurrency; it does not by itself prove 100 external LLM workers.
+
+The remaining path to 100 genuinely independent coding brains is:
+
+1. verified opaque credential broker;
+2. external provider worker transport;
+3. real request claim and model invocation;
+4. result receipt / patch evidence;
+5. progressive live scale 1 -> 5 -> 20 -> 100 executions.
+
+## Non-claims
+
+Until verified external workers exist and corresponding `world8_actor_executions` are actually ACTIVE, do not state that 100 external LLM coders are running.

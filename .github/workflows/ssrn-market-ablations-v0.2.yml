@@ -58,6 +58,20 @@ jobs:
           PYTHONPATH: experiments
         run: python experiments/ssrn_market_replay_v0_2/scripts/run_ablations.py
 
+      - name: Bitwise determinism gate
+        env:
+          PYTHONPATH: experiments
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd experiments/ssrn_market_replay_v0_2
+          sha256sum results/metrics.csv results/bootstrap_robustness.csv results/summary.json > /tmp/first.sha256
+          python scripts/run_ablations.py >/tmp/second-run.txt
+          sha256sum results/metrics.csv results/bootstrap_robustness.csv results/summary.json > /tmp/second.sha256
+          diff -u /tmp/first.sha256 /tmp/second.sha256
+          cat /tmp/second.sha256
+          echo 'bitwise determinism PASS'
+
       - name: Validate generated evidence
         shell: bash
         run: |
@@ -70,6 +84,8 @@ jobs:
           from pathlib import Path
           r=json.loads(Path('experiments/ssrn_market_replay_v0_2/results/summary.json').read_text())
           assert r['status'] == 'ABLATIONS_COMPLETE'
+          assert r['schema'] == 'WORLD8_SSRN_MARKET_ABLATION_RESULT/2.1'
+          assert r['canonical_float_decimals'] == 12
           assert len(r['configuration']) == 3
           assert all(x['shadow_identity_max_abs'] == 0.0 for x in r['configuration'])
           print('v0.2 evidence VALID')
@@ -85,7 +101,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No evidence changes'
           else
-            git commit -m 'experiment: record SSRN market ablation evidence v0.2 [skip ci]'
+            git commit -m 'experiment: record deterministic SSRN ablation evidence v0.2 [skip ci]'
             git pull --rebase origin work/ssrn-market-ablations-v0.2
             git push origin HEAD:work/ssrn-market-ablations-v0.2
           fi

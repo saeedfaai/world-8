@@ -1,0 +1,62 @@
+name: W8-P01 P02 Post-Draft Overlap Audit
+
+on:
+  push:
+    branches:
+      - work/w8-p01-manuscript-v0.1
+    paths:
+      - 'docs/publications/manuscript/W8_P01_MANUSCRIPT_JAAMAS_v0.3.md'
+      - 'docs/ssrn/manuscript/WORLD8_SSRN_WORKING_PAPER_v0.1.md'
+      - 'tools/publications/w8_p01_p02_overlap_audit.py'
+      - '.github/workflows/w8-p01-p02-overlap-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  overlap-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run post-draft overlap gate
+        run: |
+          python tools/publications/w8_p01_p02_overlap_audit.py \
+            --p01 docs/publications/manuscript/W8_P01_MANUSCRIPT_JAAMAS_v0.3.md \
+            --p02 docs/ssrn/manuscript/WORLD8_SSRN_WORKING_PAPER_v0.1.md \
+            --json-out /tmp/W8_P01_P02_POST_DRAFT_OVERLAP_AUDIT.json \
+            --md-out /tmp/W8_P01_P02_POST_DRAFT_OVERLAP_AUDIT.md
+
+      - name: Show compact audit receipt
+        if: always()
+        run: |
+          if test -f /tmp/W8_P01_P02_POST_DRAFT_OVERLAP_AUDIT.json; then
+            python - <<'PY'
+          import json
+          p='/tmp/W8_P01_P02_POST_DRAFT_OVERLAP_AUDIT.json'
+          x=json.load(open(p))
+          print('gate_state=', x['gate_state'])
+          print('blocker_count=', x['blocker_count'])
+          print('near_manual_review=', len(x['near_matches_for_manual_review_ge_0_80']))
+          print('p01_sha256=', x['p01']['sha256'])
+          print('p02_sha256=', x['p02']['sha256'])
+          for k,v in x['blockers'].items(): print(k, '=', len(v))
+          PY
+          fi
+
+      - name: Upload overlap audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-p02-post-draft-overlap-audit
+          path: |
+            /tmp/W8_P01_P02_POST_DRAFT_OVERLAP_AUDIT.json
+            /tmp/W8_P01_P02_POST_DRAFT_OVERLAP_AUDIT.md
+          retention-days: 90
+          if-no-files-found: warn

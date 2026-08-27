@@ -96,8 +96,24 @@ Integrity run after guarded EOF repair:
 
 No external provider effect or live trade was executed. Transactional probes were rolled back.
 
+### Reconciled-branch validation — PASS
+Run:
+- https://github.com/saeedfaai/world-8/actions/runs/33107662002
+
+Passed:
+- Architecture validator
+- Developer Admission validator
+- Identity & Authority validator
+- N-Mason Pool validator
+- Crash-Safe Development validator
+- Engineering Guardian validator
+- Provider Execution Adapter validator
+- Credential Broker / External Worker validator
+- W8-P01 unit/conformance tests
+- authoritative recovered-migration hash checks
+
 ### E3 remaining gate
-- [ ] final validator suite green on reconciled branch
+- [x] final validator suite green on reconciled branch
 - [ ] governed PR merges recovered source into canonical `main`
 - [ ] post-merge canonical source/integrity verification
 
@@ -105,14 +121,38 @@ Until then, the correct wording is **runtime-backed and source-reconciled on the
 
 ## E4 — Mutation / compound failure / recovery
 
-Status: OPEN
+Status: **PARTIAL PASS / REFERENCE-MODEL MUTATION PASS**
 
-Required:
-- mutation gate for actor binding, authorization, fencing, evidence verification;
-- clean crash/restart before new write capability;
-- compound-fault schedules on runtime-bound mechanisms;
-- false-deny / valid-path cost reporting;
-- preserve negative/neutral results rather than optimizing claims after the fact.
+Receipt:
+`experiments/flagship_governance_v0_1/E4_REFERENCE_MUTATION_RECEIPT.md`
+
+Mutation run:
+- https://github.com/saeedfaai/world-8/actions/runs/33107646035
+- artifact digest: `sha256:69205d5139920271ad5d20a624855f54345b257d23bf8f6f520f4605901de8ee`
+- `mutation_gate_v1.json` SHA256: `f107c531c58f3e99fe74b7f5f168e7870d8def7f88cf65845e3c4601c7bdf2ac`
+- 5 mutations × 500 trials
+- 5/5 killed
+- mutation score = `1.0`
+- evidence level = `REFERENCE_MODEL_MUTATION`
+- runtime DB mutated = false
+
+Killed reference mutations:
+- remove Actor binding;
+- remove CAS;
+- remove fencing;
+- remove durable idempotency;
+- remove hash-chain verification.
+
+This is not yet a deployed-runtime mutation result.
+
+Remaining E4:
+- [ ] runtime-bound negative-control/mutation tests for authorization predicates;
+- [ ] runtime-bound negative-control for fencing enforcement;
+- [ ] hash-chain verification mutation/tamper test beyond table mutation blocking;
+- [ ] clean crash/restart before new write capability;
+- [ ] compound runtime-bound fault schedules;
+- [ ] false-deny / valid-path cost reporting;
+- [ ] preserve negative/neutral results rather than optimizing claims after the fact.
 
 ## E5 — External framework comparison + manuscript
 

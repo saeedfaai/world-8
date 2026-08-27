@@ -1,0 +1,50 @@
+{
+  "calibration_window": [
+    "2023-01-01",
+    "2024-12-31"
+  ],
+  "data_window": [
+    "2020-01-01",
+    "2025-12-31"
+  ],
+  "event": "close[t+5 trading bars] > close[t]",
+  "files": {
+    "bootstrap": "results/noncrypto_bootstrap.csv",
+    "contracts": "results/noncrypto_forecast_contracts.jsonl.gz",
+    "metrics": "results/noncrypto_metrics.csv"
+  },
+  "frequency": "1d",
+  "market_class": "US_ETF",
+  "schema": "WORLD8_NONCRYPTO_REPLICATION_RESULT/1.0",
+  "source_manifest": "data/noncrypto_frozen/snapshot_manifest.json",
+  "status": "INDEPENDENT_NONCRYPTO_REPLICATION_COMPLETE",
+  "symbols": [
+    "SPY",
+    "QQQ",
+    "GLD"
+  ],
+  "test_window": [
+    "2025-01-01",
+    "2025-12-31"
+  ],
+  "weights": {
+    "GLD": {
+      "meanrev1": 0.21382044119095067,
+      "momentum20": 0.26053828311773974,
+      "momentum5": 0.31768080977637053,
+      "volume_breakout": 0.20796046591493905
+    },
+    "QQQ": {
+      "meanrev1": 0.24238802523597294,
+      "momentum20": 0.266147160864309,
+      "momentum5": 0.2517924030279386,
+      "volume_breakout": 0.23967241087177946
+    },
+    "SPY": {
+      "meanrev1": 0.2486897016302438,
+      "momentum20": 0.24619538757215143,
+      "momentum5": 0.24485412790401032,
+      "volume_breakout": 0.2602607828935945
+    }
+  }
+}

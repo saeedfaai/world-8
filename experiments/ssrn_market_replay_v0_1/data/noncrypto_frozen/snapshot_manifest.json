@@ -1,0 +1,48 @@
+{
+  "note": "Independent replication uses normalized local SHA256 because this endpoint does not publish provider checksum files analogous to Binance Data Vision.",
+  "provider": "Yahoo Finance chart API",
+  "provider_checksum_available": false,
+  "schema": "WORLD8_NONCRYPTO_SNAPSHOT/1.0",
+  "status": "FROZEN_NORMALIZED_WITH_LOCAL_HASHES",
+  "symbols": [
+    {
+      "content_type": "application/json;charset=utf-8",
+      "first_timestamp": "2020-01-02T14:30:00+00:00",
+      "http": 200,
+      "last_timestamp": "2025-12-31T14:30:00+00:00",
+      "normalized_gzip_sha256": "463ffaa6f9860fb499335cd7aa95d44d35914b20111e559b39cf99d9a9ae18f4",
+      "provider": "Yahoo Finance chart API",
+      "provider_checksum_available": false,
+      "requested_url": "https://query1.finance.yahoo.com/v8/finance/chart/SPY?period1=1577836800&period2=1767225600&interval=1d&events=history&includeAdjustedClose=true",
+      "rows": 1508,
+      "source_response_sha256": "a3299be3d897b678be85b6d2d4eb47dac741d63695e6a33439685ad0523a43c5",
+      "symbol": "SPY"
+    },
+    {
+      "content_type": "application/json;charset=utf-8",
+      "first_timestamp": "2020-01-02T14:30:00+00:00",
+      "http": 200,
+      "last_timestamp": "2025-12-31T14:30:00+00:00",
+      "normalized_gzip_sha256": "9ceb64581e590396056b0117d5a2c4c5056e42b76cee52f594cdf09119552ef9",
+      "provider": "Yahoo Finance chart API",
+      "provider_checksum_available": false,
+      "requested_url": "https://query1.finance.yahoo.com/v8/finance/chart/QQQ?period1=1577836800&period2=1767225600&interval=1d&events=history&includeAdjustedClose=true",
+      "rows": 1508,
+      "source_response_sha256": "88b7d337f56421078af0593cb8a06eb4d2e386697b7c526f325cdb247e44b96a",
+      "symbol": "QQQ"
+    },
+    {
+      "content_type": "application/json;charset=utf-8",
+      "first_timestamp": "2020-01-02T14:30:00+00:00",
+      "http": 200,
+      "last_timestamp": "2025-12-31T14:30:00+00:00",
+      "normalized_gzip_sha256": "a48bd0b2d247219defa4dab5015a0936f588b1d7e561b76512b33e58231cc7c0",
+      "provider": "Yahoo Finance chart API",
+      "provider_checksum_available": false,
+      "requested_url": "https://query1.finance.yahoo.com/v8/finance/chart/GLD?period1=1577836800&period2=1767225600&interval=1d&events=history&includeAdjustedClose=true",
+      "rows": 1508,
+      "source_response_sha256": "3b5435caba440f5fb9740e856af51623d1a923776aef22150b096fa5bafd4255",
+      "symbol": "GLD"
+    }
+  ]
+}

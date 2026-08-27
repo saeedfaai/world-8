@@ -1,0 +1,4 @@
+delta_brier,ci95_low,ci95_high,block_hours,reps,seed,symbol,candidate,baseline
+-0.0238593688186,-0.0562871762189,0.00471343982689,5,2000,29,SPY,calibrated_weighted,equal_weight_raw
+-0.0245399418326,-0.0592926667478,0.00718938645433,5,2000,29,QQQ,calibrated_weighted,equal_weight_raw
+-0.00430076895338,-0.0209832647424,0.0139588330014,5,2000,29,GLD,calibrated_weighted,equal_weight_raw

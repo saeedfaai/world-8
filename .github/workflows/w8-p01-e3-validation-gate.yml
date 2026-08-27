@@ -1,0 +1,71 @@
+name: W8-P01 E3 Validation Gate
+
+on:
+  push:
+    branches:
+      - work/w8-p01-governance-experiment-v0.1
+    paths:
+      - '.github/workflows/w8-p01-e3-validation-gate.yml'
+      - 'architecture/**'
+      - 'docs/engineering/**'
+      - 'docs/publications/W8_P01_EVIDENCE_LADDER.md'
+      - 'experiments/flagship_governance_v0_1/**'
+      - 'scripts/validate_*.py'
+      - 'supabase/migrations/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Architecture validator
+        run: python scripts/validate_architecture.py
+
+      - name: Developer Admission validator
+        run: python scripts/validate_developer_admission.py
+
+      - name: Identity & Authority validator
+        run: python scripts/validate_identity_authority.py
+
+      - name: N-Mason Pool validator
+        run: python scripts/validate_n_mason_pool.py
+
+      - name: Crash-Safe Development validator
+        run: python scripts/validate_crash_safe_development.py
+
+      - name: Engineering Guardian validator
+        run: python scripts/validate_engineering_guardian.py
+
+      - name: Provider Execution Adapter validator
+        run: python scripts/validate_provider_execution_adapter.py
+
+      - name: Credential Broker / External Worker validator
+        run: python scripts/validate_credential_broker_external_worker.py
+
+      - name: W8-P01 experiment unit and conformance tests
+        run: python -m unittest discover -s experiments/flagship_governance_v0_1/tests -p 'test_*.py' -v
+
+      - name: Verify recovered authoritative migration hashes
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' \
+            '13b418f2f475bf423592224d44a45739cacc664cd4981263ffe40495f309b99d' \
+            'supabase/migrations/20260824130305_w0_0015_sequencer_lease_maintenance.sql' \
+            'bb3a9e65f06d374625ef7378e771ec284993f31278615d519095d5602508d92b' \
+            'supabase/migrations/20260824133158_w2_0006_external_effect_governance.sql' \
+            '1f0a0789be184d5043d43e34f31a68c4d6042a0152e8e80ff59803994700e81b' \
+            'supabase/migrations/20260824133326_w2_supabase_external_effect_hosted_overlay.sql' \
+            '634d057945e8d7de6b1bdf6712f18b11109d2682760bbdd30fcda117ba93c52d' \
+            'supabase/migrations/20260826174552_world8_development_control_plane_v1.sql' \
+            > /tmp/w8-p01-e3-authoritative.sha256
+          sha256sum -c /tmp/w8-p01-e3-authoritative.sha256

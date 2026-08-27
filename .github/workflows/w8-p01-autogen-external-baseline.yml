@@ -1,0 +1,59 @@
+name: W8-P01 AutoGen External Baseline
+
+on:
+  push:
+    branches:
+      - work/w8-p01-e5-v0.1
+    paths:
+      - 'experiments/flagship_governance_v0_1/external_autogen_baseline.py'
+      - 'experiments/flagship_governance_v0_1/requirements_external_autogen.txt'
+      - 'experiments/flagship_governance_v0_1/tests/test_external_autogen_baseline.py'
+      - '.github/workflows/w8-p01-autogen-external-baseline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  external-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pinned external baseline
+        run: pip install -r experiments/flagship_governance_v0_1/requirements_external_autogen.txt
+
+      - name: Record environment
+        run: |
+          mkdir -p experiments/flagship_governance_v0_1/results_external_autogen
+          python --version | tee experiments/flagship_governance_v0_1/results_external_autogen/PYTHON_VERSION.txt
+          pip freeze | sort | tee experiments/flagship_governance_v0_1/results_external_autogen/PIP_FREEZE.txt
+          sha256sum experiments/flagship_governance_v0_1/results_external_autogen/PIP_FREEZE.txt > experiments/flagship_governance_v0_1/results_external_autogen/PIP_FREEZE.sha256
+
+      - name: Run semantic tests
+        run: python -m unittest experiments/flagship_governance_v0_1/tests/test_external_autogen_baseline.py -v
+
+      - name: Run frozen external baseline matrix
+        run: |
+          python experiments/flagship_governance_v0_1/external_autogen_baseline.py \
+            --trials 100 \
+            --seed 20260827 \
+            --output experiments/flagship_governance_v0_1/results_external_autogen
+
+      - name: Hash evidence
+        run: |
+          cd experiments/flagship_governance_v0_1/results_external_autogen
+          sha256sum autogen_external_summary.json autogen_external_trials.jsonl PIP_FREEZE.txt PYTHON_VERSION.txt | tee SHA256SUMS_external.txt
+
+      - name: Upload evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-autogen-external-baseline-v0.1
+          path: experiments/flagship_governance_v0_1/results_external_autogen/
+          retention-days: 90
+          if-no-files-found: error

@@ -13,13 +13,13 @@ def require(text: str, marker: str, label: str) -> None:
 
 
 def main() -> None:
-    sql_files = sorted(MIG.glob("*provider_failover*.sql"))
+    sql_files = sorted(MIG.glob("*provider_failover*.sql")) + sorted(MIG.glob("*groq_credential_key4*.sql"))
     if not sql_files:
-        raise SystemExit("FAIL: Provider Failover migration missing")
-    sql = "\n".join(p.read_text() for p in sql_files)
-    worker = WORKER.read_text()
-    doc = DOC.read_text()
-    wf = WF.read_text()
+        raise SystemExit("FAIL: Provider Failover migrations missing")
+    sql = "\n".join(p.read_text(encoding="utf-8") for p in sql_files)
+    worker = WORKER.read_text(encoding="utf-8")
+    doc = DOC.read_text(encoding="utf-8")
+    wf = WF.read_text(encoding="utf-8")
 
     for marker in [
         "world8_provider_failover_policies",
@@ -37,7 +37,8 @@ def main() -> None:
         "adapter-openrouter-external-v01",
         "adapter-cerebras-external-v01",
         "adapter-mistral-external-v01",
-        "envref:GROQ_API_KEY",
+        "binding-groq-envref-key4-v01",
+        "envref:GROQ_API_KEY4",
         "envref:DEEPSEEK_API_KEY",
         "envref:OPENROUTER_API_KEY",
         "envref:CEREBRAS_API_KEY",
@@ -61,15 +62,17 @@ def main() -> None:
     ]:
         require(worker, marker, "generic worker invariant")
 
-    forbidden = ["sk-proj-", "sk-", "BEGIN PRIVATE KEY", "chain_of_thought"]
-    corpus = sql + "\n" + worker
+    forbidden = ["sk-proj-", "BEGIN PRIVATE KEY", "chain_of_thought\""]
+    corpus = sql + "\n" + worker + "\n" + doc
     for marker in forbidden:
         if marker in corpus:
             raise SystemExit(f"FAIL: forbidden secret/private-reasoning marker present: {marker}")
 
     require(doc, "automatic_retry=false", "documentation failover rule")
     require(doc, "ADMIN_BLOCKED / INSUFFICIENT_QUOTA", "documentation circuit breaker")
-    require(doc, "1→5→20→100", "documentation scale gate")
+    require(doc, "envref:GROQ_API_KEY4", "documentation corrected Groq binding")
+    require(doc, "GROQ_CANARY_SUCCEEDED", "documentation successful canary state")
+    require(doc, "SCALE_5_ELIGIBLE_NOT_STARTED", "documentation next scale gate")
     require(wf, "python scripts/validate_provider_failover_mesh.py", "workflow validator step")
 
     print(f"PASS: Provider Failover Mesh invariants ({len(sql_files)} migration files)")

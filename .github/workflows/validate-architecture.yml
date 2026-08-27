@@ -14,3 +14,4 @@ jobs:
       - run: python scripts/validate_architecture.py
       - run: python scripts/validate_developer_admission.py
       - run: python scripts/validate_identity_authority.py
+      - run: python scripts/validate_n_mason_pool.py

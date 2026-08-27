@@ -74,17 +74,17 @@ Drive archives:
 - PDF: https://drive.google.com/file/d/15b2XrL8mqix6gBEnWXm6VTxtoCCgCi59/view
 - DOCX: https://drive.google.com/file/d/1tNIMdqCBJ6a8dRDR60TkccWCoF-8G4MM/view
 
-Final canonical hashes after pre-submission integrity recheck:
-- PDF SHA256: `53b3a4c688b620cb3f611ae525484cfba0d186fb85393e7011312999ecf2efed`
+Final canonical provider/download hashes:
+- PDF SHA256: `9df120062da98c5ded5468745d290d8abcd2663abcc8f1569c3b3a4bda863ec7`
 - DOCX SHA256: `345164e825abc887ae0e26de745c6705a512193e42ca25985871f46d94c69386`
 - Markdown SHA256: `7a1f11cd3ee75d2f974f41bac5341367408fede2f75e3bbf16642902393a6c19`
-- PDF bytes: `210232`
+- PDF bytes: `231243`
 - DOCX bytes: `22730`
 - PDF pages: 9
 - PDF preflight: PASS
 - visual QA: PASS, all 9 pages inspected after final re-render
 
-An earlier rendered PDF/DOCX hash pair was detected as stale before submission. The final candidate was re-rendered from the canonical Markdown bound to evidence commit `917dd82...`, Drive bytes were replaced in place, and all publication metadata was corrected. Old rendered hashes are non-canonical.
+The pre-provider QA render PDF and the provider/download PDF have different byte hashes because of PDF serialization/metadata, but a nine-page pixel comparison found `0` changed pages and `0` changed pixels. For SSRN upload verification, the provider/download hash above is canonical.
 
 ## Submission checklist
 - [x] exact GitHub release frozen
@@ -104,7 +104,7 @@ An earlier rendered PDF/DOCX hash pair was detected as stale before submission. 
 - [x] machine/receipt claim-to-evidence audit complete
 - [x] SSRN form packet prepared
 - [x] provider duplicate/account-recovery preflight completed
-- [x] final rendered-file hash integrity rechecked and corrected
+- [x] final rendered-file transport integrity rechecked and corrected
 - [ ] author explicitly approves final claims and assumes submission responsibility
 - [ ] SSRN account/profile authenticated/verified
 - [ ] provider licence/taxonomy choices completed

@@ -17,14 +17,14 @@
         "volume_breakout": 0.12361980192029133
       },
       "disagreement_alpha": 0.5,
-      "disagreement_scale_calibration_q90": 0.021946243701644292,
+      "disagreement_scale_calibration_q90": 0.021946243701644313,
       "regime_rv24_calibration_median": 0.0038920723902199916,
       "regime_weights": {
         "high_vol": {
           "meanrev1": 0.16747273492274922,
-          "momentum24": 0.4868872086846883,
+          "momentum24": 0.4868872086846795,
           "momentum6": 0.1842905872278856,
-          "volume_breakout": 0.16134946916467685
+          "volume_breakout": 0.16134946916468568
         },
         "low_vol": {
           "meanrev1": 0.25,

@@ -1,11 +1,11 @@
 # World 8 — SSRN Readiness Gate v0.1
 
 Date: 2026-08-27
-Status: FINAL CANDIDATE / AUTHOR CLAIM REVIEW / NOT SUBMITTED
+Status: READY FOR AUTHOR APPROVAL / NOT SUBMITTED
 
 ## Submission principle
 
-World 8 is not being submitted as a framework-only description. The paper is supported by frozen historical replay, explicit baselines, negative ablations, Decision/UOP separation, lifecycle-integrity receipts, an independent non-crypto replication, verified related work, and a visually verified full-text PDF. Submission is now blocked only by the author's final claim review and explicit approval.
+World 8 is not being submitted as a framework-only description. The paper is supported by frozen historical replay, explicit baselines, negative ablations, Decision/UOP separation, lifecycle-integrity receipts, an independent non-crypto replication, verified related work, a claim-to-evidence audit, and a visually verified full-text PDF. Submission is now blocked only by the author's final responsibility/approval and the provider-side SSRN submission action.
 
 ## Exact publication binding
 
@@ -83,6 +83,20 @@ Coverage:
 - forecast combination
 - comparative forecast evaluation
 
+## Claim audit
+
+`docs/ssrn/SSRN_CLAIM_AUDIT_v0.1.md`
+
+Status: **PASS / AUTHOR APPROVAL OPEN**
+
+The audit maps every substantive manuscript claim to machine-readable evidence and explicitly prohibits transformations into profitability, production-readiness, universal-superiority, causal-superiority, or autonomous-intelligence claims.
+
+## Submission packet
+
+`docs/ssrn/SSRN_SUBMISSION_PACKET_v0.1.md`
+
+Contains the exact title, date, author metadata, abstract, keywords, AI disclosure, final PDF location/hash, DOI/release binding, and current SSRN requirement references for copy/paste into the provider form.
+
 ## Final manuscript candidate
 
 Source:
@@ -129,7 +143,9 @@ Final candidate hashes:
 - [x] English manuscript complete
 - [x] AI disclosure embedded in manuscript/PDF
 - [x] full-text PDF rendered and visually verified
-- [ ] author reviews/approves final claims
+- [x] machine/receipt claim-to-evidence audit complete
+- [x] SSRN form submission packet prepared
+- [ ] author explicitly approves final claims and assumes submission responsibility
 - [ ] SSRN submission created
 
 ## Evidence ceiling

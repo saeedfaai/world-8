@@ -1,5 +1,5 @@
 schema: WORLD8_SSRN_SUBMISSION_METADATA/1.0
-status: MANUSCRIPT_PREPARATION_NOT_SUBMITTED
+status: READY_FOR_AUTHOR_APPROVAL_NOT_SUBMITTED
 last_checked: 2026-08-27
 
 paper:
@@ -7,7 +7,7 @@ paper:
   written_date: 2026-08-27
   language: en
   document_type: working_paper
-  full_text_pdf_status: PENDING_MANUSCRIPT_RENDER
+  full_text_pdf_status: FINAL_CANDIDATE_VISUAL_QA_PASS
 
 authors:
   - name: Saeed Farrokhi
@@ -18,55 +18,65 @@ authors:
 release_binding:
   canonical_repository: https://github.com/saeedfaai/world-8
   github_release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0
-  exact_release_commit: b14f2feea0fa233851a774d6ebd295b63cde75c0
+  exact_commit: b14f2feea0fa233851a774d6ebd295b63cde75c0
   zenodo_record: https://zenodo.org/records/22127650
   zenodo_doi: https://doi.org/10.5281/zenodo.22127650
   classification: development_pre_release_non_production
 
-empirical_evidence:
-  crypto_run: https://github.com/saeedfaai/world-8/actions/runs/33075444264
-  crypto_bootstrap_run: https://github.com/saeedfaai/world-8/actions/runs/33075751224
-  e4e5_run: https://github.com/saeedfaai/world-8/actions/runs/33076953897
-  noncrypto_run: https://github.com/saeedfaai/world-8/actions/runs/33077676106
-  results_document: experiments/ssrn_market_replay_v0_1/RESULTS.md
-  verified_related_work: docs/ssrn/RELATED_WORK_VERIFIED_v0.1.md
+evidence_binding:
+  empirical_commit: 917dd82ed87a3470acfdb9175905ec7c8727c096
+  evidence_package_sha256: 100484ffba683111622377703e836728817fd6cbb45f53d62e45a5a3766ece70
+  lifecycle_integrity: PASS_52920_RESOLVED_0_FAILURES
+  claim_audit: docs/ssrn/SSRN_CLAIM_AUDIT_v0.1.md
 
 abstract:
-  status: EMPIRICAL_DRAFT_READY_FOR_MANUSCRIPT
-  draft: >-
-    Multi-agent market systems often collapse prediction, action selection, and execution into a single agent output, obscuring the provenance and independent evaluation of errors. This study evaluates a contract-based architecture in which Forecast, Decision, and Order are distinct objects with separate lifecycles and evidence boundaries. Under a frozen historical replay using BTCUSDT, ETHUSDT, and SOLUSDT hourly data, probability calibration consistently reduced out-of-sample Brier loss relative to equal-weight raw aggregation, with paired 24-hour moving-block bootstrap intervals below zero for all three assets. Additional ablations did not support general superiority for correlation penalties, disagreement shrinkage, regime-specific weighting, shadow cold-start, or a volatility-based decision veto; negative findings are retained. An independent daily replication on SPY, QQQ, and GLD produced calibration-improvement point estimates in the same direction, but all 95% moving-block bootstrap intervals crossed zero. The results support the usefulness of explicit probabilistic calibration and receipt-backed forecast evaluation in this fixed replay, while not supporting claims of trading profitability, production readiness, universal cross-market superiority, or autonomous market intelligence.
+  status: FINAL_CANDIDATE
+  text: >-
+    Multi-agent market systems often collapse prediction, action selection, and execution into a single agent output, obscuring the provenance and independent evaluation of errors. This study evaluates a contract-based architecture in which Forecast, Decision, and Order are distinct objects with separate lifecycles and evidence boundaries. Forecasts are immutable probability-bearing objects bound to explicit targets, horizons, data cutoffs, strategy/model identifiers, and replay evidence; decision utility and execution are evaluated downstream.
+
+    The empirical study uses a frozen historical replay. The primary experiment contains hourly BTCUSDT, ETHUSDT, and SOLUSDT data from 2024–2025 with a six-hour event target and a 2025H2 out-of-sample test. Relative to equal-weight raw aggregation, calibrated weighting reduced Brier loss by 0.01639 for BTC, 0.01357 for ETH, and 0.01208 for SOL; paired 24-hour moving-block bootstrap 95% intervals were entirely below zero for all three comparisons. Additional ablations did not support general superiority for correlation penalties, disagreement shrinkage, regime-specific weighting, shadow cold-start, or a volatility-based decision veto; these negative findings are retained. An independent daily replication on SPY, QQQ, and GLD produced calibration-improvement point estimates in the same direction, but all 95% moving-block bootstrap intervals crossed zero.
+
+    The evidence supports explicit probabilistic calibration and receipt-backed forecast evaluation in the frozen replay. It does not support claims of trading profitability, production readiness, universal cross-market superiority, causal superiority of the architecture, or autonomous market intelligence.
 
 keywords:
   - multi-agent systems
   - probabilistic forecasting
   - forecast evaluation
-  - decision architecture
   - calibration
-  - ensemble forecasting
+  - forecast combination
+  - decision architecture
   - reproducibility
-  - AI agents
   - market data
+  - AI agents
 
 ai_disclosure:
   required: true
-  status: READY_FOR_MANUSCRIPT
+  status: EMBEDDED_IN_PDF_AND_READY_FOR_FORM
   text: >-
-    AI-assisted tools were used for structured drafting, language editing, software/documentation support, and consistency checking. The author reviewed the resulting material and remains responsible for the research design, claims, code, data choices, interpretation, and final manuscript.
+    AI-assisted tools were used for structured drafting, language editing, software/documentation support, literature discovery, and consistency checking. The author reviewed the resulting material and remains responsible for the research design, claims, code, data choices, interpretation, citations, and final manuscript.
+
+files:
+  pdf_drive_url: https://drive.google.com/file/d/15b2XrL8mqix6gBEnWXm6VTxtoCCgCi59/view
+  pdf_sha256: acee536968f1fb9e527469d2125600b03587ce2e5a211ffdfadb6fe85f24ba7a
+  pdf_pages: 9
+  docx_drive_url: https://drive.google.com/file/d/1tNIMdqCBJ6a8dRDR60TkccWCoF-8G4MM/view
+  docx_sha256: 8de4a3bc137882181add32cb3884dc355e4fe77ca5d680bb60ae20fb1aa57a18
 
 license:
   ssrn_selection: AUTHOR_DECISION_REQUIRED
-  note: "Do not choose a publication license on behalf of the author without an explicit final publication decision."
+  note: "Do not choose a provider-side license on behalf of the author without explicit approval."
 
 readiness:
   exact_release: PASS
   zenodo_doi: PASS
   author_metadata: PASS
+  english_abstract: PASS_FINAL_CANDIDATE
+  ai_disclosure: PASS_EMBEDDED
   empirical_results: PASS
-  noncrypto_replication: PASS_WITH_LIMITATION
+  lifecycle_integrity: PASS
+  independent_replication: PASS_WITH_LIMITATION_DISCLOSED
   related_work_verified: PASS
-  english_abstract_structure: PASS_DRAFT
-  ai_disclosure: PASS_DRAFT
-  evidence_package_freeze: OPEN
-  full_text_pdf: OPEN
+  claim_audit: PASS
+  full_text_pdf: PASS_VISUAL_QA
   author_final_claim_review: OPEN
   ssrn_submission: OPEN

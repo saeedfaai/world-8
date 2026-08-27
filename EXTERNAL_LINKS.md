@@ -56,7 +56,8 @@ Concept DOI values for World 7 and World 8 are intentionally left blank until an
 | ResearchGate | — | NEEDS_VERIFICATION | Exact profile URL not yet verified |
 | Academia.edu | — | NEEDS_VERIFICATION | Exact profile URL not yet verified |
 | SSRN | — | NEEDS_VERIFICATION | Exact author/profile/submission URL not yet verified |
-| Medium | — | NEEDS_VERIFICATION | Exact profile/publication URL not yet verified |
+| Medium article — Memetic Acceleration in Human–AI Dialog | https://medium.com/@saeedfa/memetic-acceleration-in-human-ai-dialog-2c7cd85fa0d3 | HISTORICAL / VERIFIED_REFERENCE | Exact article URL recovered from prior conversation history |
+| Medium canonical profile | — | NEEDS_VERIFICATION | Do not infer a canonical profile URL from the article path alone |
 | Devpost | — | NEEDS_VERIFICATION | Exact profile/submission URL not yet verified |
 | OpenAIRE | — | NEEDS_VERIFICATION | Service appeared in project continuity notes; exact project/person URL not recovered |
 | OpenAlex author ID | — | NEEDS_VERIFICATION | Do not assign by name match alone |
@@ -84,6 +85,8 @@ Concept DOI values for World 7 and World 8 are intentionally left blank until an
 | External Resources Index in Drive | https://docs.google.com/document/d/1STZnlzqVxlBnE7zkInXU7ntdOq_zCDihKBfHvWB5i1o/edit | VERIFIED |
 | Account & Service Index in Drive | https://docs.google.com/document/d/198CtUWkeQ4fvWGiZMslLmYhl9Ebx0iZgWSQIYH1lYhQ/edit | VERIFIED |
 | World 8 Z0-A Zenodo Publication Packet | https://docs.google.com/document/d/162tBfeRlQbpzRHZLToBtsE047GLXmghrL1EjXHiiPq4/edit | HISTORICAL / VERIFIED_REFERENCE |
+| Historical academic site | https://primal-mote-7c2qycu.shipstatic.com | HISTORICAL / VERIFIED_REFERENCE |
+| Legacy GitHub academic page | https://github.com/saeedfaai/World-v6-public/blob/main/ACADEMIC.md | LEGACY / VERIFIED_REFERENCE |
 
 ## Public discussion, review & AI artifacts
 

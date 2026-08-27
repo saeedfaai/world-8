@@ -65,6 +65,16 @@ No hot-patch may silently change Guardian policy.
 - Warning/Policy claims require evidence refs
 - No raw secrets and no private reasoning/chain-of-thought may be persisted
 
+### v0.1.1 privacy matcher repair
+
+The 5-Mason pilot exposed a false positive: Diagnostic Memory could legitimately contain an error identifier such as `GUARDIAN_PRIVATE_REASONING_REJECTED`, and the original free-text scan treated the identifier itself as private reasoning content. The repair keeps privacy fail-closed while distinguishing evidence metadata from protected content.
+
+- Explicit JSON keys such as `private_reasoning`, `reasoning_trace`, or `chain_of_thought` remain rejected.
+- Natural-language private-reasoning content in reasoning/text/content/message fields remains rejected.
+- Diagnostic/error identifiers that merely name the protection are allowed as evidence.
+- The raw-secret guard is unchanged.
+- No authority, auto-fix, or blocking-policy semantics changed.
+
 ### Context precedence
 
 1. Active Work

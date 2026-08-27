@@ -3,7 +3,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 foundation = (ROOT / 'supabase/migrations/20260827140600_world8_engineering_guardian_foundation_v01.sql').read_text()
 policy = (ROOT / 'supabase/migrations/20260827143630_world8_engineering_guardian_policy_v011.sql').read_text()
-guardian_migrations = foundation + '\n' + policy
+privacy_repair = (ROOT / 'supabase/migrations/20260827152400_world8_guardian_privacy_false_positive_repair_v011.sql').read_text()
+guardian_migrations = foundation + '\n' + policy + '\n' + privacy_repair
 doc = (ROOT / 'docs/engineering/ENGINEERING_GUARDIAN.md').read_text()
 start = (ROOT / 'START_HERE.md').read_text()
 workflow = (ROOT / '.github/workflows/validate-architecture.yml').read_text()
@@ -20,6 +21,9 @@ checks = {
     'advisory only': 'ADVISORY_ONLY' in guardian_migrations,
     'no raw secrets': 'GUARDIAN_RAW_SECRET_REJECTED' in guardian_migrations,
     'no private reasoning persistence': 'GUARDIAN_PRIVATE_REASONING_REJECTED' in guardian_migrations,
+    'privacy helper present': 'world8_guardian_payload_has_private_reasoning_v1' in privacy_repair,
+    'error identifiers are not scanned as free text': "v_norm_key in ('chainofthought','reasoningtrace','privatereasoning')" in privacy_repair,
+    'natural language private reasoning still rejected': 'chain[ -]+of[ -]+thought' in privacy_repair and 'private[ -]+reasoning' in privacy_repair,
     'system service policy': "service_kind='SYSTEM_SERVICE'" in policy,
     'zero authority policy': "authority_mode='NONE'" in policy and "authority_effect='NONE'" in policy,
     'fixed service identity': 'service-world8-engineering-guardian' in policy,

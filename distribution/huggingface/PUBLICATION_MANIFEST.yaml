@@ -7,8 +7,10 @@ current_release:
   classification: development_pre_release_non_production
   frozen_commit: b14f2feea0fa233851a774d6ebd295b63cde75c0
 zenodo:
-  current_world8_z0a_doi: https://doi.org/10.5281/zenodo.22085394
-  world8_v0_1_0_doi: PENDING
+  historical_world8_z0a_doi: https://doi.org/10.5281/zenodo.22085394
+  world8_v0_1_0_record: https://zenodo.org/records/22127650
+  world8_v0_1_0_doi: https://doi.org/10.5281/zenodo.22127650
+  status: CURRENT_VERIFIED
 huggingface:
   account_username: Saeedfa
   account_url: https://huggingface.co/Saeedfa

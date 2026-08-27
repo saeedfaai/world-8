@@ -34,7 +34,8 @@ This file is the canonical human-readable index of external identities, publicat
 |---|---|---|---|---|---|---|
 | World v6.2 / v6.2.0-rc.3 | 2026-08-21 | https://zenodo.org/records/22040348 | https://doi.org/10.5281/zenodo.22040348 | https://doi.org/10.5281/zenodo.22040347 | https://github.com/saeedfaai/World-v6-public/releases/tag/v6.2.0-rc.3 | HISTORICAL / VERIFIED |
 | World 7 v0.2 / v7.0.0-rc.1 | 2026-08-22/23 | https://zenodo.org/records/22058813 | https://doi.org/10.5281/zenodo.22058813 | — | https://github.com/saeedfaai/World-v6-public/releases/tag/v7.0.0-rc.1 | HISTORICAL / VERIFIED |
-| World 8 / Z0-A Final Design Baseline | 2026-08-24 | https://zenodo.org/records/22085394 | https://doi.org/10.5281/zenodo.22085394 | — | Canonical implementation now continues in `saeedfaai/world-8` | CURRENT / VERIFIED |
+| World 8 / Z0-A Final Design Baseline | 2026-08-24 | https://zenodo.org/records/22085394 | https://doi.org/10.5281/zenodo.22085394 | — | Canonical implementation now continues in `saeedfaai/world-8` | HISTORICAL / VERIFIED |
+| World 8 v0.1.0 / Foundation & Development Control Plane Baseline | 2026-08-27 | https://zenodo.org/records/22127650 | https://doi.org/10.5281/zenodo.22127650 | — | https://github.com/saeedfaai/world-8/releases/tag/V0.1.0 | CURRENT / VERIFIED |
 
 Concept DOI values for World 7 and World 8 are intentionally left blank until an exact authoritative value is recovered; they MUST NOT be inferred from record numbering.
 
@@ -46,6 +47,9 @@ Concept DOI values for World 7 and World 8 are intentionally left blank until an
 | World v6.2 exact clean snapshot commit | `f918ae13aaee072b2107ec6532bc8c290be3e70a` | HISTORICAL / VERIFIED |
 | World 7 technical review thread | https://github.com/saeedfaai/World-v6-public/issues/18 | HISTORICAL / VERIFIED_REFERENCE |
 | World 7 public review request | https://github.com/saeedfaai/World-v6-public/issues/19 | HISTORICAL / VERIFIED_REFERENCE |
+| World 8 v0.1.0 exact released commit | `b14f2feea0fa233851a774d6ebd295b63cde75c0` | CURRENT / VERIFIED |
+| World 8 v0.1.0 Zenodo publication receipt | https://github.com/saeedfaai/World-v6-public/blob/main/ops/zenodo/world8-v0.1.0-publication.json | CURRENT / VERIFIED_REFERENCE |
+| World 8 v0.1.0 Zenodo publication gate | https://github.com/saeedfaai/world-8/issues/9 | CURRENT / VERIFIED_REFERENCE |
 
 ## Research identity & publication services
 

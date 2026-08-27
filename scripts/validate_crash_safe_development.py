@@ -6,14 +6,15 @@ core = ROOT / "supabase" / "migrations" / "20260827121700_world8_dev_continuity_
 resume = ROOT / "supabase" / "migrations" / "20260827122000_world8_dev_continuity_resume_scribe_v01.sql"
 enforce = ROOT / "supabase" / "migrations" / "20260827125200_world8_crash_safe_enforcement_v011.sql"
 harden = ROOT / "supabase" / "migrations" / "20260827125400_world8_crash_safe_mark_ready_actor_binding_v0111.sql"
+closure_resume = ROOT / "supabase" / "migrations" / "20260827132600_world8_crash_safe_resume_closure_v012.sql"
 doc = ROOT / "docs" / "engineering" / "CRASH_SAFE_DEVELOPMENT.md"
 start = ROOT / "START_HERE.md"
 
-for path in (core, resume, enforce, harden, doc, start):
+for path in (core, resume, enforce, harden, closure_resume, doc, start):
     if not path.exists():
         raise SystemExit(f"Missing Crash-Safe Development file: {path.relative_to(ROOT)}")
 
-sql = "\n".join(p.read_text(encoding="utf-8") for p in (core, resume, enforce, harden))
+sql = "\n".join(p.read_text(encoding="utf-8") for p in (core, resume, enforce, harden, closure_resume))
 text = doc.read_text(encoding="utf-8")
 start_text = start.read_text(encoding="utf-8")
 
@@ -31,6 +32,20 @@ required_sql = [
     "NEXT_SAFE_ACTION_REQUIRED",
     "CHECKPOINT_INTERVAL_EXCEEDED",
     "world8_dev_resume_capsule_v2",
+    "WORLD8_DEV_RESUME_CAPSULE/2.1",
+    "resume_state",
+    "ACTIVE_CLEAN",
+    "ACTIVE_BLOCKED",
+    "CLOSED_CLEAN",
+    "CLOSED_AWAITING_POSTFLIGHT",
+    "CLOSED_BLOCKED",
+    "FINAL_HANDOFF",
+    "LATEST_CHECKPOINT",
+    "NOT_APPLICABLE",
+    "NO_ACTIVE_SESSION",
+    "active_scribe_guard",
+    "closure_guard",
+    "latest_postflight",
     "world8_dev_resume_board_v1",
     "world8_dev_session_close_v1",
     "world8_dev_scribe_closure_guard_v1",
@@ -60,6 +75,10 @@ required_doc = [
     "Do not reconstruct missing progress from memory after a crash",
     "operational engineering facts",
     "Never store private chain-of-thought",
+    "Closure-aware Resume Capsule",
+    "resume_state=CLOSED_CLEAN",
+    "next_action_source=FINAL_HANDOFF",
+    "NO_ACTIVE_SESSION",
     "Scribe Guard",
     "Resume Capsule",
     "Resume Board",
@@ -81,16 +100,13 @@ for forbidden in (
     if re.search(rf"\b{re.escape(forbidden)}\b", sql, re.IGNORECASE):
         raise SystemExit(f"Forbidden storage marker found: {forbidden}")
 
-# Session start must create a baseline checkpoint, not merely promise one.
 if "world8_dev_checkpoint_v1(v_id" not in sql or "'SESSION_START'" not in sql:
     raise SystemExit("Session start must atomically create SESSION_START checkpoint")
 
-# Checkpoint time must be captured after the journal append to avoid false dirty-state.
 cp = sql[sql.find("create or replace function public.world8_dev_checkpoint_v1"):]
 if cp.find("world8_dev_journal_append_v1") > cp.find("v_now:=clock_timestamp()") and "v_now timestamptz;" in cp:
     raise SystemExit("Checkpoint timestamp must be captured after journal append")
 
-# READY_FOR_REVIEW must not be a bare state flip anymore.
 mark = harden.read_text(encoding="utf-8")
 for marker in (
     "world8_dev_scribe_guard_v1",
@@ -101,9 +117,22 @@ for marker in (
     if marker not in mark:
         raise SystemExit(f"READY_FOR_REVIEW Scribe enforcement missing: {marker}")
 
-# Re-entry documentation must lead with persisted Resume surfaces before new coding.
+closure_sql = closure_resume.read_text(encoding="utf-8")
+for marker in (
+    "v_active_count>0",
+    "v_next:=coalesce(v_handoff_next,v_checkpoint_next,v_w.goal)",
+    "v_next_source:=case when v_handoff_next is not null then 'FINAL_HANDOFF'",
+    "coalesce(v_closure_guard->>'gate_state','BLOCKED')='PASS' and coalesce(v_postflight_gate,'')='PASS' then 'CLOSED_CLEAN'",
+    "'gate_state','NOT_APPLICABLE'",
+    "'reason','NO_ACTIVE_SESSION'",
+    "'active_scribe_guard',v_active_scribe,'closure_guard',v_closure_guard",
+    "'latest_postflight',v_postflight",
+):
+    if marker not in closure_sql:
+        raise SystemExit(f"Closure-aware Resume Capsule invariant missing: {marker}")
+
 for marker in ("Resume Board", "Resume Capsule", "Session Start", "Journal", "Checkpoint"):
     if marker not in start_text:
         raise SystemExit(f"START_HERE missing crash-safe re-entry marker: {marker}")
 
-print("World 8 Crash-Safe Development v0.1.1 static validation PASS")
+print("World 8 Crash-Safe Development v0.1.2 static validation PASS")

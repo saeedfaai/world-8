@@ -62,6 +62,18 @@ jobs:
           PYTHONPATH: .
         run: python scripts/run_replay.py
 
+      - name: Run E4/E5 disagreement, regime, shadow and Decision/UOP extensions
+        working-directory: experiments/ssrn_market_replay_v0_1
+        env:
+          PYTHONPATH: .
+        run: python scripts/run_extensions.py
+
+      - name: Finalize deterministic Forecast Contract lifecycle projection
+        working-directory: experiments/ssrn_market_replay_v0_1
+        env:
+          PYTHONPATH: .
+        run: python scripts/finalize_contract_lifecycle.py
+
       - name: Validate generated evidence
         working-directory: experiments/ssrn_market_replay_v0_1
         shell: bash
@@ -75,9 +87,21 @@ jobs:
           test -s results/summary.json
           test -s results/bootstrap_robustness.csv
           test -s results/forecast_contracts_test.jsonl.gz
+          test -s results/extended_metrics.csv
+          test -s results/extended_ablation_bootstrap.csv
+          test -s results/analyst_error_correlation.csv
+          test -s results/decision_uop_replay.csv
+          test -s results/decision_uop_summary.csv
+          test -s results/forecast_contracts_test_v2.jsonl.gz
+          test -s results/forecast_contracts_test_v3.jsonl.gz
+          test -s results/lifecycle_integrity.json
+          test -s results/extended_summary.json
           python - <<'PY'
+          import gzip
           import json
           from pathlib import Path
+          import pandas as pd
+
           p=Path('data/frozen/snapshot_manifest.json')
           m=json.loads(p.read_text())
           assert len(m['symbols']) == 3
@@ -87,10 +111,60 @@ jobs:
               assert s['discontinuity_count'] == 0, s
               assert len(s['source_files']) == 24, s
               assert all(len(x['sha256']) == 64 for x in s['source_files'])
+
           r=json.loads(Path('results/summary.json').read_text())
           assert r['status'] == 'EMPIRICAL_REPLAY_COMPLETE_WITH_BOOTSTRAP'
           assert r['bootstrap']['reps'] == 2000
-          print(json.dumps({'snapshot':'VALID_CONTINUOUS','replay':'VALID','bootstrap':'VALID'},indent=2))
+
+          e=json.loads(Path('results/extended_summary.json').read_text())
+          assert e['status'] == 'E4_E5_EXTENSIONS_COMPLETE'
+          assert set(e['version_receipts']) == {'BTCUSDT','ETHUSDT','SOLUSDT'}
+          for receipt in e['version_receipts'].values():
+              for key in ('feature_set_hash','replay_code_hash','extension_code_hash','protocol_hash'):
+                  assert len(receipt[key]) == 64, (key, receipt[key])
+              assert all(len(v) == 64 for v in receipt['strategy_version_hashes'].values())
+
+          ab=pd.read_csv('results/extended_ablation_bootstrap.csv')
+          assert len(ab) == 9
+          assert set(ab['candidate']) == {'disagreement_shrink','regime_weighted','shadow_cold_start'}
+          assert (ab['reps'] == 2000).all()
+
+          corr=pd.read_csv('results/analyst_error_correlation.csv')
+          assert len(corr) == 3 * 4 * 4
+          assert corr['error_correlation'].notna().all()
+
+          uop=pd.read_csv('results/decision_uop_summary.csv')
+          assert len(uop) == 3
+          assert (uop['round_trip_cost_bps'] == 10.0).all()
+
+          with gzip.open('results/forecast_contracts_test_v2.jsonl.gz','rt') as f:
+              first=json.loads(next(f))
+          for key in ('feature_set_hash','strategy_set_hash','replay_code_hash','extension_code_hash','protocol_hash','snapshot_sha256'):
+              assert len(first[key]) == 64, (key, first.get(key))
+
+          lifecycle=json.loads(Path('results/lifecycle_integrity.json').read_text())
+          assert lifecycle['status'] == 'PASS'
+          assert lifecycle['projection_only'] is True
+          assert lifecycle['forecast_values_changed'] is False
+          assert lifecycle['total_contracts'] == 52920
+          assert lifecycle['lifecycle_counts'] == {'RESOLVED': 52920}
+          assert lifecycle['invalidated'] == 0
+          assert lifecycle['expired'] == 0
+          assert lifecycle['withdrawn'] == 0
+          assert lifecycle['superseded'] == 0
+          assert lifecycle['integrity_failures'] == {}
+          assert len(lifecycle['input_sha256']) == 64
+          assert len(lifecycle['output_sha256']) == 64
+
+          with gzip.open('results/forecast_contracts_test_v3.jsonl.gz','rt') as f:
+              first3=json.loads(next(f))
+          assert first3['contract_schema'] == 'WORLD8_FORECAST_CONTRACT/3.0-REPLAY'
+          assert first3['lifecycle_status'] == 'RESOLVED'
+          assert first3['resolution_reason'] == 'TARGET_OBSERVED'
+          assert first3['probability'] == first['probability']
+          assert first3['resolved_target'] == first['resolved_target']
+
+          print(json.dumps({'snapshot':'VALID_CONTINUOUS','replay':'VALID','bootstrap':'VALID','e4e5':'VALID','forecast_contract_v2':'HASH_BOUND','forecast_contract_v3':'LIFECYCLE_RESOLVED','lifecycle_integrity':'PASS'},indent=2))
           PY
 
       - name: Commit frozen snapshot and machine-readable results
@@ -103,7 +177,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No generated evidence changes'
           else
-            git commit -m 'experiment: update SSRN replay evidence with bootstrap [skip ci]'
+            git commit -m 'experiment: update SSRN replay lifecycle evidence [skip ci]'
             git pull --rebase origin work/ssrn-market-replay-v0.1
             git push origin HEAD:work/ssrn-market-replay-v0.1
           fi

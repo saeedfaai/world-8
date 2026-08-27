@@ -1,0 +1,39 @@
+{
+  "provider": "Yahoo Finance chart API",
+  "status": "OK",
+  "symbols": [
+    {
+      "symbol": "SPY",
+      "requested_url": "https://query1.finance.yahoo.com/v8/finance/chart/SPY?period1=1577836800&period2=1767225600&interval=1d&events=history&includeAdjustedClose=true",
+      "http": 200,
+      "content_type": "application/json;charset=utf-8",
+      "response_preview": "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"SPY\",\"exchangeName\":\"PCX\",\"fullExchangeName\":\"NYSEArca\",\"instrumentType\":\"ETF\",\"firstTradeDate\":728317800,\"regularMarketTime\":1787837639,\"hasPrePostMarketData\":true,\"gmtoffset\":-14400,",
+      "rows": 1508,
+      "schema_ok": true,
+      "first_timestamp": "2020-01-02T14:30:00+00:00",
+      "last_timestamp": "2025-12-31T14:30:00+00:00"
+    },
+    {
+      "symbol": "QQQ",
+      "requested_url": "https://query1.finance.yahoo.com/v8/finance/chart/QQQ?period1=1577836800&period2=1767225600&interval=1d&events=history&includeAdjustedClose=true",
+      "http": 200,
+      "content_type": "application/json;charset=utf-8",
+      "response_preview": "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"QQQ\",\"exchangeName\":\"NGM\",\"fullExchangeName\":\"NasdaqGM\",\"instrumentType\":\"ETF\",\"firstTradeDate\":921076200,\"regularMarketTime\":1787837639,\"hasPrePostMarketData\":true,\"gmtoffset\":-14400,",
+      "rows": 1508,
+      "schema_ok": true,
+      "first_timestamp": "2020-01-02T14:30:00+00:00",
+      "last_timestamp": "2025-12-31T14:30:00+00:00"
+    },
+    {
+      "symbol": "GLD",
+      "requested_url": "https://query1.finance.yahoo.com/v8/finance/chart/GLD?period1=1577836800&period2=1767225600&interval=1d&events=history&includeAdjustedClose=true",
+      "http": 200,
+      "content_type": "application/json;charset=utf-8",
+      "response_preview": "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"GLD\",\"exchangeName\":\"PCX\",\"fullExchangeName\":\"NYSEArca\",\"instrumentType\":\"ETF\",\"firstTradeDate\":1100788200,\"regularMarketTime\":1787837640,\"hasPrePostMarketData\":true,\"gmtoffset\":-14400",
+      "rows": 1508,
+      "schema_ok": true,
+      "first_timestamp": "2020-01-02T14:30:00+00:00",
+      "last_timestamp": "2025-12-31T14:30:00+00:00"
+    }
+  ]
+}

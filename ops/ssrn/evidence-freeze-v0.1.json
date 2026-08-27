@@ -1,0 +1,19 @@
+{
+  "classification": "RESEARCH_EVIDENCE / HISTORICAL_REPLAY / NO_LIVE_TRADING",
+  "crypto_runs": [
+    "33075444264",
+    "33075751224",
+    "33076953897",
+    "33079452232"
+  ],
+  "evidence_commit": "917dd82ed87a3470acfdb9175905ec7c8727c096",
+  "github_release": "https://github.com/saeedfaai/world-8/releases/tag/V0.1.0",
+  "lifecycle_integrity": "PASS / 52920 RESOLVED / 0 failures",
+  "noncrypto_run": "33077676106",
+  "package": "world8-ssrn-evidence-v0.1.tar.gz",
+  "package_sha256": "100484ffba683111622377703e836728817fd6cbb45f53d62e45a5a3766ece70",
+  "release_commit": "b14f2feea0fa233851a774d6ebd295b63cde75c0",
+  "schema": "WORLD8_SSRN_EVIDENCE_FREEZE/1.1",
+  "status": "FROZEN",
+  "zenodo_doi": "10.5281/zenodo.22127650"
+}

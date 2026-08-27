@@ -1,0 +1,4 @@
+symbol,risk_veto_quantile,rv24_threshold,decision_edge,round_trip_cost_bps,n,decisions_no_veto,decisions_with_veto,veto_count,mean_net_return_no_veto,mean_net_return_with_veto,sum_net_return_no_veto,sum_net_return_with_veto
+BTCUSDT,0.9,0.00757890078049,0.05,10,4410,89,80,148,4.9322097273e-05,2.76173414926e-05,0.217510448974,0.121792475982
+ETHUSDT,0.9,0.0118116922373,0.05,10,4410,1758,1653,135,-0.000377776193837,-0.000408676101274,-1.66599301482,-1.80226160662
+SOLUSDT,0.9,0.0144942499396,0.05,10,4410,4,4,48,6.23566285172e-06,6.23566285172e-06,0.0274992731761,0.0274992731761

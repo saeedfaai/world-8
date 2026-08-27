@@ -1,119 +1,137 @@
 # World 8 — SSRN Readiness Gate v0.1
 
 Date: 2026-08-27
-Status: ACTIVE / NOT SUBMITTED
-Gate: EMPIRICAL EVIDENCE REQUIRED
+Status: FINAL CANDIDATE / AUTHOR CLAIM REVIEW / NOT SUBMITTED
 
-## Why this gate exists
+## Submission principle
 
-The current SSRN submission guidance requires a scholarly English full-text PDF, complete author metadata, an English abstract, and an AI disclosure when AI was used. SSRN also states that content types that are typically not accepted include framework-only submissions. Therefore World 8 must not submit a pure architecture description as if it were an empirical research paper.
-
-Current SSRN guidance references:
-- https://www.elsevier.support/ssrn/answer/get-started
-- https://www.elsevier.support/ssrn/answer/what-is-needed-in-the-abstract-section-of-the-submission-form
-- https://blog.ssrn.com/2026/07/20/ssrn-will-now-allow-you-to-choose-the-licence-thats-right-for-your-work/
+World 8 is not being submitted as a framework-only description. The paper is supported by frozen historical replay, explicit baselines, negative ablations, Decision/UOP separation, lifecycle-integrity receipts, an independent non-crypto replication, verified related work, and a visually verified full-text PDF. Submission is now blocked only by the author's final claim review and explicit approval.
 
 ## Exact publication binding
 
 - Canonical repository: https://github.com/saeedfaai/world-8
 - GitHub release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0
-- Exact frozen commit: `b14f2feea0fa233851a774d6ebd295b63cde75c0`
+- Exact release commit: `b14f2feea0fa233851a774d6ebd295b63cde75c0`
 - Zenodo record: https://zenodo.org/records/22127650
 - DOI: https://doi.org/10.5281/zenodo.22127650
 - Release classification: DEVELOPMENT PRE-RELEASE / NON-PRODUCTION
 
-## Proposed scholarly paper
+## Proposed paper
 
 **Forecast, Decision, and Order as Separate Objects: A Contract-Based Evaluation Architecture for Multi-Agent Market Systems**
 
-The paper should not argue that World 8 is already a profitable or production-ready trading system. It should test whether explicit separation of forecast, decision, and order objects produces more auditable and reproducible evaluation than conflated agent outputs, and whether calibration/correlation-aware ensemble rules outperform simpler aggregation baselines under a fixed replay protocol.
+## Empirical evidence
 
-## Required technical spine
+### Crypto replay
+- BTCUSDT, ETHUSDT, SOLUSDT
+- 1h OHLCV, 2024-01-01 through 2025-12-31 UTC
+- checksum-verified Binance Data Vision monthly archives
+- 4,410 out-of-sample forecasts per symbol/variant
+- paired 24h moving-block bootstrap, 2,000 replicates
+- calibrated weighting robustly improves Brier loss vs equal-weight raw for all three crypto symbols
 
-1. Forecast != Decision != Order.
-2. Forecast Contract: target, horizon, issuance/data cutoff, lifecycle, type, immutable evidence references.
-3. Market Data Node: normalization, cache/gap policy, source/time evidence.
-4. Independent Evaluator / UOP: scoring and expected-value accounting outside the forecasting agent.
-5. Risk / Portfolio veto outside Forecast Hall.
-6. Weighted ensemble with calibration and correlation control; majority vote as a baseline, not the canonical rule.
-7. Disagreement signal, independent regime detector, shadow cold-start.
-8. Explicit evidence boundary and non-claims.
+### Negative/limiting findings retained
+- tested correlation penalty: no useful predictive improvement
+- disagreement shrink: supported small gain only for SOL
+- simple regime weighting: small supported gain for ETH, supported worsening for BTC, inconclusive SOL
+- 30-day shadow cold-start: neutral
+- tested volatility risk veto: no Decision/UOP benefit
 
-## Minimum empirical study before submission
+### Independent non-crypto replication
+- SPY, QQQ, GLD
+- daily OHLCV, Yahoo Finance chart API
+- 2020–2025 source freeze; 2025 out-of-sample test
+- independent no-lookahead test
+- calibrated-weighted Brier point estimate improves vs equal-weight raw for all three ETFs
+- all three 95% moving-block bootstrap CIs cross zero; replication is directional but not statistically robust
+- provider does not publish checksum files for this endpoint; exact source-response SHA256 and deterministic normalized-gzip SHA256 are preserved and this provenance limitation is disclosed
 
-### Dataset protocol
-- use one or more liquid public market instruments;
-- fixed historical date interval declared before evaluation;
-- use 1h OHLCV as the first reproducible frequency;
-- preserve raw source/time/snapshot evidence;
-- enforce strict data cutoff to prevent look-ahead leakage;
-- publish the exact train/calibration/test split and hashes.
+## Reproducibility and lifecycle evidence
 
-### Forecast tasks
-At minimum include:
-- directional forecast;
-- event-probability or threshold event forecast;
-- optional volatility/relative-value task if evidence is sufficient.
+- deterministic crypto replay
+- provider checksums for every Binance monthly ZIP
+- normalized snapshot hashes
+- machine-readable Forecast Contracts
+- Forecast Contract v2 hash/version binding
+- Forecast Contract v3 deterministic lifecycle projection
+- lifecycle integrity: 52,920 RESOLVED / 0 invalidated / 0 expired / 0 withdrawn / 0 superseded / 0 integrity failures
+- v3 projection changes no forecast probability or resolved target
+- independent evaluator outputs
+- analyst error-correlation matrices
+- generated metrics/robustness tables
+- separate Decision/UOP replay with explicit cost/veto parameters
+- frozen non-crypto source/normalization hashes
 
-### Baselines
-- single-model/single-strategy baseline;
-- simple majority-vote ensemble;
-- uncalibrated weighted ensemble;
-- calibrated weighted ensemble;
-- calibrated + correlation-controlled ensemble.
+Lifecycle validation run:
+https://github.com/saeedfaai/world-8/actions/runs/33079452232
 
-### Ablations
-Measure the effect of:
-- calibration;
-- correlation control;
-- disagreement signal;
-- regime detection;
-- risk veto at decision layer;
-- shadow cold-start policy.
+## Frozen evidence package
 
-### Metrics
-Use metrics appropriate to forecast type, including where applicable:
-- Brier score / calibration error for probabilistic events;
-- log loss where probability support is valid;
-- directional accuracy as a secondary descriptive metric;
-- coverage by regime/horizon;
-- correlation between analyst errors;
-- transaction-cost-aware expected value only at the Decision/UOP layer;
-- number of invalidated/expired/withdrawn forecasts and lifecycle integrity failures.
+- evidence commit: `917dd82ed87a3470acfdb9175905ec7c8727c096`
+- deterministic archive: `world8-ssrn-evidence-v0.1.tar.gz`
+- archive SHA256: `100484ffba683111622377703e836728817fd6cbb45f53d62e45a5a3766ece70`
+- freeze workflow: https://github.com/saeedfaai/world-8/actions/runs/33079638287
+- classification: RESEARCH EVIDENCE / HISTORICAL REPLAY / NO LIVE TRADING
 
-### Reproducibility requirements
-- deterministic replay from an exact market-data snapshot;
-- machine-readable Forecast Contracts;
-- immutable raw forecasts;
-- evaluator code separate from forecasting code;
-- versioned strategy/model/feature identifiers;
-- exact package hashes;
-- no post-hoc deletion of failed forecasts;
-- results table generated from machine-readable receipts.
+## Verified related work
 
-## Submission gates
+`docs/ssrn/RELATED_WORK_VERIFIED_v0.1.md`
+
+Coverage:
+- proper probabilistic scoring
+- probability calibration
+- forecast combination
+- comparative forecast evaluation
+
+## Final manuscript candidate
+
+Source:
+`docs/ssrn/manuscript/WORLD8_SSRN_WORKING_PAPER_v0.1.md`
+
+Receipt:
+`docs/ssrn/manuscript/WORLD8_SSRN_WORKING_PAPER_v0.1_RECEIPT.md`
+
+Drive archives:
+- PDF: https://drive.google.com/file/d/15b2XrL8mqix6gBEnWXm6VTxtoCCgCi59/view
+- DOCX: https://drive.google.com/file/d/1tNIMdqCBJ6a8dRDR60TkccWCoF-8G4MM/view
+
+Final candidate hashes:
+- PDF SHA256: `acee536968f1fb9e527469d2125600b03587ce2e5a211ffdfadb6fe85f24ba7a`
+- DOCX SHA256: `8de4a3bc137882181add32cb3884dc355e4fe77ca5d680bb60ae20fb1aa57a18`
+- Markdown SHA256: `7a1f11cd3ee75d2f974f41bac5341367408fede2f75e3bbf16642902393a6c19`
+- PDF pages: 9
+- visual QA: PASS, all pages inspected
+- AI-assisted work disclosure: embedded in PDF
+
+## Submission checklist
 
 - [x] exact GitHub release frozen
 - [x] dedicated Zenodo DOI published
 - [x] author identity/affiliation available
 - [x] AI disclosure requirement identified
 - [x] non-production evidence boundary identified
-- [x] SSRN current submission requirements checked on 2026-08-27
-- [ ] empirical replay dataset frozen
-- [ ] baseline implementations frozen
-- [ ] World 8 forecast/ensemble variant implemented
-- [ ] evaluator/UOP implementation frozen
-- [ ] no-lookahead checks pass
-- [ ] experiment run produces machine-readable results
-- [ ] ablations complete
-- [ ] statistical uncertainty / robustness analysis complete
-- [ ] related-work references verified
-- [ ] English manuscript complete
-- [ ] AI disclosure included in abstract and PDF
+- [x] SSRN submission requirements checked on 2026-08-27
+- [x] empirical replay dataset frozen
+- [x] baseline implementations frozen
+- [x] calibrated World 8 ensemble variant implemented
+- [x] evaluator/UOP implementation frozen for the study
+- [x] no-lookahead checks pass
+- [x] experiment produces machine-readable results
+- [x] calibration/correlation-control robustness analysis complete
+- [x] disagreement/regime/shadow ablations complete
+- [x] independent Decision/UOP + risk-veto study complete
+- [x] analyst error-correlation artifact complete
+- [x] Forecast Contract v2 version/hash evidence complete
+- [x] Forecast Contract v3 lifecycle-integrity evidence complete
+- [x] independent non-crypto replication complete
+- [x] related-work bibliography verified
+- [x] final experiment evidence package frozen with package SHA256
+- [x] English manuscript complete
+- [x] AI disclosure embedded in manuscript/PDF
+- [x] full-text PDF rendered and visually verified
 - [ ] author reviews/approves final claims
-- [ ] full-text PDF rendered and visually verified
 - [ ] SSRN submission created
 
 ## Evidence ceiling
 
-Until the empirical gates above pass, the SSRN paper remains **DRAFT / NOT SUBMITTED** and may describe testable architecture and protocol, but MUST NOT claim superior predictive performance, trading profitability, production readiness, or validated autonomous-market intelligence.
+Allowed claims are limited to measured replay findings. The manuscript MUST NOT claim trading profitability, production readiness, universal cross-market superiority, causal superiority, AGI/autonomous intelligence, or general benefit from disagreement/regime/correlation/shadow/risk-veto mechanisms.

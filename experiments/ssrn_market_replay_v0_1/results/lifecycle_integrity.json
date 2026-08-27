@@ -1,0 +1,27 @@
+{
+  "expired": 0,
+  "forecast_values_changed": false,
+  "input": "forecast_contracts_test_v2.jsonl.gz",
+  "input_sha256": "be5517cbdde2c16362e9567a6fb311f6a597b1a3bfa1a667e553ead16484f833",
+  "integrity_failures": {},
+  "invalidated": 0,
+  "lifecycle_counts": {
+    "RESOLVED": 52920
+  },
+  "output": "forecast_contracts_test_v3.jsonl.gz",
+  "output_sha256": "14ca2a77446aee4c91b0068f2272631db6982b7527a1ab49e7b828849a970c43",
+  "projection_only": true,
+  "rules": {
+    "binary_resolved_target": true,
+    "data_cutoff_at_lte_issued_at": true,
+    "probability_in_0_1": true,
+    "raw_immutable": true,
+    "resolved_at_gt_valid_from": true,
+    "valid_from_gte_issued_at": true
+  },
+  "schema": "WORLD8_FORECAST_LIFECYCLE_INTEGRITY/1.0",
+  "status": "PASS",
+  "superseded": 0,
+  "total_contracts": 52920,
+  "withdrawn": 0
+}

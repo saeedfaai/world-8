@@ -1,0 +1,10 @@
+symbol,candidate,baseline,delta_brier,ci95_low,ci95_high,block_hours,reps,seed
+BTCUSDT,disagreement_shrink,calibrated_weighted,0.000366768308206,-7.71547355369e-05,0.000810178848135,24,2000,19
+BTCUSDT,regime_weighted,calibrated_weighted,0.000345977947881,1.23128428498e-05,0.000695832756672,24,2000,19
+BTCUSDT,shadow_cold_start,calibrated_weighted,-2.87563255627e-05,-6.89945080622e-05,2.5472194231e-06,24,2000,19
+ETHUSDT,disagreement_shrink,calibrated_weighted,-0.00112115960216,-0.0026182884868,0.000222924433489,24,2000,19
+ETHUSDT,regime_weighted,calibrated_weighted,-8.20859700798e-05,-0.000162567841029,-7.55787031877e-06,24,2000,19
+ETHUSDT,shadow_cold_start,calibrated_weighted,1.10701659736e-05,-5.40535643923e-07,2.29406072205e-05,24,2000,19
+SOLUSDT,disagreement_shrink,calibrated_weighted,-0.000270811177642,-0.000526381249803,-1.45657540502e-05,24,2000,19
+SOLUSDT,regime_weighted,calibrated_weighted,-0.000349997711763,-0.000932035082556,0.000245715984641,24,2000,19
+SOLUSDT,shadow_cold_start,calibrated_weighted,4.75297191124e-06,-2.03383593417e-05,3.7000431693e-05,24,2000,19

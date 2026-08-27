@@ -1,5 +1,5 @@
 schema: WORLD8_SSRN_SUBMISSION_METADATA/1.0
-status: DRAFT_NOT_SUBMITTED
+status: MANUSCRIPT_PREPARATION_NOT_SUBMITTED
 last_checked: 2026-08-27
 
 paper:
@@ -7,7 +7,7 @@ paper:
   written_date: 2026-08-27
   language: en
   document_type: working_paper
-  full_text_pdf_status: BLOCKED_BY_EMPIRICAL_GATE
+  full_text_pdf_status: PENDING_MANUSCRIPT_RENDER
 
 authors:
   - name: Saeed Farrokhi
@@ -18,46 +18,55 @@ authors:
 release_binding:
   canonical_repository: https://github.com/saeedfaai/world-8
   github_release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0
-  exact_commit: b14f2feea0fa233851a774d6ebd295b63cde75c0
+  exact_release_commit: b14f2feea0fa233851a774d6ebd295b63cde75c0
   zenodo_record: https://zenodo.org/records/22127650
   zenodo_doi: https://doi.org/10.5281/zenodo.22127650
   classification: development_pre_release_non_production
 
+empirical_evidence:
+  crypto_run: https://github.com/saeedfaai/world-8/actions/runs/33075444264
+  crypto_bootstrap_run: https://github.com/saeedfaai/world-8/actions/runs/33075751224
+  e4e5_run: https://github.com/saeedfaai/world-8/actions/runs/33076953897
+  noncrypto_run: https://github.com/saeedfaai/world-8/actions/runs/33077676106
+  results_document: experiments/ssrn_market_replay_v0_1/RESULTS.md
+  verified_related_work: docs/ssrn/RELATED_WORK_VERIFIED_v0.1.md
+
 abstract:
-  status: HOLD_UNTIL_EMPIRICAL_RESULTS
+  status: EMPIRICAL_DRAFT_READY_FOR_MANUSCRIPT
   draft: >-
-    Multi-agent market systems often collapse prediction, action selection, and execution into a single agent output, making retrospective evaluation vulnerable to hidden policy changes, data leakage, and ambiguous responsibility for error. This working paper develops a testable contract-based architecture in which Forecast, Decision, and Order are distinct objects with separate lifecycles, evidence boundaries, and evaluators. Forecasts are issued against explicit targets and horizons using immutable data-cutoff and strategy/model references; decisions are evaluated separately under cost- and risk-aware expected-value rules; orders remain downstream execution artifacts subject to independent policy and portfolio vetoes. The empirical study will compare simple majority aggregation with weighted, calibrated, and correlation-controlled ensembles under deterministic historical replay, with explicit ablations for disagreement signals, regime detection, and cold-start policy. Results and performance claims are intentionally withheld until the preregistered replay, baseline, calibration, ablation, and robustness gates are completed. The released World 8 v0.1.0 artifact provides the versioned architecture and evidence boundary to which the study will be bound.
+    Multi-agent market systems often collapse prediction, action selection, and execution into a single agent output, obscuring the provenance and independent evaluation of errors. This study evaluates a contract-based architecture in which Forecast, Decision, and Order are distinct objects with separate lifecycles and evidence boundaries. Under a frozen historical replay using BTCUSDT, ETHUSDT, and SOLUSDT hourly data, probability calibration consistently reduced out-of-sample Brier loss relative to equal-weight raw aggregation, with paired 24-hour moving-block bootstrap intervals below zero for all three assets. Additional ablations did not support general superiority for correlation penalties, disagreement shrinkage, regime-specific weighting, shadow cold-start, or a volatility-based decision veto; negative findings are retained. An independent daily replication on SPY, QQQ, and GLD produced calibration-improvement point estimates in the same direction, but all 95% moving-block bootstrap intervals crossed zero. The results support the usefulness of explicit probabilistic calibration and receipt-backed forecast evaluation in this fixed replay, while not supporting claims of trading profitability, production readiness, universal cross-market superiority, or autonomous market intelligence.
 
 keywords:
   - multi-agent systems
   - probabilistic forecasting
   - forecast evaluation
   - decision architecture
-  - market data
   - calibration
   - ensemble forecasting
-  - algorithmic trading architecture
   - reproducibility
   - AI agents
+  - market data
 
 ai_disclosure:
   required: true
-  status: READY_FOR_AUTHOR_REVIEW
+  status: READY_FOR_MANUSCRIPT
   text: >-
     AI-assisted tools were used for structured drafting, language editing, software/documentation support, and consistency checking. The author reviewed the resulting material and remains responsible for the research design, claims, code, data choices, interpretation, and final manuscript.
 
 license:
   ssrn_selection: AUTHOR_DECISION_REQUIRED
-  note: "SSRN's 2026 submission flow supports Creative Commons/public-domain options or retaining the default all-rights-reserved approach. Do not choose on behalf of the author without an explicit publication decision."
+  note: "Do not choose a publication license on behalf of the author without an explicit final publication decision."
 
 readiness:
   exact_release: PASS
   zenodo_doi: PASS
   author_metadata: PASS
+  empirical_results: PASS
+  noncrypto_replication: PASS_WITH_LIMITATION
+  related_work_verified: PASS
   english_abstract_structure: PASS_DRAFT
   ai_disclosure: PASS_DRAFT
-  empirical_results: OPEN
-  related_work_verified: OPEN
+  evidence_package_freeze: OPEN
   full_text_pdf: OPEN
   author_final_claim_review: OPEN
   ssrn_submission: OPEN

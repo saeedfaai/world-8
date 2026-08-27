@@ -1,0 +1,112 @@
+name: SSRN Evidence Freeze v0.1
+
+on:
+  push:
+    branches:
+      - work/ssrn-market-replay-v0.1
+    paths:
+      - '.github/workflows/ssrn-evidence-freeze-v0.1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EVIDENCE_COMMIT: 917dd82ed87a3470acfdb9175905ec7c8727c096
+    steps:
+      - name: Checkout working branch for receipt
+        uses: actions/checkout@v4
+        with:
+          ref: work/ssrn-market-replay-v0.1
+          fetch-depth: 0
+
+      - name: Checkout exact evidence commit
+        uses: actions/checkout@v4
+        with:
+          ref: 917dd82ed87a3470acfdb9175905ec7c8727c096
+          path: evidence-src
+          fetch-depth: 1
+
+      - name: Build deterministic evidence archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C evidence-src rev-parse HEAD)" = "$EVIDENCE_COMMIT"
+          mkdir -p freeze ops/ssrn
+          cd evidence-src
+          tar --sort=name --mtime='@0' --owner=0 --group=0 --numeric-owner -cf - \
+            experiments/ssrn_market_replay_v0_1/PROTOCOL.yaml \
+            experiments/ssrn_market_replay_v0_1/requirements.txt \
+            experiments/ssrn_market_replay_v0_1/src \
+            experiments/ssrn_market_replay_v0_1/scripts \
+            experiments/ssrn_market_replay_v0_1/tests \
+            experiments/ssrn_market_replay_v0_1/data/frozen \
+            experiments/ssrn_market_replay_v0_1/data/noncrypto_frozen \
+            experiments/ssrn_market_replay_v0_1/results \
+            experiments/ssrn_market_replay_v0_1/RESULTS.md \
+            docs/ssrn/RELATED_WORK_VERIFIED_v0.1.md \
+            docs/ssrn/SSRN_READINESS_GATE_v0.1.md \
+            docs/ssrn/SSRN_SUBMISSION_METADATA_v0.1.yaml \
+            | gzip -n > ../freeze/world8-ssrn-evidence-v0.1.tar.gz
+          cd ..
+          sha256sum freeze/world8-ssrn-evidence-v0.1.tar.gz > freeze/SHA256SUMS.txt
+          PACKAGE_SHA=$(cut -d' ' -f1 freeze/SHA256SUMS.txt)
+          python - <<PY
+          import json, pathlib
+          out = {
+            'schema': 'WORLD8_SSRN_EVIDENCE_FREEZE/1.1',
+            'status': 'FROZEN',
+            'evidence_commit': '${EVIDENCE_COMMIT}',
+            'package': 'world8-ssrn-evidence-v0.1.tar.gz',
+            'package_sha256': '${PACKAGE_SHA}',
+            'release_commit': 'b14f2feea0fa233851a774d6ebd295b63cde75c0',
+            'github_release': 'https://github.com/saeedfaai/world-8/releases/tag/V0.1.0',
+            'zenodo_doi': '10.5281/zenodo.22127650',
+            'crypto_runs': ['33075444264','33075751224','33076953897','33079452232'],
+            'noncrypto_run': '33077676106',
+            'lifecycle_integrity': 'PASS / 52920 RESOLVED / 0 failures',
+            'classification': 'RESEARCH_EVIDENCE / HISTORICAL_REPLAY / NO_LIVE_TRADING',
+          }
+          pathlib.Path('freeze/FREEZE_MANIFEST.json').write_text(json.dumps(out, indent=2, sort_keys=True)+'\n')
+          pathlib.Path('ops/ssrn/evidence-freeze-v0.1.json').write_text(json.dumps(out, indent=2, sort_keys=True)+'\n')
+          print(json.dumps(out, indent=2))
+          PY
+
+      - name: Verify archive is readable and hash matches
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum -c freeze/SHA256SUMS.txt
+          tar -tzf freeze/world8-ssrn-evidence-v0.1.tar.gz >/tmp/evidence-files.txt
+          grep -q 'RESULTS.md' /tmp/evidence-files.txt
+          grep -q 'noncrypto_metrics.csv' /tmp/evidence-files.txt
+          grep -q 'forecast_contracts_test_v2.jsonl.gz' /tmp/evidence-files.txt
+          grep -q 'forecast_contracts_test_v3.jsonl.gz' /tmp/evidence-files.txt
+          grep -q 'lifecycle_integrity.json' /tmp/evidence-files.txt
+          grep -q 'RELATED_WORK_VERIFIED_v0.1.md' /tmp/evidence-files.txt
+
+      - name: Commit sanitized freeze receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ops/ssrn/evidence-freeze-v0.1.json
+          if git diff --cached --quiet; then
+            echo 'No freeze receipt change'
+          else
+            git commit -m 'publication: record lifecycle-complete SSRN evidence freeze [skip ci]'
+            git pull --rebase origin work/ssrn-market-replay-v0.1
+            git push origin HEAD:work/ssrn-market-replay-v0.1
+          fi
+
+      - name: Upload frozen evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: world8-ssrn-evidence-v0.1
+          path: freeze/
+          retention-days: 90

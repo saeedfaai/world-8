@@ -1,0 +1,102 @@
+name: SSRN Non-Crypto Replication
+
+on:
+  push:
+    branches:
+      - work/ssrn-market-replay-v0.1
+    paths:
+      - 'experiments/ssrn_market_replay_v0_1/src/noncrypto.py'
+      - 'experiments/ssrn_market_replay_v0_1/scripts/run_noncrypto_replication.py'
+      - 'experiments/ssrn_market_replay_v0_1/tests/test_noncrypto.py'
+      - '.github/workflows/ssrn-noncrypto-replication.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  replicate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/ssrn-market-replay-v0.1
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: experiments/ssrn_market_replay_v0_1/requirements.txt
+      - name: Install pinned environment
+        working-directory: experiments/ssrn_market_replay_v0_1
+        run: pip install -r requirements.txt
+      - name: Daily replication leakage tests
+        working-directory: experiments/ssrn_market_replay_v0_1
+        env:
+          PYTHONPATH: .
+        run: python -m pytest -q tests/test_noncrypto.py
+      - name: Freeze and run independent daily ETF replication
+        working-directory: experiments/ssrn_market_replay_v0_1
+        env:
+          PYTHONPATH: .
+        run: python scripts/run_noncrypto_replication.py
+      - name: Validate replication evidence
+        working-directory: experiments/ssrn_market_replay_v0_1
+        run: |
+          python - <<'PY'
+          import gzip
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          m=json.loads(Path('data/noncrypto_frozen/snapshot_manifest.json').read_text())
+          assert m['status']=='FROZEN_NORMALIZED_WITH_LOCAL_HASHES'
+          assert m['provider_checksum_available'] is False
+          assert {x['symbol'] for x in m['symbols']} == {'SPY','QQQ','GLD'}
+          assert all(x['rows'] > 1000 for x in m['symbols'])
+          assert all(len(x['normalized_gzip_sha256']) == 64 for x in m['symbols'])
+          assert all(len(x['source_response_sha256']) == 64 for x in m['symbols'])
+
+          s=json.loads(Path('results/noncrypto_summary.json').read_text())
+          assert s['status']=='INDEPENDENT_NONCRYPTO_REPLICATION_COMPLETE'
+          assert s['frequency']=='1d'
+
+          metrics=pd.read_csv('results/noncrypto_metrics.csv')
+          assert len(metrics)==9
+          assert set(metrics['variant']) == {'majority_vote','equal_weight_raw','calibrated_weighted'}
+          assert (metrics['n'] > 200).all()
+
+          boot=pd.read_csv('results/noncrypto_bootstrap.csv')
+          assert len(boot)==3
+          assert (boot['reps']==2000).all()
+
+          with gzip.open('results/noncrypto_forecast_contracts.jsonl.gz','rt') as f:
+              first=json.loads(next(f))
+          assert first['market_class']=='US_ETF'
+          assert first['frequency']=='1d'
+          assert first['horizon_bars']==5
+          print(json.dumps({'noncrypto_source':'HASH_FROZEN','leakage_test':'PASS','replication':'PASS'},indent=2))
+          PY
+      - name: Commit frozen non-crypto evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add experiments/ssrn_market_replay_v0_1/data/noncrypto_frozen experiments/ssrn_market_replay_v0_1/results/noncrypto_*.csv experiments/ssrn_market_replay_v0_1/results/noncrypto_*.json experiments/ssrn_market_replay_v0_1/results/noncrypto_*.jsonl.gz
+          if git diff --cached --quiet; then
+            echo 'No replication evidence changes'
+          else
+            git commit -m 'experiment: freeze independent ETF replication evidence [skip ci]'
+            git pull --rebase origin work/ssrn-market-replay-v0.1
+            git push origin HEAD:work/ssrn-market-replay-v0.1
+          fi
+      - name: Upload non-crypto replication artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: world8-ssrn-noncrypto-replication-v0.1
+          path: |
+            experiments/ssrn_market_replay_v0_1/data/noncrypto_frozen/
+            experiments/ssrn_market_replay_v0_1/results/noncrypto_*
+          retention-days: 90

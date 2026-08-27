@@ -1,0 +1,196 @@
+{
+  "ablation_interpretation_rule": "candidate-minus-baseline Brier < 0 is improvement; retain null/negative findings",
+  "files": {
+    "ablation_bootstrap": "extended_ablation_bootstrap.csv",
+    "analyst_error_correlation": "analyst_error_correlation.csv",
+    "decision_replay": "decision_uop_replay.csv",
+    "decision_summary": "decision_uop_summary.csv",
+    "forecast_contracts_v2": "forecast_contracts_test_v2.jsonl.gz",
+    "metrics": "extended_metrics.csv"
+  },
+  "parameters": {
+    "BTCUSDT": {
+      "base_weights": {
+        "meanrev1": 0.165026323635962,
+        "momentum24": 0.560519517518313,
+        "momentum6": 0.15083435692543365,
+        "volume_breakout": 0.12361980192029133
+      },
+      "disagreement_alpha": 0.5,
+      "disagreement_scale_calibration_q90": 0.021946243701644313,
+      "regime_rv24_calibration_median": 0.0038920723902199916,
+      "regime_weights": {
+        "high_vol": {
+          "meanrev1": 0.16747273492274922,
+          "momentum24": 0.4868872086846795,
+          "momentum6": 0.1842905872278856,
+          "volume_breakout": 0.16134946916468568
+        },
+        "low_vol": {
+          "meanrev1": 0.25,
+          "momentum24": 0.25,
+          "momentum6": 0.25,
+          "volume_breakout": 0.25
+        }
+      },
+      "shadow_hours": 720
+    },
+    "ETHUSDT": {
+      "base_weights": {
+        "meanrev1": 0.0019046196743107708,
+        "momentum24": 0.9878709333772239,
+        "momentum6": 0.0015610184722102101,
+        "volume_breakout": 0.008663428476255203
+      },
+      "disagreement_alpha": 0.5,
+      "disagreement_scale_calibration_q90": 0.00996040462606575,
+      "regime_rv24_calibration_median": 0.006450793477876689,
+      "regime_weights": {
+        "high_vol": {
+          "meanrev1": 0.00035462119551781966,
+          "momentum24": 0.9616788791179744,
+          "momentum6": 0.03761187849098999,
+          "volume_breakout": 0.00035462119551781966
+        },
+        "low_vol": {
+          "meanrev1": 0.004600815937730327,
+          "momentum24": 0.9704686922286723,
+          "momentum6": 0.0002528057721986656,
+          "volume_breakout": 0.024677686061398686
+        }
+      },
+      "shadow_hours": 720
+    },
+    "SOLUSDT": {
+      "base_weights": {
+        "meanrev1": 0.13795977128431947,
+        "momentum24": 0.2113622089801252,
+        "momentum6": 0.5223950120135094,
+        "volume_breakout": 0.128283007722046
+      },
+      "disagreement_alpha": 0.5,
+      "disagreement_scale_calibration_q90": 0.021824016034821717,
+      "regime_rv24_calibration_median": 0.007633567472037751,
+      "regime_weights": {
+        "high_vol": {
+          "meanrev1": 0.0022151302965848726,
+          "momentum24": 0.9933546091102453,
+          "momentum6": 0.0022151302965848726,
+          "volume_breakout": 0.0022151302965848726
+        },
+        "low_vol": {
+          "meanrev1": 0.2588309766965987,
+          "momentum24": 0.03062589110935816,
+          "momentum6": 0.4781080270264448,
+          "volume_breakout": 0.23243510516759835
+        }
+      },
+      "shadow_hours": 720
+    }
+  },
+  "schema": "WORLD8_SSRN_E4E5_RESULT/1.0",
+  "status": "E4_E5_EXTENSIONS_COMPLETE",
+  "uop": [
+    {
+      "decision_edge": 0.05,
+      "decisions_no_veto": 89,
+      "decisions_with_veto": 80,
+      "mean_net_return_no_veto": 4.9322097273012595e-05,
+      "mean_net_return_with_veto": 2.7617341492550255e-05,
+      "n": 4410,
+      "risk_veto_quantile": 0.9,
+      "round_trip_cost_bps": 10.0,
+      "rv24_threshold": 0.007578900780486869,
+      "sum_net_return_no_veto": 0.21751044897398555,
+      "sum_net_return_with_veto": 0.12179247598214663,
+      "symbol": "BTCUSDT",
+      "veto_count": 148
+    },
+    {
+      "decision_edge": 0.05,
+      "decisions_no_veto": 1758,
+      "decisions_with_veto": 1653,
+      "mean_net_return_no_veto": -0.0003777761938371075,
+      "mean_net_return_with_veto": -0.00040867610127430645,
+      "n": 4410,
+      "risk_veto_quantile": 0.9,
+      "round_trip_cost_bps": 10.0,
+      "rv24_threshold": 0.011811692237346539,
+      "sum_net_return_no_veto": -1.6659930148216442,
+      "sum_net_return_with_veto": -1.8022616066196915,
+      "symbol": "ETHUSDT",
+      "veto_count": 135
+    },
+    {
+      "decision_edge": 0.05,
+      "decisions_no_veto": 4,
+      "decisions_with_veto": 4,
+      "mean_net_return_no_veto": 6.235662851715379e-06,
+      "mean_net_return_with_veto": 6.235662851715379e-06,
+      "n": 4410,
+      "risk_veto_quantile": 0.9,
+      "round_trip_cost_bps": 10.0,
+      "rv24_threshold": 0.014494249939634832,
+      "sum_net_return_no_veto": 0.02749927317606482,
+      "sum_net_return_with_veto": 0.02749927317606482,
+      "symbol": "SOLUSDT",
+      "veto_count": 48
+    }
+  ],
+  "variants": [
+    "calibrated_weighted",
+    "disagreement_shrink",
+    "regime_weighted",
+    "shadow_cold_start"
+  ],
+  "version_receipts": {
+    "BTCUSDT": {
+      "evaluator_id": "world8-independent-evaluator-v0.1",
+      "extension_code_hash": "15b68fcf4f8c8df3da98899ae6a85f97f32b3abd6c7111cf07a2b635f218e9cf",
+      "extension_version": "WORLD8_SSRN_E4E5/1.0",
+      "feature_set_hash": "97bd110bc1cbf021ae6921d66b268be790afafd8dd490ee0645913153e23ad39",
+      "model_id": "platt-logistic-regression-v1",
+      "protocol_hash": "00cce735186c3ec2fed79d2f051f0a6bafe26f942a5369a15635f910481ddb4f",
+      "replay_code_hash": "02731901c8ee4ec565f3443632da53770e739c0ade1617835ab547f4fc47e542",
+      "snapshot_sha256": "5b90c784956b3bd127f894fce5b182b5288977581830d93f90ed7bc7ccf43761",
+      "strategy_version_hashes": {
+        "meanrev1": "163de1e0bca0d157a3f35c890ab37838beec9ad279a4cb8c6a12f944878669ad",
+        "momentum24": "0b68651d4f2655a686c14581cc73420c73d029637abcbd1a9f64cd203a773490",
+        "momentum6": "38e412c9537ee779a117cbd02cdbaf2da4a9bb5c7512407cc4b6ddb3bfd61758",
+        "volume_breakout": "268531dba09a9506d66ed0e71c08e729710bde638f281105b615cef148d1950e"
+      }
+    },
+    "ETHUSDT": {
+      "evaluator_id": "world8-independent-evaluator-v0.1",
+      "extension_code_hash": "15b68fcf4f8c8df3da98899ae6a85f97f32b3abd6c7111cf07a2b635f218e9cf",
+      "extension_version": "WORLD8_SSRN_E4E5/1.0",
+      "feature_set_hash": "97bd110bc1cbf021ae6921d66b268be790afafd8dd490ee0645913153e23ad39",
+      "model_id": "platt-logistic-regression-v1",
+      "protocol_hash": "00cce735186c3ec2fed79d2f051f0a6bafe26f942a5369a15635f910481ddb4f",
+      "replay_code_hash": "02731901c8ee4ec565f3443632da53770e739c0ade1617835ab547f4fc47e542",
+      "snapshot_sha256": "c4ec11d1adfbcc72e651c8314a1f60dc5c7bf43efdbf6646e1c7ca79bbe8c953",
+      "strategy_version_hashes": {
+        "meanrev1": "163de1e0bca0d157a3f35c890ab37838beec9ad279a4cb8c6a12f944878669ad",
+        "momentum24": "0b68651d4f2655a686c14581cc73420c73d029637abcbd1a9f64cd203a773490",
+        "momentum6": "38e412c9537ee779a117cbd02cdbaf2da4a9bb5c7512407cc4b6ddb3bfd61758",
+        "volume_breakout": "268531dba09a9506d66ed0e71c08e729710bde638f281105b615cef148d1950e"
+      }
+    },
+    "SOLUSDT": {
+      "evaluator_id": "world8-independent-evaluator-v0.1",
+      "extension_code_hash": "15b68fcf4f8c8df3da98899ae6a85f97f32b3abd6c7111cf07a2b635f218e9cf",
+      "extension_version": "WORLD8_SSRN_E4E5/1.0",
+      "feature_set_hash": "97bd110bc1cbf021ae6921d66b268be790afafd8dd490ee0645913153e23ad39",
+      "model_id": "platt-logistic-regression-v1",
+      "protocol_hash": "00cce735186c3ec2fed79d2f051f0a6bafe26f942a5369a15635f910481ddb4f",
+      "replay_code_hash": "02731901c8ee4ec565f3443632da53770e739c0ade1617835ab547f4fc47e542",
+      "snapshot_sha256": "4a275b00cc149f7a5b2799291bf8441c89b23f857d867474adad9efd7a820d87",
+      "strategy_version_hashes": {
+        "meanrev1": "163de1e0bca0d157a3f35c890ab37838beec9ad279a4cb8c6a12f944878669ad",
+        "momentum24": "0b68651d4f2655a686c14581cc73420c73d029637abcbd1a9f64cd203a773490",
+        "momentum6": "38e412c9537ee779a117cbd02cdbaf2da4a9bb5c7512407cc4b6ddb3bfd61758",
+        "volume_breakout": "268531dba09a9506d66ed0e71c08e729710bde638f281105b615cef148d1950e"
+      }
+    }
+  }
+}

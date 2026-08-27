@@ -42,11 +42,21 @@ jobs:
           PYTHONPATH: .
         run: python -m pytest -q
 
-      - name: Download and freeze checksum-verified market snapshot
+      - name: Ensure checksum-verified frozen market snapshot
         working-directory: experiments/ssrn_market_replay_v0_1
-        run: python scripts/download_and_freeze.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -s data/frozen/snapshot_manifest.json ] && \
+             [ -s data/frozen/BTCUSDT_1h_2024-01_2025-12.csv.gz ] && \
+             [ -s data/frozen/ETHUSDT_1h_2024-01_2025-12.csv.gz ] && \
+             [ -s data/frozen/SOLUSDT_1h_2024-01_2025-12.csv.gz ]; then
+            echo 'Reusing branch-frozen checksum-verified snapshot'
+          else
+            python scripts/download_and_freeze.py
+          fi
 
-      - name: Run deterministic historical replay
+      - name: Run deterministic historical replay and bootstrap
         working-directory: experiments/ssrn_market_replay_v0_1
         env:
           PYTHONPATH: .
@@ -63,6 +73,7 @@ jobs:
           test -s data/frozen/SOLUSDT_1h_2024-01_2025-12.csv.gz
           test -s results/metrics.csv
           test -s results/summary.json
+          test -s results/bootstrap_robustness.csv
           test -s results/forecast_contracts_test.jsonl.gz
           python - <<'PY'
           import json
@@ -71,12 +82,15 @@ jobs:
           m=json.loads(p.read_text())
           assert len(m['symbols']) == 3
           for s in m['symbols']:
-              assert s['rows'] > 17000, s
+              assert s['rows'] == s['expected_rows'], s
+              assert s['row_delta'] == 0, s
+              assert s['discontinuity_count'] == 0, s
               assert len(s['source_files']) == 24, s
               assert all(len(x['sha256']) == 64 for x in s['source_files'])
           r=json.loads(Path('results/summary.json').read_text())
-          assert r['status'] == 'EMPIRICAL_REPLAY_COMPLETE'
-          print(json.dumps({'snapshot':'VALID','replay':'VALID'},indent=2))
+          assert r['status'] == 'EMPIRICAL_REPLAY_COMPLETE_WITH_BOOTSTRAP'
+          assert r['bootstrap']['reps'] == 2000
+          print(json.dumps({'snapshot':'VALID_CONTINUOUS','replay':'VALID','bootstrap':'VALID'},indent=2))
           PY
 
       - name: Commit frozen snapshot and machine-readable results
@@ -89,7 +103,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No generated evidence changes'
           else
-            git commit -m 'experiment: freeze SSRN replay snapshot and results [skip ci]'
+            git commit -m 'experiment: update SSRN replay evidence with bootstrap [skip ci]'
             git pull --rebase origin work/ssrn-market-replay-v0.1
             git push origin HEAD:work/ssrn-market-replay-v0.1
           fi

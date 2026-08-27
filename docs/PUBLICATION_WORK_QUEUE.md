@@ -40,7 +40,7 @@ Deployed `index.html` SHA256:
 
 Dedicated World 8 Hugging Face Organization remains an optional future migration; historical personal-account URLs must be preserved if migrated.
 
-## P2 — SSRN — FINAL CANDIDATE / AUTHOR APPROVAL GATE
+## P2 — SSRN — SUBMITTED / UNDER STAFF REVIEW
 - [x] check current SSRN submission requirements (2026-08-27)
 - [x] bind submission metadata to exact GitHub release and DOI
 - [x] identify/embed AI disclosure
@@ -61,27 +61,20 @@ Dedicated World 8 Hugging Face Organization remains an optional future migration
 - [x] claim-to-evidence audit PASS
 - [x] create current self-contained SSRN submission bundle
 - [x] re-download provider PDF and verify transport/render equivalence
-- [x] bind Author Claim Review gate (#16) to current provider/download PDF
-- [ ] author explicitly approves exact PDF SHA256 `9df120062da98c5ded5468745d290d8abcd2663abcc8f1569c3b3a4bda863ec7`
-- [ ] authenticate/verify SSRN account/profile
-- [ ] record SSRN licence/copyright choice
-- [ ] record taxonomy/classification choice if prompted
-- [ ] submit exact approved PDF to SSRN
-- [ ] capture SSRN receipt/URL and append publication lineage
+- [x] author approved bounded claims and submitted
+- [x] SSRN account/profile authenticated
+- [x] licence selected: CC BY-NC-ND
+- [x] SSRN submission completed
+- [x] capture Abstract ID `7359740`
+- [x] submission status receipt: `docs/ssrn/SSRN_SUBMISSION_STATUS_v0.1.md`
+- [ ] SSRN staff review completed
+- [ ] public SSRN metadata independently verified
+- [ ] append final public SSRN record to all external registries after review
 
-Author gate:
-https://github.com/saeedfaai/world-8/issues/16
+SSRN Abstract URL:
+https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7359740
 
-Final PDF:
-https://drive.google.com/file/d/15b2XrL8mqix6gBEnWXm6VTxtoCCgCi59/view
-
-Current submission bundle:
-https://drive.google.com/file/d/1ZPTlqgDDZKyxWXCY4yfRK9ELttqc9Iad/view
-
-Bundle SHA256:
-`8dd22723f767068b06b3da0713035ebd1d92bf6d2d1bb056355a1bc37bffd80b`
-
-Current constraint: no SSRN submission before explicit author approval of the exact current PDF hash. No profitability, production-readiness, universal/causal-superiority, or autonomous-intelligence claim is allowed.
+Current rule: do not replace the submitted manuscript while staff review is pending unless SSRN requests a correction.
 
 ## P3 — Demo Launch / Product Hunt — ACTIVE
 - [x] harden public Hugging Face demo

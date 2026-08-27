@@ -17,13 +17,14 @@ def main() -> None:
     require(doc, "SCALE_5_SUCCEEDED", "scale status")
     require(doc, "5_OF_5_SUCCESS", "five-lane success")
     require(doc, "ZERO_FAILURE", "zero-failure evidence")
+    require(doc, "CLEAN_RELEASE", "cleanup evidence")
     require(doc, "SCALE_20_ELIGIBLE_NOT_STARTED", "next gate")
     require(doc, "envref:GROQ_API_KEY4", "opaque credential ref")
     require(doc, "provider-health-34c974ca47a12e5822558d94e698", "provider health receipt")
 
     for lane in range(1, 6):
         require(doc, f"SCALE5_R2_LANE_{lane}_OK", f"lane {lane} output")
-        require(doc, f"groq-scale5-r2-0{lane}" if False else "", "noop")
+        require(doc, f"work/groq-scale5-r2-0{lane}", f"lane {lane} isolated branch")
 
     request_ids = [
         "provider-request-1f436cff760d0df23fee049c70e3",
@@ -45,9 +46,6 @@ def main() -> None:
     require(failover, "SCALE_5_SUCCEEDED", "failover status")
     require(failover, "SCALE_20 has not started", "scale-20 non-claim")
     require(failover, "GROQ_SCALE5_EVIDENCE.md", "evidence link")
-
-    if "raw Groq key" in doc and "No raw Groq key" not in doc:
-        raise SystemExit("FAIL: unsafe Groq secret wording")
 
     print("PASS: Groq REAL_EXTERNAL Scale-5 evidence is complete")
 

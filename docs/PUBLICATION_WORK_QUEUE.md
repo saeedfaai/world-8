@@ -23,6 +23,20 @@ Owner: Saeed Farrokhi
 - [x] link surfaces back to canonical GitHub and exact release
 - [x] synchronize exact v0.1.0 Zenodo DOI into all three repository README cards
 - [x] synchronize DOI into Demo README and `index.html`
+- [x] replace placeholder demo with evidence-backed static research demo
+- [x] provider read-back hash verification PASS
+
+Verified demo:
+https://huggingface.co/spaces/Saeedfa/world8-demo
+
+Demo receipt:
+`docs/demo/HUGGINGFACE_DEMO_v0.1.md`
+
+Provider deployment run:
+https://github.com/saeedfaai/world-v6/actions/runs/33086199342
+
+Deployed `index.html` SHA256:
+`5bc9b7a208dafc07fa4935250df862ab4c1520b338537b8d299cd013b9c8cb1e`
 
 Dedicated World 8 Hugging Face Organization remains an optional future migration; historical personal-account URLs must be preserved if migrated.
 
@@ -44,9 +58,14 @@ Dedicated World 8 Hugging Face Organization remains an optional future migration
 - [x] complete English working-paper manuscript
 - [x] render and visually verify 9-page final candidate PDF
 - [x] archive final PDF/DOCX to Drive
-- [x] create version-bound Author Claim Review gate (#16)
-- [ ] author explicitly approves exact PDF SHA256 `acee536968f1fb9e527469d2125600b03587ce2e5a211ffdfadb6fe85f24ba7a`
-- [ ] record SSRN license choice
+- [x] claim-to-evidence audit PASS
+- [x] create current self-contained SSRN submission bundle
+- [x] re-download provider PDF and verify transport/render equivalence
+- [x] bind Author Claim Review gate (#16) to current provider/download PDF
+- [ ] author explicitly approves exact PDF SHA256 `9df120062da98c5ded5468745d290d8abcd2663abcc8f1569c3b3a4bda863ec7`
+- [ ] authenticate/verify SSRN account/profile
+- [ ] record SSRN licence/copyright choice
+- [ ] record taxonomy/classification choice if prompted
 - [ ] submit exact approved PDF to SSRN
 - [ ] capture SSRN receipt/URL and append publication lineage
 
@@ -56,20 +75,39 @@ https://github.com/saeedfaai/world-8/issues/16
 Final PDF:
 https://drive.google.com/file/d/15b2XrL8mqix6gBEnWXm6VTxtoCCgCi59/view
 
-Current constraint: no SSRN submission before explicit author approval of the exact final PDF hash. No profitability, production-readiness, universal/causal-superiority, or autonomous-intelligence claim is allowed.
+Current submission bundle:
+https://drive.google.com/file/d/1ZPTlqgDDZKyxWXCY4yfRK9ELttqc9Iad/view
 
-## P3 — Demo Launch
-- harden public demo
-- prepare Product Hunt launch
-- maintain Devpost project profile and submit to relevant competitions
+Bundle SHA256:
+`8dd22723f767068b06b3da0713035ebd1d92bf6d2d1bb056355a1bc37bffd80b`
 
-## P4 — Distribution
+Current constraint: no SSRN submission before explicit author approval of the exact current PDF hash. No profitability, production-readiness, universal/causal-superiority, or autonomous-intelligence claim is allowed.
+
+## P3 — Demo Launch / Product Hunt — ACTIVE
+- [x] harden public Hugging Face demo
+- [x] bind demo to frozen evidence / DOI / lifecycle receipts
+- [x] preserve negative and limiting findings in public demo
+- [x] verify exact provider read-back hash
+- [ ] prepare Product Hunt listing packet
+- [ ] prepare Product Hunt gallery/media assets
+- [ ] verify Product Hunt maker account/login
+- [ ] perform launch only after explicit launch decision
+
+Candidate positioning:
+**World 8 — Persistent Multi-Agent Forecasting Architecture**
+
+## P4 — Devpost — NEXT
+- maintain complete World 8 project profile
+- identify current relevant AI / Agents / FinTech / Autonomous Systems competitions
+- bind competition submissions to exact release/demo/DOI
+
+## P5 — Distribution
 - Medium explainers
 - LinkedIn release posts
 - Reddit technical/review threads
 - Hacker News launch / technical discussion
 
-## P5 — Scientific Registration
+## P6 — Scientific Registration
 - use OSF registration only when a freeze/registration artifact is useful
 - bind registration to exact GitHub tag + Zenodo DOI
 

@@ -1,6 +1,6 @@
 # World 8 Provider Failover Mesh v0.1
 
-Status: IMPLEMENTED / RUNTIME-VALIDATED / GROQ_CANARY_SUCCEEDED / SCALE_5_ELIGIBLE_NOT_STARTED
+Status: IMPLEMENTED / RUNTIME-VALIDATED / GROQ_SCALE_5_SUCCEEDED / SCALE_20_ELIGIBLE_NOT_STARTED
 
 ## Purpose
 
@@ -144,11 +144,59 @@ Observed result:
 
 The temporary workspace and Mason assignment were released after success. No canonical repository mutation was required for the canary itself.
 
+## Scale stage 1→5 — SUCCESS
+
+The five-request real-provider stage was executed on 2026-08-27 using five independent Mason lanes. Before execution, preflight detected a canonical-head drift: GitHub `main` had advanced from `f4930195eef61fefe78f9edc0c386a1f58151ed2` to `a46bab811965434ff4f491f30953292de8d7e41b`, while the DCP canonical resource still advertised the older head. The stale reservations were released, `resource-github-world8-canonical` was synchronized, and all five fresh assignments were then reserved against `a46bab811965434ff4f491f30953292de8d7e41b`.
+
+All lanes used:
+
+- adapter: `adapter-groq-external-v01`;
+- binding: `binding-groq-envref-key4-v01`;
+- transport: `transport-supabase-groq-generic-v01`;
+- model: `openai/gpt-oss-20b`;
+- `automatic_retry=false`;
+- `scale_out=false`;
+- `test_only=false`.
+
+| Lane | Actor | Assignment | Work | Workspace | Provider Request | Output | Success Receipt |
+|---|---|---|---|---|---|---|---|
+| 1 | `mason-worker-7dedb0-0006` | `assignment-a639a42efa55f326195fdd51965e9acc` | `work-3b339552e2a82a426771bbd9b56c` | `workspace-282bef562d1d71fadfd8084e4e85dec3` | `provider-request-7455b55a4f3c6e07177a6aa5188b` | `provider-output-cbc0fad535cb643725dae7855d35` | `provider-receipt-9c8f604bf03da483a27a5fb725e4` |
+| 2 | `mason-worker-7dedb0-0007` | `assignment-d30d0945be06400978cbf379362f8c04` | `work-336b6d17a8147434b135b03d34fb` | `workspace-199c35a1fbdfa59330f3a73c6f0537de` | `provider-request-80535b58ded24ade021d9ddd936e` | `provider-output-48be77fabe5629c076e2e7e98329` | `provider-receipt-2ddbda4587fba6669189b5b011f9` |
+| 3 | `mason-worker-7dedb0-0008` | `assignment-1ee7465b2d4950aff1bee40a1556e78a` | `work-be1f501b1792f520b3c613c44196` | `workspace-8215b6ec3b395942a06686acdbbbd67d` | `provider-request-aae6976863c0a678cfdd5fd86174` | `provider-output-5b945e6ea9568c4af8256d97c7c4` | `provider-receipt-4c009c3f196c2656d96224acdd70` |
+| 4 | `mason-worker-7dedb0-0009` | `assignment-b783fba79e3f9eb3dfa8a033c6b12910` | `work-7483072a6fbdb782b7eeabb1c8fe` | `workspace-984f7aa328bafce0cfd204e5a9437914` | `provider-request-6f300425c44d18347eafb88cd16b` | `provider-output-c62897c060ea0e5d95e9109f8c0b` | `provider-receipt-11afd79c68594be950ae53adc881` |
+| 5 | `mason-worker-7dedb0-0010` | `assignment-f217cf62978cf591db9173b19920a99b` | `work-cfa16032d0c0216cc78705a409e2` | `workspace-84993161831013a081537b08c9a2110b` | `provider-request-d41954dd79c80296ede5e8ca25a2` | `provider-output-b2298112ccb09753dc36f671a59a` | `provider-receipt-a5997b4f1f9ac715a5d1c1183512` |
+
+Each task requested one deterministic line, `GROQ_SCALE5_LANE_N_OK`. Observed evidence:
+
+- 5/5 requests reached `SUCCEEDED`;
+- 5/5 provider HTTP statuses were `200`;
+- 5/5 outputs exactly matched their requested deterministic line;
+- 5/5 receipts recorded `live_provider_invoked=true`;
+- 5/5 receipts recorded `test_only=false`;
+- 5/5 receipts recorded `raw_secret_present=false`;
+- 5/5 receipts recorded `private_reasoning_present=false`;
+- observed provider execution duration: min `0.520 s`, mean `0.678 s`, max `0.908 s`.
+
+All five Workspaces and Mason Assignments were released after verification. The canary lanes made no code mutation and did not alter canonical `main`.
+
+### Engineering experience accumulated during scale-5
+
+The stage also produced reusable diagnostic evidence rather than discarding orchestration mistakes:
+
+- `world8_mason_pool_reserve_v1` requires `p_required_qualifications` as `jsonb`, not `text[]`;
+- Search and Mason Preflight results expose `search_receipt_id` and `preflight_receipt_id`, not a generic `receipt_id`;
+- Diagnostic v2 tags must exist in the registered diagnostic taxonomy; arbitrary tags are rejected;
+- `world8_dev_workspaces` uses `state` and `updated_at`; there is no `released_at` column;
+- canonical Git state must be re-observed before reservation because DCP resource metadata can drift after a merge;
+- setup CTEs that perform side-effecting function calls must be materially consumed or executed sequentially; the scale-5 evidence Work therefore uses ordered PL/pgSQL calls for binding.
+
 ## Scale rule
 
-The required single REAL_EXTERNAL canary has now succeeded. The next scale stage, up to 5 governed real provider executions, is eligible but **has not been started automatically**. Any 5→20→100 progression must still preserve readiness checks, explicit Work/Assignment/Workspace binding, execution receipts, cost/rate awareness, cleanup, and failure containment.
+The single-canary stage and the five-request real-provider stage have both succeeded. The next scale stage, up to 20 governed real provider executions, is now eligible but **has not been started automatically**.
 
-Existing Guardian/N-Mason orchestration has already been load-tested separately at 100 concurrent engineering sessions; that is not evidence of 100 live provider invocations.
+Any 5→20→100 progression must preserve readiness checks, explicit Work/Assignment/Workspace binding, execution receipts, cost/rate awareness, cleanup, canonical-head synchronization, and failure containment. A failure or exhausted provider execution is not retried inside the same Work; a fresh governed Work/Assignment/Workspace is required.
+
+Existing Guardian/N-Mason orchestration has already been load-tested separately at 100 concurrent engineering sessions; that remains distinct from evidence of 100 live provider invocations.
 
 ## Security limitations / v0.2 candidates
 

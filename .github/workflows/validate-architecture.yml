@@ -12,3 +12,4 @@ jobs:
         with:
           python-version: '3.12'
       - run: python scripts/validate_architecture.py
+      - run: python scripts/validate_developer_admission.py

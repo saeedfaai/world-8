@@ -1,0 +1,36 @@
+name: W8-P01 Source Recovery Integrity
+
+on:
+  push:
+    branches:
+      - work/w8-p01-governance-experiment-v0.1
+    paths:
+      - 'supabase/migrations/20260824130305_w0_0015_sequencer_lease_maintenance.sql'
+      - 'supabase/migrations/20260824133158_w2_0006_external_effect_governance.sql'
+      - 'supabase/migrations/20260824133326_w2_supabase_external_effect_hosted_overlay.sql'
+      - '.github/workflows/w8-p01-source-recovery-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify authoritative migration statement hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' \
+            '13b418f2f475bf423592224d44a45739cacc664cd4981263ffe40495f309b99d' \
+            'supabase/migrations/20260824130305_w0_0015_sequencer_lease_maintenance.sql' \
+            'bb3a9e65f06d374625ef7378e771ec284993f31278615d519095d5602508d92b' \
+            'supabase/migrations/20260824133158_w2_0006_external_effect_governance.sql' \
+            '1f0a0789be184d5043d43e34f31a68c4d6042a0152e8e80ff59803994700e81b' \
+            'supabase/migrations/20260824133326_w2_supabase_external_effect_hosted_overlay.sql' \
+            > /tmp/expected.sha256
+          sha256sum -c /tmp/expected.sha256
+      - name: Record byte counts
+        run: wc -c supabase/migrations/20260824130305_w0_0015_sequencer_lease_maintenance.sql supabase/migrations/20260824133158_w2_0006_external_effect_governance.sql supabase/migrations/20260824133326_w2_supabase_external_effect_hosted_overlay.sql

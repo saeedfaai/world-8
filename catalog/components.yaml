@@ -1,0 +1,33 @@
+schema: WORLD8_COMPONENT_CATALOG/1.0
+world_id: world-001
+components:
+  - capability: world8.binding
+    artifact: artifact-world8-binding-registry-v1
+    target_state: FROZEN
+  - capability: world8.canonical-boundary
+    artifact: artifact-world8-canonical-spine
+    target_state: FROZEN
+  - capability: world8.composition
+    artifact: artifact-world8-composition-registry-v1
+    target_state: FROZEN
+  - capability: world8.development-control
+    artifact: artifact-world8-dcp-core-v1
+    target_state: FROZEN
+  - capability: world8.resolver
+    artifact: artifact-world8-resolver-v1
+    target_state: FROZEN
+  - capability: world8.engineering-fabric
+    artifact: artifact-world8-engineering-fabric-foundation-v1
+    target_state: REVIEW
+  - capability: world8.change-propagation
+    artifact: artifact-world8-dcp-core-v1
+    target_state: REVIEW
+  - capability: world8.now-dispatch
+    artifact: artifact-world8-now-dispatch-v1
+    target_state: REVIEW
+  - capability: world8.observer-watch
+    artifact: artifact-world8-observer-watch-v1
+    target_state: REVIEW
+  - capability: world8.academy
+    artifact: artifact-world8-academy-v1
+    target_state: PROPOSED

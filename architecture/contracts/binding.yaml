@@ -1,0 +1,5 @@
+contract_id: binding-contract-v1
+kind: BINDING
+version: '1.0'
+status: FROZEN
+hash: f3b229b93f5f5aef130bbec280074df05e684fecd2afeb341386a3f57ab515af

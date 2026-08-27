@@ -1,0 +1,5 @@
+contract_id: canonical-boundary-v1
+kind: CANONICAL_BOUNDARY
+version: '1.0'
+status: FROZEN
+hash: 935e9638eaef1724772c3d4788295c9ec0c162f2903c3a4c73396b4adbe59fd9

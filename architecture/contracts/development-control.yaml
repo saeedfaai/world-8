@@ -1,0 +1,5 @@
+contract_id: development-control-plane-contract-v1
+kind: DEVELOPMENT_CONTROL
+version: '1.0'
+status: FROZEN
+hash: 9c6e248aa1e04ba6be3d5d4e2a746397fa7739673a4a39ef4427e0572fe2daf2

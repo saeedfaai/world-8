@@ -1,0 +1,5 @@
+contract_id: resolver-contract-v1
+kind: RESOLVER
+version: '1.0'
+status: FROZEN
+hash: be4a798763fa0c30ce53a740340c4ecddefc675a8da024fcb7ef4956e766b738

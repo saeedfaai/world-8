@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from src.replay import FEATURES, make_features, normalize_epoch, run_symbol
+from src.robustness import moving_block_bootstrap_delta
 
 
 def synth(n=15000):
@@ -50,3 +51,22 @@ def test_replay_smoke():
     assert contracts
     assert all(c["raw_immutable"] for c in contracts[:100])
     assert all(c["data_cutoff_at"] == c["issued_at"] for c in contracts[:100])
+
+
+def test_bootstrap_identical_forecasts_have_zero_delta():
+    y = np.array([0, 1] * 100, dtype=int)
+    p = np.array([0.4, 0.6] * 100, dtype=float)
+    r = moving_block_bootstrap_delta(y, p, p, "brier", block_size=12, reps=200, seed=7)
+    assert abs(r["delta_candidate_minus_baseline"]) < 1e-15
+    assert abs(r["ci95_low"]) < 1e-15
+    assert abs(r["ci95_high"]) < 1e-15
+
+
+def test_bootstrap_detects_better_candidate():
+    y = np.array([0, 1] * 200, dtype=int)
+    candidate = np.array([0.2, 0.8] * 200, dtype=float)
+    baseline = np.array([0.45, 0.55] * 200, dtype=float)
+    r = moving_block_bootstrap_delta(y, candidate, baseline, "brier", block_size=24, reps=300, seed=7)
+    assert r["delta_candidate_minus_baseline"] < 0
+    assert r["ci95_high"] < 0
+    assert r["prob_candidate_better"] == 1.0

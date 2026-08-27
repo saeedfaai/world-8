@@ -1,0 +1,60 @@
+schema: WORLD8_SSRN_MARKET_REPLAY_PROTOCOL/1.0
+status: FROZEN_E0
+frozen_at: 2026-08-27
+work_item: https://github.com/saeedfaai/world-8/issues/10
+publication_binding:
+  release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0
+  release_commit: b14f2feea0fa233851a774d6ebd295b63cde75c0
+  zenodo_doi: https://doi.org/10.5281/zenodo.22127650
+scope:
+  execution: historical_replay_only
+  live_orders_authorized: false
+  profitability_claim_authorized: false
+data:
+  provider: Binance Public Data / Data Vision
+  base_url: https://data.binance.vision/data/spot/monthly/klines
+  market: spot
+  symbols: [BTCUSDT, ETHUSDT, SOLUSDT]
+  interval: 1h
+  start: 2024-01-01T00:00:00Z
+  end_exclusive: 2026-01-01T00:00:00Z
+  provider_checksum_required: true
+  timestamp_note: "Spot timestamps are milliseconds before 2025-01-01 and microseconds from 2025-01-01 onward; normalization must detect both."
+forecast:
+  type: EVENT_PROBABILITY
+  event: close_t_plus_6h_gt_close_t
+  horizon_hours: 6
+  issuance: after_close_of_bar_t
+  data_cutoff: close_time_of_bar_t
+  raw_forecast_immutable: true
+splits:
+  warmup_and_parameter_observation:
+    start: 2024-01-01T00:00:00Z
+    end_exclusive: 2025-01-01T00:00:00Z
+  calibration:
+    start: 2025-01-01T00:00:00Z
+    end_exclusive: 2025-07-01T00:00:00Z
+  test:
+    start: 2025-07-01T00:00:00Z
+    end_exclusive: 2026-01-01T00:00:00Z
+analysts:
+  - momentum6
+  - momentum24
+  - meanrev1
+  - volume_breakout
+variants:
+  - single_momentum6
+  - majority_vote
+  - equal_weight_raw
+  - calibrated_weighted
+  - calibrated_corr_controlled
+metrics:
+  primary: [brier, log_loss, ece10]
+  secondary: [accuracy]
+reproducibility:
+  python: "3.12"
+  random_seed: 7
+  deterministic_snapshot_gzip_mtime: 0
+  no_lookahead_test_required: true
+  machine_readable_results_required: true
+  provider_zip_sha256_manifest_required: true

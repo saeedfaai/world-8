@@ -1,0 +1,66 @@
+{
+  "best_by_symbol_brier": {
+    "BTCUSDT": {
+      "brier": 0.24886628612231698,
+      "variant": "calibrated_corr_controlled"
+    },
+    "ETHUSDT": {
+      "brier": 0.2505631805560107,
+      "variant": "calibrated_weighted"
+    },
+    "SOLUSDT": {
+      "brier": 0.2506446290151166,
+      "variant": "calibrated_weighted"
+    }
+  },
+  "bootstrap": {
+    "block_size_hours": 24,
+    "method": "paired_moving_block_bootstrap",
+    "reps": 2000,
+    "result_file": "bootstrap_robustness.csv",
+    "seed": 7
+  },
+  "correlation_controlled_weights": {
+    "BTCUSDT": {
+      "meanrev1": 0.16499412140387862,
+      "momentum24": 0.5606220047292526,
+      "momentum6": 0.1507941504841147,
+      "volume_breakout": 0.12358972338275417
+    },
+    "ETHUSDT": {
+      "meanrev1": 0.0019006299702704042,
+      "momentum24": 0.9878965699368178,
+      "momentum6": 0.0015578317252069626,
+      "volume_breakout": 0.008644968367704835
+    },
+    "SOLUSDT": {
+      "meanrev1": 0.13792603230577133,
+      "momentum24": 0.2113586140238736,
+      "momentum6": 0.5224640848841142,
+      "volume_breakout": 0.12825126878624088
+    }
+  },
+  "protocol": "PROTOCOL.yaml",
+  "schema": "WORLD8_SSRN_MARKET_REPLAY_RESULT/1.1",
+  "status": "EMPIRICAL_REPLAY_COMPLETE_WITH_BOOTSTRAP",
+  "weights": {
+    "BTCUSDT": {
+      "meanrev1": 0.165026323635962,
+      "momentum24": 0.560519517518313,
+      "momentum6": 0.15083435692543365,
+      "volume_breakout": 0.12361980192029133
+    },
+    "ETHUSDT": {
+      "meanrev1": 0.0019046196743107708,
+      "momentum24": 0.9878709333772239,
+      "momentum6": 0.0015610184722102101,
+      "volume_breakout": 0.008663428476255203
+    },
+    "SOLUSDT": {
+      "meanrev1": 0.13795977128431947,
+      "momentum24": 0.2113622089801252,
+      "momentum6": 0.5223950120135094,
+      "volume_breakout": 0.128283007722046
+    }
+  }
+}

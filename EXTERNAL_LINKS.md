@@ -67,9 +67,21 @@ Concept DOI values for World 7 and World 8 are intentionally left blank until an
 | arXiv author/submission identity | — | NEEDS_VERIFICATION | Exact arXiv identifier not yet verified; prior submission metadata exists |
 | OSF | — | NEEDS_VERIFICATION | Exact profile/project URL not yet verified |
 | Figshare | — | NEEDS_VERIFICATION | Exact profile/project URL not yet verified |
-| Hugging Face | — | NEEDS_VERIFICATION | Exact profile/org URL not yet verified |
+| Hugging Face account | https://huggingface.co/Saeedfa | VERIFIED | Authenticated `whoami` confirmed username `Saeedfa`; public World 8 surfaces are published under this account |
 | Kaggle | — | NEEDS_VERIFICATION | Exact profile URL not yet verified |
 | X / Twitter | — | NEEDS_VERIFICATION | Exact profile URL not yet verified |
+
+## Hugging Face — AI-native public surfaces
+
+| Surface | URL | Status | Note |
+|---|---|---|---|
+| World 8 Collection | https://huggingface.co/collections/Saeedfa/world-8-6a902b1a3a05b0ab39990265 | CURRENT / VERIFIED | Groups the current World 8 Hugging Face surfaces |
+| World 8 Core | https://huggingface.co/Saeedfa/world8-core | CURRENT / VERIFIED | Public AI-native mirror/presentation; GitHub remains canonical |
+| World 8 Forecast Hall | https://huggingface.co/Saeedfa/world8-forecast-hall | CURRENT / VERIFIED | Architecture/discovery surface; non-production |
+| World 8 Market Data | https://huggingface.co/Saeedfa/world8-market-data | CURRENT / VERIFIED | Architecture/discovery surface; non-production |
+| World 8 Demo Space | https://huggingface.co/spaces/Saeedfa/world8-demo | CURRENT / VERIFIED | Public Static Space; zero-compute initial demo |
+
+The Hugging Face account is currently a personal account rather than a World 8 Organization. A future migration to an organization may be performed deliberately; historical URLs must not be silently erased from the registry.
 
 ## World 8 canonical & continuity resources
 

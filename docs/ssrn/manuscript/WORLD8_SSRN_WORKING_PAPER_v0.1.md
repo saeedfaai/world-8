@@ -10,8 +10,8 @@ Status: DRAFT FOR AUTHOR CLAIM REVIEW / NOT SUBMITTED
 Canonical software release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0  
 Release commit: `b14f2feea0fa233851a774d6ebd295b63cde75c0`  
 Zenodo software snapshot: https://doi.org/10.5281/zenodo.22127650  
-Frozen empirical-evidence commit: `ba6250ae71255a5cc9d55e7d06dd8d37d305eff0`  
-Evidence package SHA256: `c799a36db30973713fd0dcb3cc5a20caf57e1326ec4e222df769769ba3165f37`
+Frozen empirical-evidence commit: `917dd82ed87a3470acfdb9175905ec7c8727c096`  
+Evidence package SHA256: `100484ffba683111622377703e836728817fd6cbb45f53d62e45a5a3766ece70`
 
 ## Abstract
 
@@ -93,6 +93,8 @@ Order is an execution artifact and is intentionally outside the empirical scope 
 ### 3.4 Evidence receipts
 
 Forecast Contract v2 binds test forecasts to SHA256 identifiers for the feature set, strategy set, replay code, extension code, experiment protocol, and exact normalized snapshot. The evidence pipeline generates result tables from machine-readable outputs rather than using hand-entered result values as the source of record.
+
+Forecast Contract v3 is a deterministic lifecycle projection of the immutable v2 test forecasts. It changes no forecast probability or resolved target. CI validates 52,920 terminal RESOLVED contracts, with zero invalidated, expired, withdrawn, superseded, or integrity-failure records, and verifies temporal ordering, probability bounds, binary resolution targets, and raw immutability.
 
 ## 4. Primary Crypto Experiment
 
@@ -245,9 +247,9 @@ The replication is directionally consistent with the crypto result but statistic
 
 The empirical evidence is frozen independently of the evolving manuscript.
 
-- evidence commit: `ba6250ae71255a5cc9d55e7d06dd8d37d305eff0`
+- evidence commit: `917dd82ed87a3470acfdb9175905ec7c8727c096`
 - deterministic evidence archive: `world8-ssrn-evidence-v0.1.tar.gz`
-- archive SHA256: `c799a36db30973713fd0dcb3cc5a20caf57e1326ec4e222df769769ba3165f37`
+- archive SHA256: `100484ffba683111622377703e836728817fd6cbb45f53d62e45a5a3766ece70`
 - release commit: `b14f2feea0fa233851a774d6ebd295b63cde75c0`
 - software DOI: `10.5281/zenodo.22127650`
 
@@ -292,8 +294,8 @@ AI-assisted tools were used for structured drafting, language editing, software/
 Canonical repository: https://github.com/saeedfaai/world-8  
 Software release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0  
 Zenodo release DOI: https://doi.org/10.5281/zenodo.22127650  
-Frozen empirical evidence commit: `ba6250ae71255a5cc9d55e7d06dd8d37d305eff0`  
-Frozen evidence package SHA256: `c799a36db30973713fd0dcb3cc5a20caf57e1326ec4e222df769769ba3165f37`
+Frozen empirical evidence commit: `917dd82ed87a3470acfdb9175905ec7c8727c096`  
+Frozen evidence package SHA256: `100484ffba683111622377703e836728817fd6cbb45f53d62e45a5a3766ece70`
 
 ## References
 

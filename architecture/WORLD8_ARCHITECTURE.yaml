@@ -1,6 +1,11 @@
 schema: WORLD8_ARCHITECTURE_MANIFEST/1.0
 world_id: world-001
-architecture_status: CANDIDATE_UNTIL_CANONICAL_GIT_ACTIVATION
+architecture_status: CANONICAL
+canonical_git:
+  repository: saeedfaai/world-8
+  default_branch: main
+  activation_change_id: change-08988c4c885a599d4e63a221ea80
+  bootstrap_commit: a309a17645aa6513fd423be45bb3d75b706bc9ce
 principles:
   - Development independent of Developer
   - Parallelize work; serialize truth
@@ -42,7 +47,7 @@ contracts:
     hash: be4a798763fa0c30ce53a740340c4ecddefc675a8da024fcb7ef4956e766b738
 engineering_fabric:
   status: REVIEW
-  semantic_version: 0.3.0
+  semantic_version: 0.4.0
   rules:
     - Work may proceed against an approved proposal/candidate reference, but canonical merge/promotion requires approved frozen truth.
     - Known-error hard blocking is evidence-driven, not count-driven.

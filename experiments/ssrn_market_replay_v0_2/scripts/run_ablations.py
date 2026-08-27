@@ -16,6 +16,18 @@ PROTOCOL = yaml.safe_load((ROOT / "PROTOCOL.yaml").read_text())
 PARENT = EXPERIMENTS / "ssrn_market_replay_v0_1"
 RESULTS = ROOT / "results"
 RESULTS.mkdir(parents=True, exist_ok=True)
+CANONICAL_DECIMALS = 12
+
+
+def canonicalize(value):
+    """Canonicalize machine-readable receipts across harmless FP jitter."""
+    if isinstance(value, float):
+        return round(value, CANONICAL_DECIMALS)
+    if isinstance(value, dict):
+        return {k: canonicalize(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [canonicalize(v) for v in value]
+    return value
 
 
 def load_symbol(symbol: str) -> pd.DataFrame:
@@ -34,7 +46,7 @@ def main():
         m, b, c = run_ablations(load_symbol(symbol), symbol)
         metrics.append(m)
         boots.append(b)
-        configs.append(c)
+        configs.append(canonicalize(c))
 
     m = pd.concat(metrics, ignore_index=True)
     b = pd.concat(boots, ignore_index=True)
@@ -44,18 +56,23 @@ def main():
     findings = {}
     for symbol in PROTOCOL["data"]["symbols"]:
         sub = m[m.symbol == symbol].sort_values("brier")
-        findings[symbol] = {"best_variant": sub.iloc[0].variant, "best_brier": float(sub.iloc[0].brier)}
+        findings[symbol] = {
+            "best_variant": sub.iloc[0].variant,
+            "best_brier": round(float(sub.iloc[0].brier), CANONICAL_DECIMALS),
+        }
 
-    summary = {
-        "schema": "WORLD8_SSRN_MARKET_ABLATION_RESULT/2.0",
+    summary = canonicalize({
+        "schema": "WORLD8_SSRN_MARKET_ABLATION_RESULT/2.1",
         "status": "ABLATIONS_COMPLETE",
         "parent_experiment": "../ssrn_market_replay_v0_1",
+        "canonical_float_decimals": CANONICAL_DECIMALS,
         "findings": findings,
         "configuration": configs,
         "bootstrap": {"method": "paired_moving_block_bootstrap", "block_size_hours": 24, "reps": 2000, "seed": 7},
-    }
-    (RESULTS / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
-    print(json.dumps(summary, indent=2))
+    })
+    text = json.dumps(summary, indent=2, sort_keys=True) + "\n"
+    (RESULTS / "summary.json").write_text(text)
+    print(text, end="")
 
 
 if __name__ == "__main__":

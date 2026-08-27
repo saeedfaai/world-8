@@ -1,0 +1,25 @@
+schema: WORLD8_HF_PUBLICATION_MANIFEST/1.0
+status: PREPARED_NOT_PUBLISHED
+canonical_github: https://github.com/saeedfaai/world-8
+current_release:
+  tag_as_published: V0.1.0
+  url: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0
+  classification: development_pre_release_non_production
+  frozen_commit: b14f2feea0fa233851a774d6ebd295b63cde75c0
+zenodo:
+  current_world8_z0a_doi: https://doi.org/10.5281/zenodo.22085394
+  world8_v0_1_0_doi: PENDING
+huggingface:
+  preferred_namespace: world8
+  fallback_namespace: world-8
+  namespace_status: NEEDS_CREATION_AND_VERIFICATION
+  surfaces:
+    - world8-core
+    - world8-forecast-hall
+    - world8-market-data
+    - world8-demo
+rules:
+  github_is_canonical: true
+  immutable_doi_lineage: append_only
+  public_surface_must_not_include_secrets: true
+  zero_x_is_non_production: true

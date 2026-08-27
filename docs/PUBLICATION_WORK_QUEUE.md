@@ -41,32 +41,10 @@ Deployed `index.html` SHA256:
 Dedicated World 8 Hugging Face Organization remains an optional future migration; historical personal-account URLs must be preserved if migrated.
 
 ## P2 — SSRN — SUBMITTED / UNDER STAFF REVIEW
-- [x] check current SSRN submission requirements (2026-08-27)
-- [x] bind submission metadata to exact GitHub release and DOI
-- [x] identify/embed AI disclosure
-- [x] freeze primary crypto replay dataset and provider checksums
-- [x] implement/freeze baselines and calibrated ensemble
-- [x] freeze independent evaluator/UOP study
-- [x] pass no-lookahead/data-cutoff tests
-- [x] run calibration, correlation, disagreement, regime, shadow and risk-veto ablations
-- [x] generate machine-readable results and bootstrap robustness analysis
-- [x] complete independent SPY/QQQ/GLD replication
-- [x] verify related-work bibliography
-- [x] complete Forecast Contract v3 lifecycle projection and integrity gate
-- [x] freeze final empirical evidence commit `917dd82ed87a3470acfdb9175905ec7c8727c096`
-- [x] freeze deterministic evidence package SHA256 `100484ffba683111622377703e836728817fd6cbb45f53d62e45a5a3766ece70`
-- [x] complete English working-paper manuscript
-- [x] render and visually verify 9-page final candidate PDF
-- [x] archive final PDF/DOCX to Drive
-- [x] claim-to-evidence audit PASS
-- [x] create current self-contained SSRN submission bundle
-- [x] re-download provider PDF and verify transport/render equivalence
-- [x] author approved bounded claims and submitted
-- [x] SSRN account/profile authenticated
+- [x] submission completed
 - [x] licence selected: CC BY-NC-ND
-- [x] SSRN submission completed
-- [x] capture Abstract ID `7359740`
-- [x] submission status receipt: `docs/ssrn/SSRN_SUBMISSION_STATUS_v0.1.md`
+- [x] Abstract ID `7359740` captured
+- [x] status receipt: `docs/ssrn/SSRN_SUBMISSION_STATUS_v0.1.md`
 - [ ] SSRN staff review completed
 - [ ] public SSRN metadata independently verified
 - [ ] append final public SSRN record to all external registries after review
@@ -81,24 +59,57 @@ Current rule: do not replace the submitted manuscript while staff review is pend
 - [x] bind demo to frozen evidence / DOI / lifecycle receipts
 - [x] preserve negative and limiting findings in public demo
 - [x] verify exact provider read-back hash
-- [ ] prepare Product Hunt listing packet
-- [ ] prepare Product Hunt gallery/media assets
-- [ ] verify Product Hunt maker account/login
-- [ ] perform launch only after explicit launch decision
+- [x] prepare Product Hunt listing packet
+- [x] verify current Product Hunt field/media/account requirements
+- [x] search Gmail/public web for an existing maker account — none verified
+- [x] create Product Hunt launch gate issue #23
+- [ ] prepare thumbnail and 2+ gallery/media assets
+- [ ] create/recover personal Product Hunt maker account
+- [ ] verify account posting eligibility
+- [ ] create Product Hunt draft and review preview
+- [ ] explicit launch-date decision
+- [ ] launch
+
+Packet:
+`docs/product-hunt/PRODUCT_HUNT_LAUNCH_PACKET_v0.1.md`
+
+Gate:
+https://github.com/saeedfaai/world-8/issues/23
 
 Candidate positioning:
 **World 8 — Persistent Multi-Agent Forecasting Architecture**
 
-## P4 — Devpost — NEXT
-- maintain complete World 8 project profile
-- identify current relevant AI / Agents / FinTech / Autonomous Systems competitions
-- bind competition submissions to exact release/demo/DOI
+## P4 — Devpost — ACTIVE SCREENING
+- [x] create current opportunity matrix
+- [x] screen current AI/agent hackathons for fit and eligibility
+- [x] flag All Things Agentic as high-fit but eligibility/sponsor-tech conditional
+- [x] flag low-fit/student/build-window competitions instead of forcing World 8 into them
+- [x] create Devpost gate issue #24
+- [ ] identify a rules-clean competition that permits substantial new iteration on existing work
+- [ ] verify entrant/team eligibility before registration/submission
+- [ ] scope a genuinely qualifying new build if a target is selected
 
-## P5 — Distribution
-- Medium explainers
-- LinkedIn release posts
-- Reddit technical/review threads
-- Hacker News launch / technical discussion
+Matrix:
+`docs/devpost/DEVPOST_OPPORTUNITY_MATRIX_2026-08-27.md`
+
+Gate:
+https://github.com/saeedfaai/world-8/issues/24
+
+## P5 — Distribution — ACTIVE
+- [x] LinkedIn personal release post published and provider-delivery verified
+- [x] create Medium / Reddit / Hacker News copy packet
+- [ ] publish Medium explainer
+- [ ] publish Reddit technical/review thread
+- [ ] submit Hacker News Show HN post
+
+LinkedIn:
+https://www.linkedin.com/feed/update/urn:li:share:7498768174612578304/
+
+LinkedIn receipt:
+`docs/distribution/LINKEDIN_WORLD8_V0.1_RECEIPT.md`
+
+Distribution packet:
+`docs/distribution/DISTRIBUTION_PACKET_WORLD8_V0.1.md`
 
 ## P6 — Scientific Registration
 - use OSF registration only when a freeze/registration artifact is useful

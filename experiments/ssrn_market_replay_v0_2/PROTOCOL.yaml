@@ -1,0 +1,38 @@
+schema: WORLD8_SSRN_MARKET_ABLATION_PROTOCOL/2.0
+status: FROZEN_E2_EXTENSION
+frozen_at: 2026-08-27
+parent_experiment: ../ssrn_market_replay_v0_1
+work_item: https://github.com/saeedfaai/world-8/issues/10
+scope:
+  execution: historical_replay_only
+  live_orders_authorized: false
+  profitability_claim_authorized: false
+data:
+  source_snapshot: ../ssrn_market_replay_v0_1/data/frozen/snapshot_manifest.json
+  symbols: [BTCUSDT, ETHUSDT, SOLUSDT]
+  interval: 1h
+  test_start: 2025-07-01T00:00:00Z
+  test_end_exclusive: 2026-01-01T00:00:00Z
+ablations:
+  disagreement:
+    method: shrink_toward_half_by_calibration_disagreement
+    scale: calibration_75th_percentile
+  regime:
+    detector: rv24_median_from_calibration
+    regimes: [low_volatility, high_volatility]
+    weighting: regime_specific_calibration_skill_weights
+  shadow_cold_start:
+    shadow_analyst: trend_acceleration_raw
+    strict_policy: zero_weight_isolation
+    naive_baseline: immediate_20_percent_raw_shadow_mix
+comparators:
+  canonical_baseline: calibrated_weighted
+metrics: [brier, log_loss, ece10, accuracy]
+robustness:
+  method: paired_moving_block_bootstrap
+  block_size_hours: 24
+  reps: 2000
+  seed: 7
+claims:
+  superiority_assumed: false
+  negative_results_must_be_preserved: true

@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      EVIDENCE_COMMIT: ba6250ae71255a5cc9d55e7d06dd8d37d305eff0
+      EVIDENCE_COMMIT: 917dd82ed87a3470acfdb9175905ec7c8727c096
     steps:
       - name: Checkout working branch for receipt
         uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
       - name: Checkout exact evidence commit
         uses: actions/checkout@v4
         with:
-          ref: ba6250ae71255a5cc9d55e7d06dd8d37d305eff0
+          ref: 917dd82ed87a3470acfdb9175905ec7c8727c096
           path: evidence-src
           fetch-depth: 1
 
@@ -58,7 +58,7 @@ jobs:
           python - <<PY
           import json, pathlib
           out = {
-            'schema': 'WORLD8_SSRN_EVIDENCE_FREEZE/1.0',
+            'schema': 'WORLD8_SSRN_EVIDENCE_FREEZE/1.1',
             'status': 'FROZEN',
             'evidence_commit': '${EVIDENCE_COMMIT}',
             'package': 'world8-ssrn-evidence-v0.1.tar.gz',
@@ -66,8 +66,9 @@ jobs:
             'release_commit': 'b14f2feea0fa233851a774d6ebd295b63cde75c0',
             'github_release': 'https://github.com/saeedfaai/world-8/releases/tag/V0.1.0',
             'zenodo_doi': '10.5281/zenodo.22127650',
-            'crypto_runs': ['33075444264','33075751224','33076953897'],
+            'crypto_runs': ['33075444264','33075751224','33076953897','33079452232'],
             'noncrypto_run': '33077676106',
+            'lifecycle_integrity': 'PASS / 52920 RESOLVED / 0 failures',
             'classification': 'RESEARCH_EVIDENCE / HISTORICAL_REPLAY / NO_LIVE_TRADING',
           }
           pathlib.Path('freeze/FREEZE_MANIFEST.json').write_text(json.dumps(out, indent=2, sort_keys=True)+'\n')
@@ -84,6 +85,8 @@ jobs:
           grep -q 'RESULTS.md' /tmp/evidence-files.txt
           grep -q 'noncrypto_metrics.csv' /tmp/evidence-files.txt
           grep -q 'forecast_contracts_test_v2.jsonl.gz' /tmp/evidence-files.txt
+          grep -q 'forecast_contracts_test_v3.jsonl.gz' /tmp/evidence-files.txt
+          grep -q 'lifecycle_integrity.json' /tmp/evidence-files.txt
           grep -q 'RELATED_WORK_VERIFIED_v0.1.md' /tmp/evidence-files.txt
 
       - name: Commit sanitized freeze receipt
@@ -96,7 +99,7 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No freeze receipt change'
           else
-            git commit -m 'publication: record SSRN evidence freeze receipt [skip ci]'
+            git commit -m 'publication: record lifecycle-complete SSRN evidence freeze [skip ci]'
             git pull --rebase origin work/ssrn-market-replay-v0.1
             git push origin HEAD:work/ssrn-market-replay-v0.1
           fi

@@ -5,7 +5,7 @@ Last verified: 2026-08-27
 This file is the canonical human-readable index of external identities, publications, public references, continuity resources, and services related to World 8.
 
 Status meanings:
-- **VERIFIED** — exact identity or URL confirmed from an authoritative/connected source.
+- **VERIFIED** — exact identity or URL confirmed from an authoritative/connected source or explicitly supplied by the owner.
 - **NEEDS_VERIFICATION** — service is relevant/known, but the exact canonical account/profile URL is not yet confirmed.
 - **LEGACY** — historical/ancestor reference; not current World 8 canonical truth.
 
@@ -15,9 +15,9 @@ Status meanings:
 |---|---|---|---|
 | Author / owner | Saeed Farrokhi | VERIFIED | Human Root / project owner |
 | Primary email | saeedfa@gmail.com | VERIFIED | Confirmed from connected Gmail account |
+| University email | Saeed.farokhi@ut.ac.ir | VERIFIED | University of Tehran email supplied explicitly by the owner |
 | LinkedIn | https://www.linkedin.com/in/saeedfarokhi | VERIFIED | Confirmed by owner resume and LinkedIn lookup |
 | Academic affiliation | Mechanical Engineering, University of Tehran | VERIFIED_REFERENCE | Affiliation/reference only; not proof of a current faculty position |
-| University email | — | NEEDS_VERIFICATION | No exact University of Tehran email has been verified; do not infer one |
 | Company website | https://taminyaran.com | VERIFIED | Company/public website |
 | GitHub account | https://github.com/saeedfaai | VERIFIED | Repository owner account |
 
@@ -78,7 +78,7 @@ Status meanings:
 
 ## Candidate identities to add when verified
 
-ORCID, Google Scholar, ResearchGate, Academia.edu, SSRN, Medium, Devpost, OpenAlex, Semantic Scholar, Scopus Author ID, Web of Science ResearcherID, arXiv, OSF, Figshare, Hugging Face, Kaggle, X/Twitter, personal academic page, and any verified university/alumni email.
+ORCID, Google Scholar, ResearchGate, Academia.edu, SSRN, Medium, Devpost, OpenAlex, Semantic Scholar, Scopus Author ID, Web of Science ResearcherID, arXiv, OSF, Figshare, Hugging Face, Kaggle, X/Twitter, and personal academic page.
 
 ## Security policy
 

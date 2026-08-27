@@ -1,0 +1,47 @@
+name: W8-P01 Governance Experiment
+
+on:
+  push:
+    branches:
+      - work/w8-p01-governance-experiment-v0.1
+    paths:
+      - 'experiments/flagship_governance_v0_1/**'
+      - '.github/workflows/w8-p01-governance-experiment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run experiment unit tests
+        run: python -m unittest discover experiments/flagship_governance_v0_1/tests -v
+
+      - name: Run frozen-candidate experiment
+        run: |
+          python experiments/flagship_governance_v0_1/run_experiment.py \
+            --trials 1000 \
+            --seed 20260827 \
+            --output experiments/flagship_governance_v0_1/results
+
+      - name: Hash evidence outputs
+        run: |
+          cd experiments/flagship_governance_v0_1/results
+          sha256sum summary.json trials.csv trials.jsonl | tee SHA256SUMS.txt
+
+      - name: Upload evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-governance-evidence-v0.1
+          path: experiments/flagship_governance_v0_1/results/
+          retention-days: 90
+          if-no-files-found: error

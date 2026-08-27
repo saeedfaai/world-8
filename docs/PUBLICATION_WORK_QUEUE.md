@@ -26,25 +26,37 @@ Owner: Saeed Farrokhi
 
 Dedicated World 8 Hugging Face Organization remains an optional future migration; historical personal-account URLs must be preserved if migrated.
 
-## P2 — SSRN — ACTIVE / EMPIRICAL EVIDENCE GATE
+## P2 — SSRN — FINAL CANDIDATE / AUTHOR APPROVAL GATE
 - [x] check current SSRN submission requirements (2026-08-27)
 - [x] bind submission metadata to exact GitHub release and DOI
-- [x] identify mandatory AI disclosure
-- [x] create `docs/ssrn/SSRN_READINESS_GATE_v0.1.md`
-- [x] create `docs/ssrn/SSRN_SUBMISSION_METADATA_v0.1.yaml`
-- [ ] freeze empirical market replay dataset
-- [ ] implement/freeze baselines and World 8 ensemble variant
-- [ ] freeze independent evaluator/UOP
-- [ ] pass no-lookahead/data-cutoff tests
-- [ ] run baseline + ablation experiments
-- [ ] generate machine-readable results and robustness analysis
-- [ ] verify related-work bibliography
-- [ ] complete English working-paper manuscript
-- [ ] include AI disclosure in abstract and PDF
-- [ ] render/verify final SSRN PDF
-- [ ] submit only after author claim review
+- [x] identify/embed AI disclosure
+- [x] freeze primary crypto replay dataset and provider checksums
+- [x] implement/freeze baselines and calibrated ensemble
+- [x] freeze independent evaluator/UOP study
+- [x] pass no-lookahead/data-cutoff tests
+- [x] run calibration, correlation, disagreement, regime, shadow and risk-veto ablations
+- [x] generate machine-readable results and bootstrap robustness analysis
+- [x] complete independent SPY/QQQ/GLD replication
+- [x] verify related-work bibliography
+- [x] complete Forecast Contract v3 lifecycle projection and integrity gate
+- [x] freeze final empirical evidence commit `917dd82ed87a3470acfdb9175905ec7c8727c096`
+- [x] freeze deterministic evidence package SHA256 `100484ffba683111622377703e836728817fd6cbb45f53d62e45a5a3766ece70`
+- [x] complete English working-paper manuscript
+- [x] render and visually verify 9-page final candidate PDF
+- [x] archive final PDF/DOCX to Drive
+- [x] create version-bound Author Claim Review gate (#16)
+- [ ] author explicitly approves exact PDF SHA256 `acee536968f1fb9e527469d2125600b03587ce2e5a211ffdfadb6fe85f24ba7a`
+- [ ] record SSRN license choice
+- [ ] submit exact approved PDF to SSRN
+- [ ] capture SSRN receipt/URL and append publication lineage
 
-Current scholarly constraint: do not submit a framework-only manuscript. The paper must contain rigorous methodology and original empirical findings consistent with SSRN posting standards.
+Author gate:
+https://github.com/saeedfaai/world-8/issues/16
+
+Final PDF:
+https://drive.google.com/file/d/15b2XrL8mqix6gBEnWXm6VTxtoCCgCi59/view
+
+Current constraint: no SSRN submission before explicit author approval of the exact final PDF hash. No profitability, production-readiness, universal/causal-superiority, or autonomous-intelligence claim is allowed.
 
 ## P3 — Demo Launch
 - harden public demo

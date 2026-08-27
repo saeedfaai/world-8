@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>World 8 — Evidence-backed Forecast Architecture Demo</title>
+<meta name="description" content="World 8 static research demo: Forecast ≠ Decision ≠ Order, frozen historical replay evidence, calibrated ensembles, lifecycle receipts, and bounded claims." />
+<style>
+:root{--bg:#081018;--panel:#101b27;--panel2:#0c1621;--text:#edf4fa;--muted:#9eb2c4;--line:#26394a;--accent:#5eead4;--accent2:#7dd3fc;--warn:#fbbf24;--bad:#fca5a5;--good:#86efac;--shadow:0 12px 35px rgba(0,0,0,.28)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 20% 0%,#10293b 0,#081018 42%),var(--bg);color:var(--text);line-height:1.55}a{color:var(--accent2);text-decoration:none}a:hover{text-decoration:underline}.wrap{max-width:1180px;margin:auto;padding:28px 20px 70px}.hero{padding:58px 0 28px}.eyebrow{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:#0c1924;border-radius:999px;padding:7px 11px;color:var(--accent);font-size:13px;font-weight:700;letter-spacing:.03em}.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 16px var(--accent)}h1{font-size:clamp(42px,7vw,86px);line-height:.94;margin:20px 0 18px;letter-spacing:-.055em;max-width:950px}.lead{max-width:850px;color:#c8d6e2;font-size:clamp(18px,2.3vw,24px)}.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}.btn{display:inline-block;padding:11px 15px;border-radius:10px;border:1px solid var(--line);background:#122332;color:var(--text);font-weight:700}.btn.primary{background:linear-gradient(135deg,#0d9488,#0369a1);border-color:transparent}.notice{margin:22px 0 0;padding:14px 16px;border-left:4px solid var(--warn);background:#2a210b;color:#fde68a;border-radius:8px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{background:linear-gradient(180deg,rgba(19,34,48,.96),rgba(12,23,34,.96));border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow)}.span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}.metric{font-size:34px;font-weight:800;letter-spacing:-.04em}.label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.section{padding-top:54px}.section h2{font-size:32px;letter-spacing:-.035em;margin:0 0 8px}.section .sub{color:var(--muted);margin-bottom:20px}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:10px}.flow .node{padding:24px;border:1px solid var(--line);border-radius:14px;background:#0d1b28}.flow .arrow{font-size:28px;color:var(--accent)}.node strong{font-size:21px}.node p{color:var(--muted);margin:8px 0 0}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.tab{cursor:pointer;border:1px solid var(--line);border-radius:999px;padding:8px 12px;background:#0d1823;color:#bdd0de}.tab.active{background:#12354a;color:white;border-color:#2b6586}.tabpane{display:none}.tabpane.active{display:block}.row{display:grid;grid-template-columns:90px 1fr 95px;gap:12px;align-items:center;margin:12px 0}.barwrap{height:16px;border-radius:999px;background:#09131d;overflow:hidden;border:1px solid #1b2e3d}.bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent2),var(--accent))}.bar.raw{background:linear-gradient(90deg,#64748b,#94a3b8)}.bar.majority{background:linear-gradient(90deg,#a78bfa,#818cf8)}.small{font-size:13px;color:var(--muted)}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left}th{color:#c3d4e1}.good{color:var(--good)}.bad{color:var(--bad)}.muted{color:var(--muted)}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:12px;margin:3px;background:#0b1721}.footer{margin-top:58px;padding-top:28px;border-top:1px solid var(--line);color:var(--muted)}code{background:#09141e;border:1px solid #183042;border-radius:6px;padding:2px 5px;color:#dff6ff}.receipt{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;overflow-wrap:anywhere;color:#b8cfdd}.limits li{margin:8px 0}@media(max-width:820px){.span4,.span6,.span8{grid-column:span 12}.flow{grid-template-columns:1fr}.flow .arrow{transform:rotate(90deg);text-align:center}.row{grid-template-columns:72px 1fr 82px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="hero">
+  <div class="eyebrow"><span class="dot"></span> World 8 v0.1.0 · Research evidence · Historical replay</div>
+  <h1>Forecast ≠ Decision ≠ Order.</h1>
+  <p class="lead">A contract-based multi-agent market architecture where forecasts remain immutable, decisions are evaluated downstream, and execution is a separate object. This demo shows the frozen evidence—not a trading promise.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://doi.org/10.5281/zenodo.22127650" target="_blank" rel="noreferrer">Open Zenodo snapshot</a>
+    <a class="btn" href="https://huggingface.co/collections/Saeedfa/world-8-6a902b1a3a05b0ab39990265" target="_blank" rel="noreferrer">World 8 Collection</a>
+    <a class="btn" href="#results">Explore replay evidence</a>
+  </div>
+  <div class="notice"><strong>Evidence boundary:</strong> no live trading, no autonomous capital deployment, no production-readiness claim, and no claim of universal market superiority.</div>
+</section>
+
+<section class="grid">
+  <div class="card span4"><div class="label">Lifecycle contracts</div><div class="metric">52,920</div><div class="small">RESOLVED · 0 integrity failures</div></div>
+  <div class="card span4"><div class="label">Primary data</div><div class="metric">52,632</div><div class="small">Hourly rows · BTC / ETH / SOL</div></div>
+  <div class="card span4"><div class="label">Uncertainty</div><div class="metric">2,000×</div><div class="small">Paired moving-block bootstrap replicates</div></div>
+</section>
+
+<section class="section">
+  <h2>Separation is the invariant</h2>
+  <p class="sub">The architecture prevents a downstream policy choice from silently rewriting the original prediction.</p>
+  <div class="flow">
+    <div class="node"><strong>Forecast</strong><p>Target, horizon, probability, issued-at, data-cutoff, model/strategy versions, hashes, lifecycle.</p></div>
+    <div class="arrow">→</div>
+    <div class="node"><strong>Decision</strong><p>Consumes forecasts plus costs, risk, portfolio state, constraints, and policy. Independently attributable.</p></div>
+    <div class="arrow">→</div>
+    <div class="node"><strong>Order</strong><p>Execution artifact. Explicitly outside this historical-replay study; no live order path is enabled here.</p></div>
+  </div>
+</section>
+
+<section class="section" id="results">
+  <h2>Frozen replay evidence</h2>
+  <p class="sub">Brier score is lower when probabilistic forecasts are better. The strongest positive finding is calibrated weighting vs equal-weight raw on the frozen crypto replay.</p>
+  <div class="tabs">
+    <button class="tab active" data-tab="crypto">Crypto</button>
+    <button class="tab" data-tab="replication">Non-crypto replication</button>
+    <button class="tab" data-tab="ablations">Ablations</button>
+  </div>
+
+  <div id="crypto" class="tabpane active card">
+    <h3>2025H2 out-of-sample · 1h · 6h event horizon</h3>
+    <div class="row"><strong>BTC</strong><div><div class="small">Equal raw 0.265259</div><div class="barwrap"><div class="bar raw" style="width:84%"></div></div><div class="small">Calibrated 0.248866</div><div class="barwrap"><div class="bar" style="width:78%"></div></div></div><div class="good">Δ −0.016393</div></div>
+    <div class="row"><strong>ETH</strong><div><div class="small">Equal raw 0.264132</div><div class="barwrap"><div class="bar raw" style="width:84%"></div></div><div class="small">Calibrated 0.250563</div><div class="barwrap"><div class="bar" style="width:79%"></div></div></div><div class="good">Δ −0.013569</div></div>
+    <div class="row"><strong>SOL</strong><div><div class="small">Equal raw 0.262727</div><div class="barwrap"><div class="bar raw" style="width:83%"></div></div><div class="small">Calibrated 0.250645</div><div class="barwrap"><div class="bar" style="width:79%"></div></div></div><div class="good">Δ −0.012082</div></div>
+    <p class="small">95% paired moving-block bootstrap intervals are entirely below zero for all three calibrated-vs-raw comparisons: BTC [−0.021891, −0.011495], ETH [−0.020824, −0.005867], SOL [−0.016465, −0.007784].</p>
+  </div>
+
+  <div id="replication" class="tabpane card">
+    <h3>Independent daily replication · SPY / QQQ / GLD · 2025 OOS</h3>
+    <table><thead><tr><th>Asset</th><th>Equal raw Brier</th><th>Calibrated Brier</th><th>Delta</th><th>95% bootstrap</th></tr></thead><tbody>
+      <tr><td>SPY</td><td>0.256552</td><td>0.232693</td><td class="good">−0.023859</td><td class="muted">crosses 0</td></tr>
+      <tr><td>QQQ</td><td>0.258656</td><td>0.234116</td><td class="good">−0.024540</td><td class="muted">crosses 0</td></tr>
+      <tr><td>GLD</td><td>0.238877</td><td>0.234576</td><td class="good">−0.004301</td><td class="muted">crosses 0</td></tr>
+    </tbody></table>
+    <p class="small">Directionally consistent point estimates, but not statistically robust in this smaller replication. The demo intentionally does not transform this into a cross-market superiority claim.</p>
+  </div>
+
+  <div id="ablations" class="tabpane card">
+    <table><thead><tr><th>Mechanism</th><th>Frozen result</th><th>Interpretation</th></tr></thead><tbody>
+      <tr><td>Correlation penalty</td><td class="muted">No useful general gain</td><td>Negative result retained</td></tr>
+      <tr><td>Disagreement shrink</td><td>Supported small gain only for SOL</td><td>No general claim</td></tr>
+      <tr><td>Regime weighting</td><td>ETH slight gain · BTC worse · SOL inconclusive</td><td>Asset dependent</td></tr>
+      <tr><td>Shadow cold-start</td><td class="muted">Neutral</td><td>No benefit claimed</td></tr>
+      <tr><td>Volatility risk veto</td><td class="bad">No Decision/UOP benefit</td><td>Shows why Decision ≠ Forecast</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Evidence chain</h2>
+  <div class="grid">
+    <div class="card span6"><div class="label">Software snapshot</div><p><a href="https://doi.org/10.5281/zenodo.22127650" target="_blank" rel="noreferrer">doi:10.5281/zenodo.22127650</a></p><p class="receipt">Release commit: b14f2feea0fa233851a774d6ebd295b63cde75c0</p></div>
+    <div class="card span6"><div class="label">Frozen empirical evidence</div><p class="receipt">Evidence commit: 917dd82ed87a3470acfdb9175905ec7c8727c096</p><p class="receipt">Evidence archive SHA256: 100484ffba683111622377703e836728817fd6cbb45f53d62e45a5a3766ece70</p></div>
+    <div class="card span6"><div class="label">Forecast lifecycle</div><p><span class="pill">52,920 RESOLVED</span><span class="pill">0 invalidated</span><span class="pill">0 expired</span><span class="pill">0 withdrawn</span><span class="pill">0 integrity failures</span></p></div>
+    <div class="card span6"><div class="label">Study classification</div><p><code>RESEARCH EVIDENCE / HISTORICAL REPLAY / NO LIVE TRADING</code></p></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>What this demo does not claim</h2>
+  <div class="card limits"><ul>
+    <li>It does not claim that World 8 is profitable or beats markets.</li>
+    <li>It does not claim production readiness or autonomous capital deployment.</li>
+    <li>It does not claim calibration is universally superior across markets.</li>
+    <li>It does not claim general benefit from correlation control, regime detection, disagreement handling, shadow cold-start, or risk veto.</li>
+    <li>It does not claim AGI, consciousness, autonomous intelligence, or causal architectural superiority.</li>
+  </ul></div>
+</section>
+
+<footer class="footer">
+  <strong>World 8 v0.1.0</strong> · Foundation & Development Control Plane Baseline · development pre-release / non-production.<br />
+  Public immutable snapshot: <a href="https://zenodo.org/records/22127650" target="_blank" rel="noreferrer">Zenodo record 22127650</a>. Hugging Face collection: <a href="https://huggingface.co/collections/Saeedfa/world-8-6a902b1a3a05b0ab39990265" target="_blank" rel="noreferrer">World 8</a>.
+</footer>
+</div>
+<script>
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tabpane').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active')}));
+</script>
+</body>
+</html>

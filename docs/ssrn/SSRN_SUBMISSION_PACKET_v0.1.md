@@ -51,8 +51,9 @@ https://drive.google.com/file/d/15b2XrL8mqix6gBEnWXm6VTxtoCCgCi59/view
 File: `World8_SSRN_Working_Paper_v0.1.pdf`
 
 PDF SHA256:
-`acee536968f1fb9e527469d2125600b03587ce2e5a211ffdfadb6fe85f24ba7a`
+`53b3a4c688b620cb3f611ae525484cfba0d186fb85393e7011312999ecf2efed`
 
+PDF bytes: `210232`  
 Pages: 9
 
 Preflight: OPENABLE / NOT ENCRYPTED / NOT SCANNED / VISUAL QA PASS
@@ -63,10 +64,15 @@ DOCX:
 https://drive.google.com/file/d/1tNIMdqCBJ6a8dRDR60TkccWCoF-8G4MM/view
 
 DOCX SHA256:
-`8de4a3bc137882181add32cb3884dc355e4fe77ca5d680bb60ae20fb1aa57a18`
+`345164e825abc887ae0e26de745c6705a512193e42ca25985871f46d94c69386`
+
+DOCX bytes: `22730`
 
 Canonical Markdown:
 `docs/ssrn/manuscript/WORLD8_SSRN_WORKING_PAPER_v0.1.md`
+
+Markdown SHA256:
+`7a1f11cd3ee75d2f974f41bac5341367408fede2f75e3bbf16642902393a6c19`
 
 ## Research artifact binding
 
@@ -99,7 +105,7 @@ Status: PASS / AUTHOR APPROVAL OPEN
 
 ## Current SSRN submission requirements verified on 2026-08-27
 
-Official SSRN/Elsevier guidance requires:
+Official Elsevier/SSRN guidance requires:
 - a free SSRN account with complete author profile;
 - English paper title;
 - date written;
@@ -116,6 +122,19 @@ Current guidance:
 
 SSRN entry point:
 https://papers.ssrn.com/
+
+## Provider-side fields still requiring author choice
+
+- final author approval of the bounded claims;
+- SSRN licence/copyright selection;
+- classification/taxonomy selection in the live SSRN form if prompted;
+- final provider-side Submit action.
+
+No provider-side licence or taxonomy choice has been invented on behalf of the author.
+
+## Integrity note
+
+A pre-submission integrity recheck detected that an older rendered PDF/DOCX pair no longer matched the final canonical Markdown/evidence binding after the lifecycle-v3 synchronization. The final candidate was re-rendered from the canonical source, visually re-verified, and Drive bytes were replaced in place. Use only the hashes shown in this packet for provider upload verification.
 
 ## Do not submit until author approval
 

@@ -15,3 +15,4 @@ jobs:
       - run: python scripts/validate_developer_admission.py
       - run: python scripts/validate_identity_authority.py
       - run: python scripts/validate_n_mason_pool.py
+      - run: python scripts/validate_crash_safe_development.py

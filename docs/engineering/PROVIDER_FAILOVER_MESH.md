@@ -1,6 +1,6 @@
 # World 8 Provider Failover Mesh v0.1
 
-Status: IMPLEMENTED / RUNTIME-VALIDATED / CANARY-GATED
+Status: IMPLEMENTED / RUNTIME-VALIDATED / GROQ_CANARY_SUCCEEDED / SCALE_5_ELIGIBLE_NOT_STARTED
 
 ## Purpose
 
@@ -45,7 +45,7 @@ A candidate is selectable only when:
 3. credential binding is VERIFIED by provider probe;
 4. provider health is not hard-blocked.
 
-The five alternate transports were challenge-attested in runtime and are VERIFIED. Their credential bindings remain UNVERIFIED until a secret is provisioned and a provider probe passes.
+The five alternate transports were challenge-attested in runtime and are VERIFIED. Groq is now independently credential-verified and live-ready. Other alternate credential bindings remain UNVERIFIED until their runtime secret is provisioned and a provider probe passes.
 
 ## Provider health / circuit breaker
 
@@ -82,32 +82,73 @@ The worker supports:
 
 It does not persist provider error response bodies or private reasoning.
 
-## Runtime evidence before merge
+## Groq credential verification — 2026-08-27
 
-- 5/5 alternate transports VERIFIED by challenge attestation.
-- 0/5 alternate credentials VERIFIED until explicitly provisioned.
-- OpenAI credential + transport VERIFIED but provider health hard-blocked by insufficient quota.
-- `world8_provider_failover_snapshot_v1('CODE_ASSIST_PRIMARY')` returns `selected=null` and `gate_state=BLOCKED` in this state.
-- OpenAI candidate contains `PROVIDER_HEALTH_HARD_BLOCKED`.
-- No provider was automatically invoked by failover selection.
-
-## Groq credential location probe — 2026-08-27
-
-The Groq adapter, opaque credential reference, and worker transport are already registered:
+The original binding used `envref:GROQ_API_KEY`, but the runtime secret is named `GROQ_API_KEY4`. The corrected opaque binding is:
 
 - adapter: `adapter-groq-external-v01` — ACTIVE;
-- credential binding: `binding-groq-envref-v01` / `envref:GROQ_API_KEY` — ACTIVE but UNVERIFIED;
+- binding: `binding-groq-envref-key4-v01`;
+- credential ref: `envref:GROQ_API_KEY4`;
 - transport: `transport-supabase-groq-generic-v01` — ACTIVE / VERIFIED.
 
-A live credential probe was dispatched through the generic Supabase worker. Challenge `credential-challenge-78fb847f05fb86871ba513cf04d5` was consumed, but the append-only verification receipt recorded `result=FAIL`, `credential_present=false`, `provider_invoked=false`, and HTTP status `0`. This proves `GROQ_API_KEY` is not currently injected into the Supabase Edge runtime used by the generic worker.
+Credential probe challenge `credential-challenge-a191726e8838c4f5d334fc35be65` returned:
 
-A second independent GitHub Actions probe was run on the non-production branch `work/provider-failover-mesh-v0.1` using `${{ secrets.GROQ_API_KEY }}` without printing or exporting the secret value. GitHub Actions run `33105516722` reported `groq_secret_present=false`. Therefore the current `world-8` repository Actions secret store also does not expose a secret under that name.
+- `credential_present=true`;
+- `provider_invoked=true`;
+- provider HTTP status `200`;
+- verification result `PASS`;
+- binding verification state `VERIFIED`;
+- receipt `credential-receipt-f8363334b524b980756a4fd3d70b`.
 
-No raw Groq key was read, copied, logged, committed, or returned by either probe. The prior key location remains unresolved from currently connected runtime evidence; do not ask for or copy a new key until existing credential stores are checked.
+No raw Groq key was read, copied, logged, committed, or returned.
+
+After this verification, `world8_provider_failover_snapshot_v1('CODE_ASSIST_PRIMARY')` selected Groq at priority 1 with:
+
+- `gate_state=PASS`;
+- `readiness_state=LIVE_READY`;
+- `live_ready=true`;
+- credential verification `VERIFIED`;
+- transport verification `VERIFIED`.
+
+OpenAI remains hard-blocked by `INSUFFICIENT_QUOTA`.
+
+## First governed Groq REAL_EXTERNAL canary — SUCCESS
+
+A fresh Mason lane was created; no failed OpenAI Work was reused.
+
+- Actor: `mason-worker-7dedb0-0002`
+- Assignment: `assignment-6597d5db4cc42b9f365263ffb11b5a82`
+- Work: `work-24d8390984561324398227ce4f3c`
+- Workspace: `workspace-1dbb9c0453ec0674ee92320ba378d411`
+- Branch: `work/groq-live-provider-canary-mason-0002`
+- Provider request: `provider-request-d6010202d2af415a0f4be7fb49df`
+- Actor Execution: `execution-3bb7144880031f2f798f3f9037da96c0`
+- Provider: Groq
+- Model: `openai/gpt-oss-20b`
+
+The task requested exactly one line: `GROQ_CANARY_OK`.
+
+Observed result:
+
+- request state: `SUCCEEDED`;
+- provider HTTP status: `200`;
+- `live_provider_invoked=true`;
+- final output: `GROQ_CANARY_OK`;
+- output id: `provider-output-cb4e439cc2511f6603a11dc523fb`;
+- output SHA-256: `c8f6499670681f37f348a655b6f0807e3a1460ab7fba28f358ff704100d763ff`;
+- provider request evidence: `provider:Groq:request-id:req_01m1299hcgerf9naavp9qc8c45`;
+- final success receipt: `provider-receipt-798cd073473c509b31bb07a00013`;
+- `test_only=false`;
+- raw secret stored: false;
+- private reasoning stored: false.
+
+The temporary workspace and Mason assignment were released after success. No canonical repository mutation was required for the canary itself.
 
 ## Scale rule
 
-A successful single REAL_EXTERNAL canary is required before 1→5→20→100 real AI execution scale-out. Existing Guardian/N-Mason orchestration has already been load-tested separately at 100 concurrent engineering sessions; that is not evidence of 100 live provider invocations.
+The required single REAL_EXTERNAL canary has now succeeded. The next scale stage, up to 5 governed real provider executions, is eligible but **has not been started automatically**. Any 5→20→100 progression must still preserve readiness checks, explicit Work/Assignment/Workspace binding, execution receipts, cost/rate awareness, cleanup, and failure containment.
+
+Existing Guardian/N-Mason orchestration has already been load-tested separately at 100 concurrent engineering sessions; that is not evidence of 100 live provider invocations.
 
 ## Security limitations / v0.2 candidates
 

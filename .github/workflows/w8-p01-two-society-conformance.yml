@@ -1,0 +1,48 @@
+name: W8-P01 Two-Society Conformance
+
+on:
+  push:
+    branches:
+      - work/w8-p01-governance-experiment-v0.1
+    paths:
+      - 'experiments/flagship_governance_v0_1/society_conformance.py'
+      - 'experiments/flagship_governance_v0_1/tests/test_society_conformance.py'
+      - '.github/workflows/w8-p01-two-society-conformance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run two-Society conformance tests
+        run: python -m unittest experiments/flagship_governance_v0_1/tests/test_society_conformance.py -v
+
+      - name: Run frozen-candidate shared-kernel conformance matrix
+        run: |
+          python experiments/flagship_governance_v0_1/society_conformance.py \
+            --trials 1000 \
+            --seed 20260827 \
+            --output experiments/flagship_governance_v0_1/results_society
+
+      - name: Hash conformance evidence
+        run: |
+          cd experiments/flagship_governance_v0_1/results_society
+          sha256sum society_conformance.json | tee SHA256SUMS_society.txt
+
+      - name: Upload conformance artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-two-society-conformance-v0.1
+          path: experiments/flagship_governance_v0_1/results_society/
+          retention-days: 90
+          if-no-files-found: error

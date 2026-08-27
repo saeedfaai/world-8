@@ -1,0 +1,49 @@
+name: W8-P01 Governance Experiment v2
+
+on:
+  push:
+    branches:
+      - work/w8-p01-governance-experiment-v0.1
+    paths:
+      - 'experiments/flagship_governance_v0_1/model_v2.py'
+      - 'experiments/flagship_governance_v0_1/run_experiment_v2.py'
+      - 'experiments/flagship_governance_v0_1/tests/test_experiment_v2.py'
+      - '.github/workflows/w8-p01-governance-experiment-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hardened-baseline-and-ablations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run v2 unit tests
+        run: python -m unittest experiments/flagship_governance_v0_1/tests/test_experiment_v2.py -v
+
+      - name: Run hardened baseline + ablations + compound faults
+        run: |
+          python experiments/flagship_governance_v0_1/run_experiment_v2.py \
+            --trials 1000 \
+            --seed 20260827 \
+            --output experiments/flagship_governance_v0_1/results_v2
+
+      - name: Hash v2 evidence outputs
+        run: |
+          cd experiments/flagship_governance_v0_1/results_v2
+          sha256sum summary_v2.json trials_v2.csv trials_v2.jsonl | tee SHA256SUMS_v2.txt
+
+      - name: Upload v2 evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-governance-evidence-v0.2
+          path: experiments/flagship_governance_v0_1/results_v2/
+          retention-days: 90
+          if-no-files-found: error

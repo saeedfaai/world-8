@@ -49,8 +49,18 @@ jobs:
             supabase/migrations/20260824133326_w2_supabase_external_effect_hosted_overlay.sql \
             supabase/migrations/20260826174552_world8_development_control_plane_v1.sql \
             > /tmp/w8-p01-source-recovery/byte-counts.txt
+          FILE='supabase/migrations/20260826174552_world8_development_control_plane_v1.sql'
+          : > /tmp/w8-p01-source-recovery/dcp-segment-sha256.txt
+          for spec in '1 0 6000' '2 6000 6000' '3 12000 6000' '4 18000 6000' '5 24000 3993'; do
+            set -- $spec
+            seg="$1"; skip="$2"; count="$3"
+            hash=$(dd if="$FILE" bs=1 skip="$skip" count="$count" status=none | sha256sum | awk '{print $1}')
+            bytes=$(dd if="$FILE" bs=1 skip="$skip" count="$count" status=none | wc -c)
+            printf 'segment=%s skip=%s requested=%s actual_bytes=%s sha256=%s\n' "$seg" "$skip" "$count" "$bytes" "$hash" >> /tmp/w8-p01-source-recovery/dcp-segment-sha256.txt
+          done
           cat /tmp/w8-p01-source-recovery/actual.sha256
           cat /tmp/w8-p01-source-recovery/byte-counts.txt
+          cat /tmp/w8-p01-source-recovery/dcp-segment-sha256.txt
 
       - name: Verify authoritative migration statement hashes
         run: sha256sum -c /tmp/w8-p01-source-recovery/expected.sha256

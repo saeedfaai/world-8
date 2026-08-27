@@ -1,5 +1,5 @@
 schema: WORLD8_HF_PUBLICATION_MANIFEST/1.0
-status: PREPARED_NOT_PUBLISHED
+status: PUBLISHED_UNDER_VERIFIED_USER_ACCOUNT
 canonical_github: https://github.com/saeedfaai/world-8
 current_release:
   tag_as_published: V0.1.0
@@ -10,16 +10,39 @@ zenodo:
   current_world8_z0a_doi: https://doi.org/10.5281/zenodo.22085394
   world8_v0_1_0_doi: PENDING
 huggingface:
-  preferred_namespace: world8
-  fallback_namespace: world-8
-  namespace_status: NEEDS_CREATION_AND_VERIFICATION
+  account_username: Saeedfa
+  account_url: https://huggingface.co/Saeedfa
+  account_status: VERIFIED_BY_AUTHENTICATED_WHOAMI
+  organization_status: NOT_CREATED
+  collection:
+    title: World 8
+    url: https://huggingface.co/collections/Saeedfa/world-8-6a902b1a3a05b0ab39990265
+    status: PUBLISHED
   surfaces:
-    - world8-core
-    - world8-forecast-hall
-    - world8-market-data
-    - world8-demo
+    - name: world8-core
+      type: model_repo
+      url: https://huggingface.co/Saeedfa/world8-core
+      status: PUBLISHED
+    - name: world8-forecast-hall
+      type: model_repo
+      url: https://huggingface.co/Saeedfa/world8-forecast-hall
+      status: PUBLISHED
+    - name: world8-market-data
+      type: model_repo
+      url: https://huggingface.co/Saeedfa/world8-market-data
+      status: PUBLISHED
+    - name: world8-demo
+      type: static_space
+      url: https://huggingface.co/spaces/Saeedfa/world8-demo
+      status: PUBLISHED
+credential_bridge:
+  source_repo: saeedfaai/world-v6
+  github_secret_name: HF_API_KEY
+  secret_value_recorded: false
+  status: TEMPORARY_LEGACY_BRIDGE
 rules:
   github_is_canonical: true
   immutable_doi_lineage: append_only
   public_surface_must_not_include_secrets: true
   zero_x_is_non_production: true
+  future_org_migration_must_preserve_history: true

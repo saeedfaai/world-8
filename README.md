@@ -2,6 +2,12 @@
 
 World 8 is an autonomous multi-society digital system whose engineering goal is **Development independent of Developer**.
 
+## Release status
+
+Current engineering release: **World 8 v0.1.0 — Foundation & Development Control Plane Baseline**.
+
+This is a **development pre-release / non-production baseline**. All World 8 `0.x` releases are governed by [`docs/RELEASE_POLICY.md`](docs/RELEASE_POLICY.md) and must not be interpreted as production-ready unless a later canonical policy explicitly changes that rule.
+
 ## Canonical rule
 This repository is the canonical version-controlled source for World 8 architecture and code once formally activated in DCP.
 Runtime truth remains the live deployed state; DCP remains the development coordination/governance projection.

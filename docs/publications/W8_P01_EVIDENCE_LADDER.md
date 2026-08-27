@@ -2,7 +2,7 @@
 
 Date: 2026-08-27
 Paper: W8-P01
-Status: ACTIVE / MANUSCRIPT BLOCKED UNTIL E3 CANONICAL MERGE + E4
+Status: ACTIVE / E3 CANONICALIZED / E4 STRONG REFERENCE PASS / MANUSCRIPT STILL BLOCKED BY E5
 
 ## E0 — Architectural proposition
 
@@ -58,117 +58,123 @@ No market-performance metric and no live effect is used in E2.
 
 ## E3 — Canonical/runtime binding
 
-Status: **PASS ON EVIDENCE BRANCH / CANONICAL MERGE PENDING**
+Status: **PASS / CANONICALIZED IN MAIN / BOUNDED RUNTIME BEHAVIOR**
+
+Canonical merge:
+- PR #32: https://github.com/saeedfaai/world-8/pull/32
+- merge commit: `4aecb1fd1c64f43f7c4e08e528821a9acd0dfd0f`
+
+Post-merge canonical gates:
+- E3 Validation Gate: https://github.com/saeedfaai/world-8/actions/runs/33108124477 — PASS
+- Authoritative Source Integrity: https://github.com/saeedfaai/world-8/actions/runs/33108124506 — PASS
+- release-gate: https://github.com/saeedfaai/world-8/actions/runs/33108124500 — PASS
+- validate-architecture: https://github.com/saeedfaai/world-8/actions/runs/33108124549 — PASS
 
 Binding receipt:
 `experiments/flagship_governance_v0_1/E3_CANONICAL_RUNTIME_BINDING.md`
 
 Runtime behavioral receipt:
-`experiments/flagship_governance_v0_1/E3_RUNTIME_BEHAVIORAL_PROBES.md`
+`experiments/flagship_governance_v0_1/E3_RUNTIME_BEHAVIORAL_RECEIPT.md`
 
-### Bound in current source + deployed runtime
-- actor/authority verifier;
-- actor/execution/workspace binding;
-- stale canonical workspace-base protection;
-- append-only chained development journal/checkpoints;
-- crash-safe Scribe closure/resume;
-- Lease v2/v3 wrappers and fail-closed admission/authorization dependency.
-
-### Historical dependency/source lineage recovered on W8-P01 branch
-Recovered from `supabase_migrations.schema_migrations.statements`, byte-for-byte:
+### Canonicalized source lineage
+Authoritative historical migrations were recovered from `supabase_migrations.schema_migrations.statements`, byte-for-byte, and are now present on canonical `main`:
 - DCP/Lease v1 foundation — SHA256 `634d057945e8d7de6b1bdf6712f18b11109d2682760bbdd30fcda117ba93c52d`
 - Sequencer lease maintenance — SHA256 `13b418f2f475bf423592224d44a45739cacc664cd4981263ffe40495f309b99d`
 - W2 external-effect governance — SHA256 `bb3a9e65f06d374625ef7378e771ec284993f31278615d519095d5602508d92b`
 - W2 hosted overlay — SHA256 `1f0a0789be184d5043d43e34f31a68c4d6042a0152e8e80ff59803994700e81b`
 
-Integrity run after guarded EOF repair:
-- https://github.com/saeedfaai/world-8/actions/runs/33107476738
-- all four authoritative `sha256sum -c` checks PASS.
-
 ### Runtime behavioral probes — PASS / NON-PERSISTENT
 - default DENY with no matching authority rule;
 - explicit DENY precedence over ALLOW;
 - stale fencing token rejected (`30` current vs `29` supplied, SQLSTATE `40001`);
-- effect receipt no-op UPDATE rejected;
-- development journal no-op UPDATE rejected;
-- Work↔Actor mismatch rejected before workspace write;
-- read-only `world8_dev_resume_capsule_v2` returned real blocked state rather than fabricated readiness.
+- effect receipt UPDATE rejected by immutability guard;
+- development journal UPDATE rejected by append-only guard;
+- Work↔Actor mismatch rejected; probe receipt count unchanged after rollback;
+- read-only resume-capsule reconstruction returned governed state and next-action evidence.
 
-No external provider effect or live trade was executed. Transactional probes were rolled back.
+No external provider effect or live trade was executed.
 
-### Reconciled-branch validation — PASS
-Run:
-- https://github.com/saeedfaai/world-8/actions/runs/33107662002
+### Limitation retained
+`world8_mason_pool_bind_execution_v1` is source/runtime bound, but no ACTIVE execution existed at probe time, so assignment→execution mismatch remains schema-backed rather than behaviorally exercised.
 
-Passed:
-- Architecture validator
-- Developer Admission validator
-- Identity & Authority validator
-- N-Mason Pool validator
-- Crash-Safe Development validator
-- Engineering Guardian validator
-- Provider Execution Adapter validator
-- Credential Broker / External Worker validator
-- W8-P01 unit/conformance tests
-- authoritative recovered-migration hash checks
+### Failure discovered during E3
+A nonexistent workspace request caused `world8_dev_admission_check_v2` to assemble a BLOCKED result and then fail at `world8_dev_admission_receipts_workspace_id_fkey` instead of returning a structured BLOCKED receipt.
 
-### E3 remaining gate
-- [x] final validator suite green on reconciled branch
-- [ ] governed PR merges recovered source into canonical `main`
-- [ ] post-merge canonical source/integrity verification
+This did not bypass authorization and left no persistent probe data, but it violates the intended structured fail-closed contract.
 
-Until then, the correct wording is **runtime-backed and source-reconciled on the evidence branch**, not yet **fully canonicalized in main**.
+Fix work:
+- branch `fix/w8-admission-missing-workspace-v0.2.1`
+- migration `20260827193000_world8_admission_missing_workspace_receipt_fix_v021.sql`
+- regression workflow `W8 Admission Missing Workspace Regression`
+
+Do not mark this defect resolved until canonical merge, runtime migration application, and post-apply regression probe all pass.
 
 ## E4 — Mutation / compound failure / recovery
 
-Status: **PARTIAL PASS / REFERENCE-MODEL MUTATION PASS**
+Status: **STRONG REFERENCE-MODEL PASS / RUNTIME-BOUNDED NEGATIVE CONTROLS PASS / PRODUCTION SECURITY NOT CLAIMED**
 
-Receipt:
-`experiments/flagship_governance_v0_1/E4_REFERENCE_MUTATION_RECEIPT.md`
-
-Mutation run:
+### Mutation gate
+Run:
 - https://github.com/saeedfaai/world-8/actions/runs/33107646035
 - artifact digest: `sha256:69205d5139920271ad5d20a624855f54345b257d23bf8f6f520f4605901de8ee`
 - `mutation_gate_v1.json` SHA256: `f107c531c58f3e99fe74b7f5f168e7870d8def7f88cf65845e3c4601c7bdf2ac`
 - 5 mutations × 500 trials
 - 5/5 killed
 - mutation score = `1.0`
-- evidence level = `REFERENCE_MODEL_MUTATION`
+- full-system paired target-failure rate = `0.0`
 - runtime DB mutated = false
 
-Killed reference mutations:
+Killed mutations:
 - remove Actor binding;
 - remove CAS;
 - remove fencing;
 - remove durable idempotency;
 - remove hash-chain verification.
 
-This is not yet a deployed-runtime mutation result.
+### Compound-fault gate
+Run:
+- https://github.com/saeedfaai/world-8/actions/runs/33108000278
+- artifact id: `9661272442`
+- artifact ZIP SHA256: `94817f523a294192b0805b90a456c55af6903ed76d01f101c49bf13f284bb161`
+- result SHA256: `79341467909930b09460082f34402686e2fb7f0de6df46ed4bf30fb816d94e1d`
+- 1,000 trials per compound case
 
-Remaining E4:
-- [ ] runtime-bound negative-control/mutation tests for authorization predicates;
-- [ ] runtime-bound negative-control for fencing enforcement;
-- [ ] hash-chain verification mutation/tamper test beyond table mutation blocking;
-- [ ] clean crash/restart before new write capability;
-- [ ] compound runtime-bound fault schedules;
-- [ ] false-deny / valid-path cost reporting;
-- [ ] preserve negative/neutral results rather than optimizing claims after the fact.
+Results:
+- stolen authorization after identity swap: World 8 safe `1.0`; hardened session baseline failure exposed `1.0`;
+- stale fence after restart/rotation: World 8 safe `1.0`; no-fence baseline failure exposed `1.0`;
+- restart then receipt tamper: World 8 safe `1.0`; mutable-audit baseline failure exposed `1.0`;
+- valid-path success: normal `1.0`, session swap `1.0`, restart/reconstruct `1.0`;
+- false-deny rate on all three valid paths = `0.0`.
+
+Evidence level remains `REFERENCE_MODEL_COMPOUND_FAULT`; these results are not a proof of production security or distributed linearizability.
+
+### Runtime-bounded negative controls already exercised
+- default-deny authorization;
+- explicit DENY precedence;
+- stale fencing token rejection;
+- effect-receipt mutation rejection;
+- journal mutation rejection;
+- actor/work mismatch;
+- resume-capsule derivation.
 
 ## E5 — External framework comparison + manuscript
 
-Status: OPEN
+Status: **NEXT**
 
 Required:
-- fair externally recognizable orchestration baseline or clearly justified absence;
-- related work verified;
+- fair externally recognizable orchestration baseline;
+- compare only scoped capabilities actually supported by both systems;
+- related work verified from primary/official sources;
 - W8-P01 vs W8-P02 overlap audit PASS;
 - exact evidence freeze;
 - claim audit;
 - journal formatting and cover letter;
 - author approval.
 
+Candidate first comparison target: LangGraph durable execution/checkpointing, because it provides a recognizable durable agent orchestration baseline. Any comparison must distinguish built-in guarantees from application-defined policy and must not equate absent features with failure.
+
 ## Publication rule
 
 **Do not write Results first and search for evidence later.**
 
-The W8-P01 manuscript becomes eligible for full drafting only after E3 is canonicalized and E4 passes mutation/recovery gates. Introduction/related-work notes may be collected earlier, but no claim should outrun this ladder.
+The W8-P01 full manuscript becomes eligible only after E5 establishes a fair external comparison and the discovered admission failure is resolved or explicitly retained as an open limitation. No claim may outrun this ladder.

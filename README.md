@@ -11,18 +11,22 @@ Read [`START_HERE.md`](START_HERE.md) before making governed changes.
 
 ## Identity, research & external links
 
-The canonical human-readable registry for author identity, contact information, research profiles, publication links, continuity resources, public discussion references, legacy repositories, and external-service verification status is:
+The canonical human-readable registry for author identity, contact information, research profiles, **append-only publication/DOI lineage**, continuity resources, public discussion references, legacy repositories, and external-service verification status is:
 
 [`EXTERNAL_LINKS.md`](EXTERNAL_LINKS.md)
 
-Key verified references:
+Key current references:
 - **Author / owner:** Saeed Farrokhi
-- **Email:** saeedfa@gmail.com
+- **Primary email:** saeedfa@gmail.com
+- **University email:** Saeed.farokhi@ut.ac.ir
 - **LinkedIn:** https://www.linkedin.com/in/saeedfarokhi
-- **Zenodo:** https://zenodo.org/records/22058813
+- **Current World 8 / Z0-A Zenodo:** https://zenodo.org/records/22085394
+- **Current World 8 / Z0-A DOI:** https://doi.org/10.5281/zenodo.22085394
 - **Company:** https://taminyaran.com
 - **GitHub:** https://github.com/saeedfaai
 
-Unverified identities such as ORCID, university email, ResearchGate, Academia.edu, SSRN, Medium, Devpost, Google Scholar and MyHeritage are tracked in `EXTERNAL_LINKS.md` and must not be guessed.
+Historical publication records are preserved serially in `EXTERNAL_LINKS.md` and MUST NOT be overwritten by newer records. This includes World v6.2 and World 7 Zenodo/DOI/release references.
+
+Unverified identities such as ORCID, ResearchGate, Academia.edu, SSRN, Medium, Devpost, Google Scholar, OpenAIRE and the canonical MyHeritage profile remain explicitly marked `NEEDS_VERIFICATION` and must not be guessed.
 
 Core principle: **Parallelize work; serialize truth.**

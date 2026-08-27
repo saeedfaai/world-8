@@ -1,21 +1,21 @@
 # W8-P01 — E3 Canonical / Runtime Binding Matrix
 
 Date: 2026-08-27
-Status: **PARTIAL PASS / RUNTIME SOURCE DRIFT OPEN**
-Mode: Git source inspection + read-only runtime schema inspection. No live data or provider effect was mutated.
+Status: **PASS ON EVIDENCE BRANCH / CANONICAL MERGE PENDING**
+Mode: canonical-source inspection + authoritative historical migration recovery + non-persistent runtime behavioral probes.
 
 ## Purpose
 
 E1/E2 are executable reference-model evidence. E3 asks a stricter question:
 
-> Are the mechanisms measured by the flagship experiment actually represented in the canonical World 8 source and deployed runtime, with enough source lineage to support reproducibility?
+> Are the mechanisms measured by the flagship experiment represented by reproducible World 8 source lineage and deployed runtime behavior, rather than by a paper-only model?
 
 A mechanism is classified as:
 
-- `CANONICAL+RUNTIME` — source exists in the canonical repository and the named function is deployed in runtime.
-- `RUNTIME_SCHEMA_BACKED` — deployed definition was verified read-only, but behavioral execution was not invoked.
-- `RUNTIME_ONLY / SOURCE_DRIFT` — deployed object exists, but the effective source definition is not present in the current canonical Git tree.
-- `REFERENCE_MODEL_ONLY` — experiment mechanism has not yet been bound to a canonical/runtime object.
+- `CANONICAL+RUNTIME+BEHAVIOR` — source is already present in the current canonical repository lineage, function is deployed, and a bounded runtime behavioral probe passed.
+- `CANONICAL+RUNTIME / SCHEMA` — source and deployed object are verified; direct behavioral probe is not yet part of W8-P01 evidence.
+- `RECOVERED+RUNTIME+BEHAVIOR / MERGE_PENDING` — authoritative historical migration statement was recovered byte-for-byte from Supabase migration history onto the W8-P01 branch, deployed behavior was probed, but the recovered source is not canonical-main until PR merge.
+- `REFERENCE_MODEL_ONLY` — no adequate current source/runtime binding has been established.
 
 ## E2 receipt entering E3
 
@@ -34,26 +34,63 @@ Two-Society conformance run:
 
 ## Binding matrix
 
-| Experiment mechanism / invariant | Canonical Git evidence | Runtime evidence | Status | Claim ceiling |
+| Experiment mechanism / invariant | Source evidence | Runtime evidence | Status | Claim ceiling |
 |---|---|---|---|---|
-| Persistent Actor / authorization binding | `20260827111400_world8_identity_authority_verifier_v011.sql` → `world8_authorize_v1`; `20260827114000_world8_n_mason_pool_v01.sql` → assignment/execution/workspace actor checks; `20260827125400_world8_crash_safe_mark_ready_actor_binding_v0111.sql` | functions present in `public`; exact definitions hashed below | CANONICAL+RUNTIME / SCHEMA-BACKED | Can claim architecture and deployed schema bind actor/subject separately from execution/session/provider. Behavioral runtime test still pending. |
-| Exact subject-action-resource authorization; DENY/REVOKE precedence | `world8_authorize_v1` in identity/authority v0.1.1; explicit `EXPLICIT_DENY_OR_REVOKE`, `NO_MATCHING_AUTHORITY_RULE`, identity/workspace scope checks and authorization receipt | deployed `world8_authorize_v1` verified | CANONICAL+RUNTIME / SCHEMA-BACKED | May describe fail-closed verifier semantics; do not claim adversarial security completeness. |
-| Workspace actor/work binding + stale canonical base protection | `202608271004_world8_developer_admission_workspace_v01.sql` → `world8_dev_register_workspace_v1`, `world8_dev_admission_check_v1`; N-Mason binding functions | deployed functions verified | CANONICAL+RUNTIME / SCHEMA-BACKED | Supports actor/work/workspace binding and stale-base gate. |
-| Assignment → Execution actor continuity | `world8_mason_pool_bind_execution_v1` | deployed and hash verified | CANONICAL+RUNTIME / SCHEMA-BACKED | Supports provider/execution binding to persistent Actor; actual provider swap behavior remains a runtime test target. |
-| Assignment → Workspace actor continuity | `world8_mason_pool_bind_workspace_v1`; `world8_mason_pool_mark_ready_v1` defense-in-depth | deployed and hash verified | CANONICAL+RUNTIME / SCHEMA-BACKED | Supports exact assignment/work/workspace actor binding. |
-| Append-only, chained development evidence | `20260827121700_world8_dev_continuity_core_v01.sql`: journal has `previous_event_hash`, `content_hash`, advisory serialization, append-only UPDATE/DELETE trigger; checkpoints contain journal hash/content hash | `world8_dev_journal_append_v1`, `world8_dev_checkpoint_v1` deployed | CANONICAL+RUNTIME / SCHEMA-BACKED | Supports tamper-evident development continuity model. Mutation/tamper execution against isolated DB pending. |
-| Crash-safe closure / resume before new work | `20260827125200_world8_crash_safe_enforcement_v011.sql`; `20260827132600_world8_crash_safe_resume_closure_v012.sql` | `world8_dev_scribe_guard_v1`, `world8_dev_scribe_closure_guard_v1`, `world8_dev_resume_capsule_v2`, handoff/postflight functions deployed | CANONICAL+RUNTIME / SCHEMA-BACKED | Supports deployed recovery/closure gates; clean restore behavioral test pending. |
-| Development Lease v3 requires admission + checked authorization | Current `START_HERE.md` and runtime semantics; effective lease v2/v3 source definition recovered from runtime but not found in current canonical migration tree | `world8_dev_acquire_lease_v2/v3` deployed; v2 refuses authorization bypass, verifies admission actor/work/workspace and checked auth evidence | **RUNTIME_ONLY / SOURCE_DRIFT** | Cannot call this fully reproducible/canonical until source lineage is reconciled into Git. |
-| Lease heartbeat/release semantics with fencing token surfaced | effective runtime definitions recovered read-only; current canonical Git tree does not contain source | `world8_dev_heartbeat_lease_v1`, `world8_dev_release_lease_v2` deployed | **RUNTIME_ONLY / SOURCE_DRIFT** | Runtime schema evidence only. |
-| Sequencer fencing-token rotation / stale expected token rejection | effective runtime definition recovered read-only; current canonical Git tree does not contain source | `world8_maintain_sequencer_lease` deployed; stale expected fencing token raises serializable conflict | **RUNTIME_ONLY / SOURCE_DRIFT** | Do not claim canonical reproducibility until source reconciled. |
-| External effect plan binds approval + payload hash + expected head + fencing token | effective runtime definition recovered read-only; current canonical Git tree does not contain source | `world8_plan_task_external_effect` deployed; uses authorization, payload hash, expected head, fencing token and canonical commit | **RUNTIME_ONLY / SOURCE_DRIFT** | Do not use as paper evidence yet. |
-| Effect receipt mutation blocked | effective runtime function exists; current canonical Git tree does not contain source | `world8_prevent_effect_receipt_mutation` deployed | **RUNTIME_ONLY / SOURCE_DRIFT** | Runtime schema evidence only. |
-| Generic CAS used in E1/E2 reference model | stale-base and runtime commit mechanisms exist, but exact experiment CAS abstraction is broader than one canonical current function | mixed | REFERENCE→PARTIAL BINDING | Use as mechanism illustration, not as exclusive World 8 contribution. Hardened baseline already matches CAS. |
-| Durable idempotency used in E1/E2 reference model | runtime effect/outbox path contains business-effect/idempotency concepts, but detailed canonical source binding is not yet complete | mixed | REFERENCE→PARTIAL BINDING | Not an exclusive contribution; hardened baseline already matches durable idempotency. |
+| Persistent Actor / authorization binding | `20260827111400_world8_identity_authority_verifier_v011.sql`; `20260827114000_world8_n_mason_pool_v01.sql`; actor-binding repair `20260827125400...` | deployed functions; Work↔Actor mismatch probe passed | CANONICAL+RUNTIME+BEHAVIOR | May claim bounded runtime evidence for actor/work binding and source-level provider/execution separation. Not a proof against all impersonation attacks. |
+| Exact subject-action-resource authorization; default DENY; DENY/REVOKE precedence | `world8_authorize_v1` in Identity & Authority v0.1/v0.1.1 | no-rule default-DENY probe PASS; synthetic ALLOW+DENY precedence probe PASS; both rollback-contained | CANONICAL+RUNTIME+BEHAVIOR | May claim fail-closed verifier behavior for tested paths. No general security-completeness claim. |
+| Workspace actor/work binding + stale canonical base protection | `202608271004_world8_developer_admission_workspace_v01.sql`; N-Mason binding functions | mismatched Work/Actor rejected before workspace write | CANONICAL+RUNTIME+BEHAVIOR | Supports explicit actor/work/workspace binding. Stale-base source semantics are bound but dedicated live stale-base mutation remains outside this probe set. |
+| Assignment → Execution actor continuity | `world8_mason_pool_bind_execution_v1` | deployed and definition-hashed | CANONICAL+RUNTIME / SCHEMA | Source/runtime binding established; cross-provider behavioral comparison remains an E4/E5 candidate. |
+| Assignment → Workspace actor continuity | `world8_mason_pool_bind_workspace_v1`; `world8_mason_pool_mark_ready_v1` | deployed and definition-hashed; Work↔Actor rejection observed | CANONICAL+RUNTIME+BEHAVIOR | Supports exact assignment/work/workspace actor binding for tested mismatch path. |
+| Append-only, chained development evidence | `20260827121700_world8_dev_continuity_core_v01.sql`: `previous_event_hash`, `content_hash`, advisory serialization, append-only triggers | no-op UPDATE of real journal row rejected by append-only guard; rollback | CANONICAL+RUNTIME+BEHAVIOR | Supports deployed mutation blocking plus source-defined hash chaining. Full chain-verification mutation gate remains E4. |
+| Crash-safe closure / resume | crash-safe enforcement + resume-closure migrations | `world8_dev_resume_capsule_v2` read-only probe PASS; real Work reported `CLOSED_BLOCKED`, not fabricated PASS | CANONICAL+RUNTIME+BEHAVIOR | May claim runtime-derived resume state and fail-closed reporting. A clean crash/restart-to-write test remains E4. |
+| Development Lease v1 foundation: TTL, fencing-token allocation, write-conflict checks, CAS update | authoritative historical `20260826174552_world8_development_control_plane_v1.sql`, recovered byte-for-byte on this branch | v1/heartbeat/CAS functions deployed | RECOVERED+RUNTIME / MERGE_PENDING | Reproducible on evidence branch; not canonical-main until PR merge. |
+| Development Lease v2/v3 requires admission + checked authorization | `202608271105_world8_identity_authority_verifier_v01.sql` already contains effective v2/v3 source; earlier code-search absence was a false negative | `world8_dev_acquire_lease_v2/v3` deployed | CANONICAL+RUNTIME / SCHEMA | May describe fail-closed admission/authorization dependency. Dedicated lease-creation behavioral probe is deferred to isolated E4 work. |
+| Sequencer fencing-token CAS / stale token rejection | authoritative historical `20260824130305_w0_0015_sequencer_lease_maintenance.sql`, recovered byte-for-byte on this branch | current token 30; supplied stale token 29 rejected with SQLSTATE `40001`; no persistent change | RECOVERED+RUNTIME+BEHAVIOR / MERGE_PENDING | Strong bounded evidence for stale-token rejection; not a proof of distributed linearizability under arbitrary failures. |
+| External effect planning binds explicit approval + payload hash + expected head + fencing token | authoritative historical `20260824133158_w2_0006_external_effect_governance.sql` + hosted overlay, recovered byte-for-byte | planner deployed; no live external effect invoked in W8-P01 | RECOVERED+RUNTIME / MERGE_PENDING | Source/runtime binding only. W8-P01 must not claim live exactly-once provider effects. |
+| Effect receipt mutation blocked | same recovered W2 governance source defines immutable receipt trigger | no-op UPDATE of existing `effect_receipts` row rejected with `effect_receipts are immutable`; rollback | RECOVERED+RUNTIME+BEHAVIOR / MERGE_PENDING | Supports deployed append-preservation for tested mutation path. |
+| Generic CAS in E1/E2 reference model | DCP v1 contains `world8_dev_cas_update_artifact_v1`; external-effect commit also carries expected-head semantics | source/runtime mechanisms exist | PARTIAL BINDING; NOT EXCLUSIVE CONTRIBUTION | Hardened baseline already matches CAS; use only as a shared control mechanism, not novelty. |
+| Durable idempotency in E1/E2 reference model | W2 effect governance contains attempt collision/replay and outbox business-effect keys | deployed path exists; no provider effect invoked | PARTIAL BINDING; NOT EXCLUSIVE CONTRIBUTION | Hardened baseline already matches durable idempotency; not a novelty claim. |
+
+## Runtime behavioral probe receipt
+
+See:
+`experiments/flagship_governance_v0_1/E3_RUNTIME_BEHAVIORAL_PROBES.md`
+
+PASS set, all with `persistent_changes=false`:
+1. default-DENY authorization;
+2. explicit DENY precedence over ALLOW;
+3. stale sequencer fencing token rejection;
+4. effect-receipt mutation rejection;
+5. development-journal mutation rejection;
+6. Work↔Actor mismatch rejection;
+7. read-only resume-capsule derivation.
+
+No external provider effect, live trade, supplier order, or durable synthetic authorization rule was left behind.
+
+## Authoritative source recovery
+
+Historical SQL was recovered from `supabase_migrations.schema_migrations.statements`, not reconstructed from current `pg_get_functiondef` output.
+
+Recovered branch files and authoritative statement SHA256:
+
+- `20260824130305_w0_0015_sequencer_lease_maintenance.sql`
+  - `13b418f2f475bf423592224d44a45739cacc664cd4981263ffe40495f309b99d`
+- `20260824133158_w2_0006_external_effect_governance.sql`
+  - `bb3a9e65f06d374625ef7378e771ec284993f31278615d519095d5602508d92b`
+- `20260824133326_w2_supabase_external_effect_hosted_overlay.sql`
+  - `1f0a0789be184d5043d43e34f31a68c4d6042a0152e8e80ff59803994700e81b`
+- `20260826174552_world8_development_control_plane_v1.sql`
+  - `634d057945e8d7de6b1bdf6712f18b11109d2682760bbdd30fcda117ba93c52d`
+
+Integrity run after the guarded one-byte EOF-newline repair:
+- https://github.com/saeedfaai/world-8/actions/runs/33107476738
+- all four `sha256sum -c` checks: PASS
+
+The earlier DCP recovery failure is retained as diagnostic evidence: the integrity gate caught a one-byte missing final newline; segment hashing localized it to EOF; a guarded repair appended only ASCII 10 and the authoritative full-file hash then passed.
 
 ## Runtime function-definition receipts
 
-Read-only `pg_proc` inspection returned the following SHA256 hashes of deployed function definitions:
+Read-only `pg_proc` inspection returned:
 
 - `world8_authorize_v1` — `1fecca17bef4266d1a5558ffcef6a056b359602edf3c6a59a8a072ffc099fa5a`
 - `world8_dev_register_workspace_v1` — `f6ff36204135f30081a1fc1604a6588202935b36f9cdac67d5a9d44ead689a0b`
@@ -69,39 +106,31 @@ Read-only `pg_proc` inspection returned the following SHA256 hashes of deployed 
 - `world8_plan_task_external_effect` — `4e73a7d389437c57db7ee53289ddcd880d21394ec2f4ccfb69890ca39448e84a`
 - `world8_prevent_effect_receipt_mutation` — `bf900d7b71b2181984f973837ecd3ea115ef4d9e47eebce75cb41363126d44c2`
 
-These hashes establish the observed deployed schema definitions at inspection time; they do not by themselves prove runtime behavior.
-
-## Runtime migration-history consistency
-
-Read-only migration history confirms the current Git-visible 2026-08-27 engineering migrations are deployed, including:
-- Developer Admission / Workspace
-- Identity & Authority v0.1 / v0.1.1
-- N-Mason Pool / Merge Queue
-- Development Continuity
-- Crash-Safe enforcement / actor-binding repair / resume closure
-- Engineering Guardian
-- Provider execution / credential broker / live bridge
-
-However, the runtime also contains older foundational World 8 functions whose source migrations are not present in the current canonical repository tree. This is a **reproducibility drift**, not evidence of a failure in the deployed function itself.
+These definition hashes establish the observed deployed function bodies at inspection time. Behavioral claims are limited to the explicit probe set above.
 
 ## E3 gate status
 
-### PASS now
-- [x] core identity/authority function exists in canonical Git and runtime
-- [x] actor/execution/workspace binding functions exist in canonical Git and runtime
-- [x] chained append-only development journal/checkpoint exists in canonical Git and runtime
-- [x] crash-safe guard/resume functions exist in canonical Git and runtime
-- [x] runtime inspection was read-only; no provider effect or business data mutated
+### PASS on the W8-P01 evidence branch
+- [x] identity/authority source ↔ deployed runtime bound
+- [x] actor/work/workspace source ↔ deployed runtime bound
+- [x] append-only chained development evidence source ↔ deployed runtime bound
+- [x] crash-safe resume source ↔ deployed runtime bound
+- [x] Lease v2/v3 source confirmed in existing Git history
+- [x] direct Lease v1/DCP dependency source recovered byte-for-byte
+- [x] sequencer fencing source recovered byte-for-byte
+- [x] external-effect governance/receipt source recovered byte-for-byte
+- [x] four-file source-recovery integrity gate PASS
+- [x] bounded runtime behavioral probes PASS with no persistent external effect
 
-### OPEN before E3 COMPLETE
-- [ ] reconcile Lease v1/v2/v3 source lineage into canonical Git
-- [ ] reconcile sequencer fencing source lineage into canonical Git
-- [ ] reconcile external-effect commit/receipt immutability source lineage into canonical Git, or exclude those mechanisms from W8-P01 claims
-- [ ] add isolated behavioral SQL tests for authorization deny/revoke, actor binding, journal tamper protection, lease/fencing, restart/resume
-- [ ] rerun architecture/identity/crash-safe validators against the final reconciled source
+### OPEN before E3 COMPLETE / canonical claim
+- [ ] run the final branch validator suite against reconciled source
+- [ ] merge recovered historical source through a governed PR into canonical `main`
+- [ ] confirm post-merge source presence/integrity on canonical `main`
 
 ## Current claim ceiling
 
-W8-P01 may state that the current deployed schema and canonical source independently support persistent actor/authority binding and crash-safe tamper-evident development evidence, and that reference-model conformance passed across Company and Trading adapters.
+W8-P01 now has reference-model evidence, two-Society conformance, authoritative source lineage on the evidence branch, and bounded runtime behavioral evidence for its central governance mechanisms.
 
-W8-P01 MUST NOT yet claim a fully reproducible runtime implementation of fencing/effect mechanisms until the source-drift items above are closed.
+Until the recovery PR is merged and post-merge integrity is verified, language must say **reconciled on the evidence branch** rather than **fully canonicalized in main**.
+
+E4 still owns mutation testing, compound failures, clean crash/restart-to-write behavior, and quantitative false-deny / valid-path costs.

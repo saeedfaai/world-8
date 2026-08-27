@@ -57,10 +57,14 @@ ai_disclosure:
 
 files:
   pdf_drive_url: https://drive.google.com/file/d/15b2XrL8mqix6gBEnWXm6VTxtoCCgCi59/view
-  pdf_sha256: acee536968f1fb9e527469d2125600b03587ce2e5a211ffdfadb6fe85f24ba7a
+  pdf_sha256: 53b3a4c688b620cb3f611ae525484cfba0d186fb85393e7011312999ecf2efed
+  pdf_bytes: 210232
   pdf_pages: 9
   docx_drive_url: https://drive.google.com/file/d/1tNIMdqCBJ6a8dRDR60TkccWCoF-8G4MM/view
-  docx_sha256: 8de4a3bc137882181add32cb3884dc355e4fe77ca5d680bb60ae20fb1aa57a18
+  docx_sha256: 345164e825abc887ae0e26de745c6705a512193e42ca25985871f46d94c69386
+  docx_bytes: 22730
+  markdown_sha256: 7a1f11cd3ee75d2f974f41bac5341367408fede2f75e3bbf16642902393a6c19
+  hash_correction_status: PASS_PRE_SUBMISSION_INTEGRITY_RECHECK
 
 license:
   ssrn_selection: AUTHOR_DECISION_REQUIRED
@@ -78,5 +82,6 @@ readiness:
   related_work_verified: PASS
   claim_audit: PASS
   full_text_pdf: PASS_VISUAL_QA
+  final_render_hash_integrity: PASS
   author_final_claim_review: OPEN
   ssrn_submission: OPEN

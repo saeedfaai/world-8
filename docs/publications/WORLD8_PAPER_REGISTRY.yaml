@@ -1,0 +1,53 @@
+schema: WORLD8_PAPER_REGISTRY/1.0
+status: CANONICAL_ACTIVE
+updated: 2026-08-27
+owner: Saeed Farrokhi
+policy:
+  max_active_papers: 2
+  max_current_generation_planned_papers: 4
+  duplicate_gate_required: true
+  historical_world6_world7_count_as_active: false
+papers:
+  - id: W8-P01
+    role: flagship_overall_architecture
+    status: ACTIVE_NOT_SUBMITTED
+    title_working: "World 8: A Governed Architecture for Persistent, Auditable Multi-Agent Systems Beyond the LLM Session"
+    primary_question: "Can a multi-agent system preserve persistent identity, explicit authority, auditable evidence/state boundaries, and replaceable AI providers while keeping prediction, decision, execution, and development governance separable and inspectable?"
+    primary_target: "Autonomous Agents and Multi-Agent Systems (Springer / JAAMAS)"
+    secondary_target: "Future Generation Computer Systems (Elsevier)"
+    main_evidence_domain: architecture_governance_runtime_failure_injection
+    may_reuse_from_W8_P02: background_and_short_validation_summary_only
+    prohibited_reuse: detailed_market_results_and_ablation_tables
+    activation_gate: already_active
+  - id: W8-P02
+    role: empirical_forecast_decision_order
+    status: ACTIVE_SUBMITTED_SSRN_UNDER_REVIEW
+    title: "Forecast, Decision, and Order as Separate Objects: A Contract-Based Evaluation Architecture for Multi-Agent Market Systems"
+    ssrn_abstract_id: "7359740"
+    ssrn_url: "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7359740"
+    main_evidence_domain: market_replay_calibration_ablations_replication
+    lifecycle_integrity: "52920_RESOLVED_0_FAILURES"
+    prohibited_reuse: complete_world8_architecture_claim
+  - id: W8-P03
+    role: persistent_identity_authority_governed_execution
+    status: RESERVED_BLOCKED_UNTIL_INDEPENDENT_EVIDENCE
+    activation_gate: security_failure_injection_benchmark_plus_baseline
+    main_evidence_domain: identity_authority_security
+  - id: W8-P04
+    role: development_control_plane_agent_software_engineering
+    status: RESERVED_BLOCKED_UNTIL_INDEPENDENT_EVIDENCE
+    activation_gate: measured_engineering_outcomes_and_comparison
+    main_evidence_domain: software_engineering_reproducibility_handoffs
+historical_lineage:
+  - World_v6_2
+  - World_7_v0_2
+  - World_8_Z0_A
+duplicate_gate:
+  questions:
+    - distinct_primary_research_question
+    - independently_generated_primary_evidence
+    - majority_unique_results_and_discussion
+    - minimized_repeated_background
+    - distinct_main_conclusion
+    - cannot_reasonably_be_section_of_existing_paper
+  fail_action: MERGE_INTO_EXISTING_PAPER

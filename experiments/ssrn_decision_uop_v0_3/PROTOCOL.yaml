@@ -1,0 +1,61 @@
+schema: WORLD8_SSRN_DECISION_UOP_PROTOCOL/3.0
+status: FROZEN_HISTORICAL_REPLAY
+frozen_at: 2026-08-27
+work_item: https://github.com/saeedfaai/world-8/issues/10
+parents:
+  forecast_experiment: ../ssrn_market_replay_v0_1
+  architecture_ablation: ../ssrn_market_replay_v0_2
+scope:
+  historical_replay_only: true
+  live_orders_authorized: false
+  brokerage_or_exchange_execution: false
+  profitability_claim_authorized: false
+forecast_input:
+  variant: calibrated_weighted
+  source: ../ssrn_market_replay_v0_1/results/forecast_contracts_test.jsonl.gz
+  horizon_hours: 6
+  immutable: true
+decision:
+  cadence_hours: 6
+  non_overlapping: true
+  action_space: [LONG, FLAT]
+  long_probability_threshold: 0.55
+  entry_assumption: observed_close_at_forecast_cutoff
+  exit_assumption: observed_close_6h_later
+  note: "Observed closes are retrospective simulation assumptions, not executable fill claims."
+risk_veto:
+  independent_from_forecaster: true
+  rule: calibration_rv24_above_quantile
+  calibration_window:
+    start: 2025-01-01T00:00:00Z
+    end_exclusive: 2025-07-01T00:00:00Z
+  rv24_quantile: 0.90
+  action_on_trigger: FORCE_FLAT
+cost_scenarios_bps_round_trip: [5, 10, 20]
+uop:
+  gross_return: "LONG * (exit_close / entry_close - 1)"
+  net_return: "gross_return - round_trip_cost when LONG; zero when FLAT"
+  metrics:
+    - eligible_decisions
+    - long_decisions
+    - veto_count
+    - hit_rate_on_long
+    - mean_net_return_per_eligible_decision
+    - mean_net_return_per_long_decision
+    - compounded_path_return
+    - max_drawdown
+    - p05_net_return
+    - p95_net_return
+comparators:
+  - decision_no_veto
+  - decision_with_volatility_veto
+  - always_long_non_overlapping
+reproducibility:
+  canonical_float_decimals: 12
+  canonical_json_sort_keys: true
+  hash_algorithm: sha256
+  bitwise_repeat_gate: true
+claims:
+  risk_reduction_assumed: false
+  return_improvement_assumed: false
+  negative_results_must_be_preserved: true

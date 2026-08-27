@@ -1,0 +1,44 @@
+name: W8-P01 Compound Fault Gate
+
+on:
+  push:
+    branches:
+      - work/w8-p01-governance-experiment-v0.1
+    paths:
+      - 'experiments/flagship_governance_v0_1/model_v2.py'
+      - 'experiments/flagship_governance_v0_1/compound_fault_gate_v1.py'
+      - 'experiments/flagship_governance_v0_1/tests/test_compound_fault_gate_v1.py'
+      - '.github/workflows/w8-p01-compound-fault-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compound-fault-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unit tests
+        run: python -m unittest experiments/flagship_governance_v0_1/tests/test_compound_fault_gate_v1.py -v
+      - name: Run compound fault gate
+        run: |
+          python experiments/flagship_governance_v0_1/compound_fault_gate_v1.py \
+            --trials 1000 \
+            --seed 20260827 \
+            --output experiments/flagship_governance_v0_1/results_compound
+      - name: Hash compound evidence
+        run: |
+          cd experiments/flagship_governance_v0_1/results_compound
+          sha256sum compound_fault_gate_v1.json | tee SHA256SUMS_compound.txt
+      - name: Upload compound artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-compound-fault-gate-v1
+          path: experiments/flagship_governance_v0_1/results_compound/
+          retention-days: 90
+          if-no-files-found: error

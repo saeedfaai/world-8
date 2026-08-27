@@ -91,6 +91,20 @@ It does not persist provider error response bodies or private reasoning.
 - OpenAI candidate contains `PROVIDER_HEALTH_HARD_BLOCKED`.
 - No provider was automatically invoked by failover selection.
 
+## Groq credential location probe — 2026-08-27
+
+The Groq adapter, opaque credential reference, and worker transport are already registered:
+
+- adapter: `adapter-groq-external-v01` — ACTIVE;
+- credential binding: `binding-groq-envref-v01` / `envref:GROQ_API_KEY` — ACTIVE but UNVERIFIED;
+- transport: `transport-supabase-groq-generic-v01` — ACTIVE / VERIFIED.
+
+A live credential probe was dispatched through the generic Supabase worker. Challenge `credential-challenge-78fb847f05fb86871ba513cf04d5` was consumed, but the append-only verification receipt recorded `result=FAIL`, `credential_present=false`, `provider_invoked=false`, and HTTP status `0`. This proves `GROQ_API_KEY` is not currently injected into the Supabase Edge runtime used by the generic worker.
+
+A second independent GitHub Actions probe was run on the non-production branch `work/provider-failover-mesh-v0.1` using `${{ secrets.GROQ_API_KEY }}` without printing or exporting the secret value. GitHub Actions run `33105516722` reported `groq_secret_present=false`. Therefore the current `world-8` repository Actions secret store also does not expose a secret under that name.
+
+No raw Groq key was read, copied, logged, committed, or returned by either probe. The prior key location remains unresolved from currently connected runtime evidence; do not ask for or copy a new key until existing credential stores are checked.
+
 ## Scale rule
 
 A successful single REAL_EXTERNAL canary is required before 1→5→20→100 real AI execution scale-out. Existing Guardian/N-Mason orchestration has already been load-tested separately at 100 concurrent engineering sessions; that is not evidence of 100 live provider invocations.

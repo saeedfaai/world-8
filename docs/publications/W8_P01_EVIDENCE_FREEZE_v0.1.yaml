@@ -1,0 +1,150 @@
+paper_id: W8-P01
+freeze_version: v0.1
+freeze_date: 2026-08-27
+status: EVIDENCE_FROZEN_FOR_MANUSCRIPT_DRAFT
+repository: saeedfaai/world-8
+canonical_evidence_commit: 34ed68b6e04c548e7ee14aa16e0e3eecdb1b31f0
+freeze_branch: freeze/w8-p01-evidence-v0.1
+manuscript_branch: work/w8-p01-manuscript-v0.1
+production_claim: false
+live_trading: false
+external_business_effects: false
+
+research_question: >-
+  Can one governed multi-agent kernel preserve persistent identity, explicit authority,
+  auditable evidence/effect boundaries, and recovery invariants across materially
+  different Societies while remaining independent of provider/session identity?
+
+primary_target: Autonomous Agents and Multi-Agent Systems (Springer / JAAMAS)
+secondary_target: Future Generation Computer Systems (Elsevier)
+
+claim_ceiling: >-
+  World 8 is evaluated as a governed shared-kernel architecture. The frozen evidence
+  supports bounded claims about persistent actor-bound authorization, fencing/lease
+  boundaries, tamper-evident evidence, recovery gating, cross-Society conformance,
+  and composability of the tested governance controls over AutoGen Core. It does not
+  support claims of general framework superiority, production readiness, profitability,
+  AGI, consciousness, or universal security.
+
+nonclaims:
+  - World 8 generally beats AutoGen, LangGraph, or other agent frameworks.
+  - Leases, fencing tokens, CAS, RBAC, checkpoints, hash chains, tracing, or idempotency are novel mechanisms by themselves.
+  - World 8 is production-ready.
+  - World 8 is profitable or beats markets.
+  - W8-P01 establishes forecasting superiority; market-performance claims belong to W8-P02.
+  - The evidence establishes causal architectural superiority across arbitrary domains.
+  - The evidence establishes AGI, consciousness, or autonomous economic agency.
+
+portfolio_boundary:
+  w8_p02_ssrn_abstract_id: 7359740
+  w8_p02_owns:
+    - market replay and Brier/calibration results
+    - forecast-performance baselines and market ablation tables
+    - Decision/UOP market metrics
+    - non-crypto market-performance replication
+    - Forecast Contract lifecycle counts as primary performance results
+  w8_p01_may_use_trading_only_as: governance/conformance Society
+  overlap_audit: docs/publications/W8_P01_P02_OVERLAP_AUDIT.md
+
+levels:
+  E1:
+    status: PASS_REFERENCE_MODEL
+    run: 33103617400
+    trials: 98000
+    artifact_sha256: 03d8542ea15b9ae3296d26b5ab52ad7e5e1b4bbf5974e77f7693ffaaebad3486
+    summary_sha256: 1fecd2863ef8a574b231308f68e846baf22ac2f00432d6d42f4861ec8de2e259
+    bounded_result: >-
+      Hardened baseline matched generic revoke/CAS/idempotency/single-winner behavior.
+      Differentiated reference mechanisms remaining were persistent actor-bound authorization,
+      fencing/lease enforcement, and tamper-evident evidence verification.
+    reference_valid_path_cost:
+      world8_policy_checks: 7
+      world8_evidence_records: 9
+      hardened_baseline_policy_checks: 6
+      hardened_baseline_evidence_records: 8
+
+  E2:
+    status: PASS_CROSS_SOCIETY_REFERENCE_CONFORMANCE
+    run: 33103973441
+    trials_per_society: 1000
+    societies:
+      - company
+      - trading
+    invariant_count: 8
+    company_all_pass_rate: 1.0
+    trading_all_pass_rate: 1.0
+    conformance_vectors_equal: true
+    market_performance_evaluated: false
+    live_effects: false
+    artifact_sha256: f6a0c8a6d4c39daa67326dbcf9f4c34494836ca81d63964b493a989482ac91aa
+    result_sha256: ac3b90efabd1e83c36e388c0bda61dfff5ba325c568a50ad579f74dd1f8f9704
+
+  E3:
+    status: PASS_WITH_LIMITATIONS
+    source_integrity_run: 33107476738
+    reconciled_validator_run: 33107662002
+    canonical_merge_pr: 28
+    behavioral_probes:
+      authorization_default_deny_and_explicit_deny: PASS
+      stale_fencing_token_rejected: PASS
+      effect_receipt_mutation_blocked: PASS
+      development_journal_append_only: PASS
+      actor_work_mismatch_rejected: PASS
+      resume_capsule_reconstruction: PASS
+    persistent_experimental_residue: false
+    limitation:
+      - world8_mason_pool_bind_execution_v1 is source+runtime backed but lacked a suitable active execution/assignment for a clean behavioral probe.
+      - runtime PostgreSQL functions were not destructively mutated.
+
+  E4:
+    status: PASS_WITH_SCOPE
+    mutation_run: 33107646035
+    mutation_count: 5
+    mutations_killed: 5
+    mutation_score: 1.0
+    compound_fault_run: 33108000278
+    compound_cases: 3
+    trials_per_case: 1000
+    world8_safe_rate_all_cases: 1.0
+    hardened_baseline_target_failure_exposed_all_cases: 1.0
+    valid_path_false_deny_rate: 0.0
+    compound_result_sha256: 79341467909930b09460082f34402686e2fb7f0de6df46ed4bf30fb816d94e1d
+    scope_note: mutation score applies to the executable reference model; production PostgreSQL was not deliberately mutated.
+
+  E5:
+    status: PASS_BOUNDED_EXTERNAL_BASELINE
+    external_runtime: AutoGen Core
+    pinned_version: 0.7.5
+    successful_public_run: 33109497608
+    runtime_cases: 2000
+    llm_or_api_key_used: false
+    artifact_sha256: bb9ed255bc9b73ef359d452189c9bf1f629b67262137a05bbf930926837205b2
+    summary_sha256: 7a2a84bdc385caf708b0e5e87e6c41a8761163900b0266c825ccc016eb2d15e7
+    hardened_autogen_generic_controls:
+      valid_paths_safe_rate: 1.0
+      revoke_safe_rate: 1.0
+      stale_version_cas_safe_rate: 1.0
+      duplicate_idempotency_safe_rate: 1.0
+      stolen_approval_safe_rate: 0.0
+      stale_fence_safe_rate: 0.0
+      audit_tamper_safe_rate: 0.0
+      effect_before_recovery_safe_rate: 0.0
+    autogen_plus_world8_style_governance:
+      all_frozen_valid_and_fault_paths_safe_rate: 1.0
+      valid_path_false_deny_rate: 0.0
+      runtime_swap_actor_continuity_rate: 1.0
+    interpretation: >-
+      The tested World 8 governance controls are composable over AutoGen Core and close
+      the four frozen governance fault families. This is not a claim that World 8 generally
+      beats AutoGen or that AutoGen is insecure.
+
+verified_prior_art_registry: docs/publications/W8_P01_RELATED_WORK_REGISTRY.md
+external_baseline_protocol: docs/publications/W8_P01_E5_EXTERNAL_BASELINE_PROTOCOL.md
+external_baseline_receipt: experiments/flagship_governance_v0_1/E5_AUTOGEN_EXTERNAL_BASELINE_RECEIPT.md
+e4_scoped_close: docs/publications/W8_P01_E4_SCOPED_CLOSE.md
+e4_compound_receipt: experiments/flagship_governance_v0_1/E4_COMPOUND_FAULT_RECEIPT.md
+
+manuscript_rule: >-
+  Any numerical Result, table, figure, or claim in manuscript v0.1 must trace to this
+  freeze or be explicitly marked as post-freeze exploratory material. Post-freeze project
+  development must not silently replace frozen evidence.

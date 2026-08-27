@@ -2,7 +2,7 @@
 
 Date: 2026-08-27
 Paper: W8-P01
-Status: ACTIVE / MANUSCRIPT BLOCKED UNTIL E3+E4
+Status: ACTIVE / MANUSCRIPT BLOCKED UNTIL E3 CANONICAL MERGE + E4
 
 ## E0 — Architectural proposition
 
@@ -58,35 +58,61 @@ No market-performance metric and no live effect is used in E2.
 
 ## E3 — Canonical/runtime binding
 
-Status: **PARTIAL PASS / SOURCE DRIFT OPEN**
+Status: **PASS ON EVIDENCE BRANCH / CANONICAL MERGE PENDING**
 
 Binding receipt:
 `experiments/flagship_governance_v0_1/E3_CANONICAL_RUNTIME_BINDING.md`
 
-Canonical + runtime schema-backed now:
+Runtime behavioral receipt:
+`experiments/flagship_governance_v0_1/E3_RUNTIME_BEHAVIORAL_PROBES.md`
+
+### Bound in current source + deployed runtime
 - actor/authority verifier;
 - actor/execution/workspace binding;
-- stale canonical workspace base gate;
+- stale canonical workspace-base protection;
 - append-only chained development journal/checkpoints;
-- crash-safe Scribe closure/resume.
+- crash-safe Scribe closure/resume;
+- Lease v2/v3 wrappers and fail-closed admission/authorization dependency.
 
-Runtime-deployed but source drift open:
-- Development Lease v2/v3 lineage;
-- sequencer fencing lineage;
-- external-effect planner / immutable effect-receipt lineage.
+### Historical dependency/source lineage recovered on W8-P01 branch
+Recovered from `supabase_migrations.schema_migrations.statements`, byte-for-byte:
+- DCP/Lease v1 foundation — SHA256 `634d057945e8d7de6b1bdf6712f18b11109d2682760bbdd30fcda117ba93c52d`
+- Sequencer lease maintenance — SHA256 `13b418f2f475bf423592224d44a45739cacc664cd4981263ffe40495f309b99d`
+- W2 external-effect governance — SHA256 `bb3a9e65f06d374625ef7378e771ec284993f31278615d519095d5602508d92b`
+- W2 hosted overlay — SHA256 `1f0a0789be184d5043d43e34f31a68c4d6042a0152e8e80ff59803994700e81b`
 
-E3 cannot be marked COMPLETE until source drift is reconciled or those mechanisms are removed from claims, and isolated behavioral SQL tests pass.
+Integrity run after guarded EOF repair:
+- https://github.com/saeedfaai/world-8/actions/runs/33107476738
+- all four authoritative `sha256sum -c` checks PASS.
+
+### Runtime behavioral probes — PASS / NON-PERSISTENT
+- default DENY with no matching authority rule;
+- explicit DENY precedence over ALLOW;
+- stale fencing token rejected (`30` current vs `29` supplied, SQLSTATE `40001`);
+- effect receipt no-op UPDATE rejected;
+- development journal no-op UPDATE rejected;
+- Work↔Actor mismatch rejected before workspace write;
+- read-only `world8_dev_resume_capsule_v2` returned real blocked state rather than fabricated readiness.
+
+No external provider effect or live trade was executed. Transactional probes were rolled back.
+
+### E3 remaining gate
+- [ ] final validator suite green on reconciled branch
+- [ ] governed PR merges recovered source into canonical `main`
+- [ ] post-merge canonical source/integrity verification
+
+Until then, the correct wording is **runtime-backed and source-reconciled on the evidence branch**, not yet **fully canonicalized in main**.
 
 ## E4 — Mutation / compound failure / recovery
 
 Status: OPEN
 
 Required:
-- isolated behavioral SQL tests;
-- mutation gate for actor binding, authorization, fencing, evidence integrity;
-- crash/restart before new write capability;
+- mutation gate for actor binding, authorization, fencing, evidence verification;
+- clean crash/restart before new write capability;
 - compound-fault schedules on runtime-bound mechanisms;
-- false-deny / valid-path cost reporting.
+- false-deny / valid-path cost reporting;
+- preserve negative/neutral results rather than optimizing claims after the fact.
 
 ## E5 — External framework comparison + manuscript
 
@@ -105,4 +131,4 @@ Required:
 
 **Do not write Results first and search for evidence later.**
 
-The W8-P01 manuscript becomes eligible for full drafting only when E3 is complete enough to reproduce the measured kernel claims and E4 passes mutation/recovery gates. Introduction/related-work notes may be collected earlier, but no claim should outrun this ladder.
+The W8-P01 manuscript becomes eligible for full drafting only after E3 is canonicalized and E4 passes mutation/recovery gates. Introduction/related-work notes may be collected earlier, but no claim should outrun this ladder.

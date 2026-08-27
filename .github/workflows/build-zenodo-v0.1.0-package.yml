@@ -1,0 +1,91 @@
+name: Build Zenodo v0.1.0 Package
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-zenodo-v0.1.0-package.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact released commit
+        uses: actions/checkout@v4
+        with:
+          ref: b14f2feea0fa233851a774d6ebd295b63cde75c0
+          fetch-depth: 1
+      - name: Verify exact commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "b14f2feea0fa233851a774d6ebd295b63cde75c0"
+      - name: Build immutable Zenodo package
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p zenodo-package
+          git archive --format=zip --prefix=world8-v0.1.0/ -o zenodo-package/world8-v0.1.0-source.zip HEAD
+          cat > zenodo-package/zenodo-metadata.json <<'JSON'
+          {
+            "metadata": {
+              "title": "World 8 v0.1.0 — Foundation & Development Control Plane Baseline",
+              "upload_type": "software",
+              "description": "World 8 v0.1.0 is the first formal development pre-release baseline from the canonical world-8 repository. It establishes the architecture baseline, Development Control Plane, developer-admission workflow, identity and authority controls, governed workspace/lease/evidence foundations, migrations, validation tooling, and publication/continuity registry. This snapshot is non-production and does not claim a complete society runtime, complete Forecast Hall or Market Data runtime, autonomous production trading, production-grade distributed atomicity, or full security/load/chaos validation.",
+              "creators": [
+                {
+                  "name": "Farrokhi, Saeed",
+                  "affiliation": "Mechanical Engineering, University of Tehran"
+                }
+              ],
+              "version": "0.1.0",
+              "keywords": [
+                "World 8",
+                "multi-agent systems",
+                "agent architecture",
+                "development control plane",
+                "persistent identity",
+                "forecasting architecture",
+                "governance",
+                "AI agents"
+              ],
+              "related_identifiers": [
+                {
+                  "identifier": "https://github.com/saeedfaai/world-8/releases/tag/V0.1.0",
+                  "relation": "isSupplementTo",
+                  "scheme": "url"
+                },
+                {
+                  "identifier": "https://github.com/saeedfaai/world-8",
+                  "relation": "isSupplementTo",
+                  "scheme": "url"
+                }
+              ],
+              "notes": "Exact Git tag V0.1.0 resolves to commit b14f2feea0fa233851a774d6ebd295b63cde75c0. GitHub is the living canonical source; this Zenodo record is the immutable scientific/software snapshot. World 8 0.x releases are development pre-releases / non-production."
+            }
+          }
+          JSON
+          sha256sum zenodo-package/world8-v0.1.0-source.zip zenodo-package/zenodo-metadata.json > zenodo-package/SHA256SUMS.txt
+          cat > zenodo-package/RELEASE_RECEIPT.txt <<'EOF'
+          World 8 v0.1.0 — Zenodo Publication Package
+          GitHub repository: https://github.com/saeedfaai/world-8
+          GitHub release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0
+          Tag: V0.1.0
+          Exact commit: b14f2feea0fa233851a774d6ebd295b63cde75c0
+          Classification: DEVELOPMENT PRE-RELEASE / NON-PRODUCTION
+          Prepared for: Zenodo immutable snapshot + dedicated version DOI
+          Existing World 8/Z0-A DOI 10.5281/zenodo.22085394 must remain historical/current lineage and must not be overwritten.
+          EOF
+          ls -lh zenodo-package
+          cat zenodo-package/SHA256SUMS.txt
+      - name: Upload Zenodo publication package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: world8-v0.1.0-zenodo-package
+          path: zenodo-package/
+          if-no-files-found: error
+          retention-days: 90

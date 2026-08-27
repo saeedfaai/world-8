@@ -1,9 +1,7 @@
 name: W8-P01 E3 Validation Gate
 
 on:
-  push:
-    branches:
-      - work/w8-p01-governance-experiment-v0.1
+  pull_request:
     paths:
       - '.github/workflows/w8-p01-e3-validation-gate.yml'
       - 'architecture/**'
@@ -12,6 +10,16 @@ on:
       - 'experiments/flagship_governance_v0_1/**'
       - 'scripts/validate_*.py'
       - 'supabase/migrations/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/w8-p01-e3-validation-gate.yml'
+      - 'docs/publications/W8_P01_EVIDENCE_LADDER.md'
+      - 'experiments/flagship_governance_v0_1/**'
+      - 'supabase/migrations/20260824130305_w0_0015_sequencer_lease_maintenance.sql'
+      - 'supabase/migrations/20260824133158_w2_0006_external_effect_governance.sql'
+      - 'supabase/migrations/20260824133326_w2_supabase_external_effect_hosted_overlay.sql'
+      - 'supabase/migrations/20260826174552_world8_development_control_plane_v1.sql'
   workflow_dispatch:
 
 permissions:

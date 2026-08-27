@@ -13,6 +13,13 @@
       "variant": "calibrated_weighted"
     }
   },
+  "bootstrap": {
+    "block_size_hours": 24,
+    "method": "paired_moving_block_bootstrap",
+    "reps": 2000,
+    "result_file": "bootstrap_robustness.csv",
+    "seed": 7
+  },
   "correlation_controlled_weights": {
     "BTCUSDT": {
       "meanrev1": 0.16499412140387862,
@@ -34,8 +41,8 @@
     }
   },
   "protocol": "PROTOCOL.yaml",
-  "schema": "WORLD8_SSRN_MARKET_REPLAY_RESULT/1.0",
-  "status": "EMPIRICAL_REPLAY_COMPLETE",
+  "schema": "WORLD8_SSRN_MARKET_REPLAY_RESULT/1.1",
+  "status": "EMPIRICAL_REPLAY_COMPLETE_WITH_BOOTSTRAP",
   "weights": {
     "BTCUSDT": {
       "meanrev1": 0.165026323635962,

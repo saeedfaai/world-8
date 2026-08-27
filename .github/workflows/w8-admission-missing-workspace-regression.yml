@@ -1,0 +1,36 @@
+name: W8 Admission Missing Workspace Regression
+
+on:
+  push:
+    branches:
+      - fix/w8-admission-missing-workspace-v0.2.1
+      - main
+    paths:
+      - 'supabase/migrations/20260827193000_world8_admission_missing_workspace_receipt_fix_v021.sql'
+      - 'scripts/validate_admission_missing_workspace_fix.py'
+      - '.github/workflows/w8-admission-missing-workspace-regression.yml'
+  pull_request:
+    paths:
+      - 'supabase/migrations/20260827193000_world8_admission_missing_workspace_receipt_fix_v021.sql'
+      - 'scripts/validate_admission_missing_workspace_fix.py'
+      - '.github/workflows/w8-admission-missing-workspace-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate migration regression fix
+        run: python scripts/validate_admission_missing_workspace_fix.py
+      - name: Existing Developer Admission validator
+        run: python scripts/validate_developer_admission.py
+      - name: Existing Identity & Authority validator
+        run: python scripts/validate_identity_authority.py

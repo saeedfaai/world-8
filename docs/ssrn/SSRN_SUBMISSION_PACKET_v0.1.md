@@ -50,13 +50,15 @@ https://drive.google.com/file/d/15b2XrL8mqix6gBEnWXm6VTxtoCCgCi59/view
 
 File: `World8_SSRN_Working_Paper_v0.1.pdf`
 
-PDF SHA256:
-`53b3a4c688b620cb3f611ae525484cfba0d186fb85393e7011312999ecf2efed`
+Canonical provider/download PDF SHA256:
+`9df120062da98c5ded5468745d290d8abcd2663abcc8f1569c3b3a4bda863ec7`
 
-PDF bytes: `210232`  
+PDF bytes: `231243`  
 Pages: 9
 
 Preflight: OPENABLE / NOT ENCRYPTED / NOT SCANNED / VISUAL QA PASS
+
+The pre-provider QA render and the current Drive/download PDF are visually identical: a nine-page render comparison reported 0 changed pages and 0 changed pixels. The byte difference is serialization/metadata only. Use the provider/download hash above for SSRN upload verification.
 
 ## Editable source
 
@@ -134,7 +136,7 @@ No provider-side licence or taxonomy choice has been invented on behalf of the a
 
 ## Integrity note
 
-A pre-submission integrity recheck detected that an older rendered PDF/DOCX pair no longer matched the final canonical Markdown/evidence binding after the lifecycle-v3 synchronization. The final candidate was re-rendered from the canonical source, visually re-verified, and Drive bytes were replaced in place. Use only the hashes shown in this packet for provider upload verification.
+A pre-submission integrity recheck detected multiple historical PDF serializations during the final lifecycle-v3 synchronization. The current Drive/download PDF has been re-verified against the QA-rendered manuscript and is pixel-identical. For provider upload verification use only SHA256 `9df120062da98c5ded5468745d290d8abcd2663abcc8f1569c3b3a4bda863ec7`.
 
 ## Do not submit until author approval
 

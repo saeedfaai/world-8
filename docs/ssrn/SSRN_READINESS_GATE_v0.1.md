@@ -5,20 +5,15 @@ Status: READY FOR AUTHOR APPROVAL / NOT SUBMITTED
 
 ## Submission principle
 
-World 8 is not being submitted as a framework-only description. The paper is supported by frozen historical replay, explicit baselines, negative ablations, Decision/UOP separation, lifecycle-integrity receipts, an independent non-crypto replication, verified related work, a claim-to-evidence audit, and a visually verified full-text PDF. Submission is now blocked only by the author's final responsibility/approval and the provider-side SSRN submission action.
+World 8 is not being submitted as a framework-only description. The paper is supported by frozen historical replay, explicit baselines, negative ablations, Decision/UOP separation, lifecycle-integrity receipts, an independent non-crypto replication, verified related work, a claim-to-evidence audit, and a visually verified full-text PDF. Submission is blocked only by the author's final responsibility/approval, provider-side account authentication/metadata choices, and the final SSRN Submit action.
 
 ## Exact publication binding
-
 - Canonical repository: https://github.com/saeedfaai/world-8
 - GitHub release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0
 - Exact release commit: `b14f2feea0fa233851a774d6ebd295b63cde75c0`
 - Zenodo record: https://zenodo.org/records/22127650
 - DOI: https://doi.org/10.5281/zenodo.22127650
 - Release classification: DEVELOPMENT PRE-RELEASE / NON-PRODUCTION
-
-## Proposed paper
-
-**Forecast, Decision, and Order as Separate Objects: A Contract-Based Evaluation Architecture for Multi-Agent Market Systems**
 
 ## Empirical evidence
 
@@ -38,16 +33,13 @@ World 8 is not being submitted as a framework-only description. The paper is sup
 - tested volatility risk veto: no Decision/UOP benefit
 
 ### Independent non-crypto replication
-- SPY, QQQ, GLD
-- daily OHLCV, Yahoo Finance chart API
-- 2020–2025 source freeze; 2025 out-of-sample test
+- SPY, QQQ, GLD daily OHLCV, 2020–2025 source freeze; 2025 out-of-sample test
 - independent no-lookahead test
 - calibrated-weighted Brier point estimate improves vs equal-weight raw for all three ETFs
 - all three 95% moving-block bootstrap CIs cross zero; replication is directional but not statistically robust
-- provider does not publish checksum files for this endpoint; exact source-response SHA256 and deterministic normalized-gzip SHA256 are preserved and this provenance limitation is disclosed
+- Yahoo endpoint lacks provider-side checksum files; exact source-response and normalized hashes are preserved and limitation disclosed
 
 ## Reproducibility and lifecycle evidence
-
 - deterministic crypto replay
 - provider checksums for every Binance monthly ZIP
 - normalized snapshot hashes
@@ -58,96 +50,65 @@ World 8 is not being submitted as a framework-only description. The paper is sup
 - v3 projection changes no forecast probability or resolved target
 - independent evaluator outputs
 - analyst error-correlation matrices
-- generated metrics/robustness tables
-- separate Decision/UOP replay with explicit cost/veto parameters
+- separate Decision/UOP replay
 - frozen non-crypto source/normalization hashes
 
 Lifecycle validation run:
 https://github.com/saeedfaai/world-8/actions/runs/33079452232
 
 ## Frozen evidence package
-
 - evidence commit: `917dd82ed87a3470acfdb9175905ec7c8727c096`
 - deterministic archive: `world8-ssrn-evidence-v0.1.tar.gz`
 - archive SHA256: `100484ffba683111622377703e836728817fd6cbb45f53d62e45a5a3766ece70`
 - freeze workflow: https://github.com/saeedfaai/world-8/actions/runs/33079638287
 - classification: RESEARCH EVIDENCE / HISTORICAL REPLAY / NO LIVE TRADING
 
-## Verified related work
-
-`docs/ssrn/RELATED_WORK_VERIFIED_v0.1.md`
-
-Coverage:
-- proper probabilistic scoring
-- probability calibration
-- forecast combination
-- comparative forecast evaluation
-
-## Claim audit
-
-`docs/ssrn/SSRN_CLAIM_AUDIT_v0.1.md`
-
-Status: **PASS / AUTHOR APPROVAL OPEN**
-
-The audit maps every substantive manuscript claim to machine-readable evidence and explicitly prohibits transformations into profitability, production-readiness, universal-superiority, causal-superiority, or autonomous-intelligence claims.
-
-## Submission packet
-
-`docs/ssrn/SSRN_SUBMISSION_PACKET_v0.1.md`
-
-Contains the exact title, date, author metadata, abstract, keywords, AI disclosure, final PDF location/hash, DOI/release binding, and current SSRN requirement references for copy/paste into the provider form.
-
 ## Final manuscript candidate
-
-Source:
-`docs/ssrn/manuscript/WORLD8_SSRN_WORKING_PAPER_v0.1.md`
-
-Receipt:
-`docs/ssrn/manuscript/WORLD8_SSRN_WORKING_PAPER_v0.1_RECEIPT.md`
+- source: `docs/ssrn/manuscript/WORLD8_SSRN_WORKING_PAPER_v0.1.md`
+- receipt: `docs/ssrn/manuscript/WORLD8_SSRN_WORKING_PAPER_v0.1_RECEIPT.md`
+- claim audit: `docs/ssrn/SSRN_CLAIM_AUDIT_v0.1.md` — PASS
+- submission packet: `docs/ssrn/SSRN_SUBMISSION_PACKET_v0.1.md`
+- provider preflight: `docs/ssrn/SSRN_PROVIDER_PREFLIGHT_v0.1.md`
 
 Drive archives:
 - PDF: https://drive.google.com/file/d/15b2XrL8mqix6gBEnWXm6VTxtoCCgCi59/view
 - DOCX: https://drive.google.com/file/d/1tNIMdqCBJ6a8dRDR60TkccWCoF-8G4MM/view
 
-Final candidate hashes:
-- PDF SHA256: `acee536968f1fb9e527469d2125600b03587ce2e5a211ffdfadb6fe85f24ba7a`
-- DOCX SHA256: `8de4a3bc137882181add32cb3884dc355e4fe77ca5d680bb60ae20fb1aa57a18`
+Final canonical hashes after pre-submission integrity recheck:
+- PDF SHA256: `53b3a4c688b620cb3f611ae525484cfba0d186fb85393e7011312999ecf2efed`
+- DOCX SHA256: `345164e825abc887ae0e26de745c6705a512193e42ca25985871f46d94c69386`
 - Markdown SHA256: `7a1f11cd3ee75d2f974f41bac5341367408fede2f75e3bbf16642902393a6c19`
+- PDF bytes: `210232`
+- DOCX bytes: `22730`
 - PDF pages: 9
-- visual QA: PASS, all pages inspected
-- AI-assisted work disclosure: embedded in PDF
+- PDF preflight: PASS
+- visual QA: PASS, all 9 pages inspected after final re-render
+
+An earlier rendered PDF/DOCX hash pair was detected as stale before submission. The final candidate was re-rendered from the canonical Markdown bound to evidence commit `917dd82...`, Drive bytes were replaced in place, and all publication metadata was corrected. Old rendered hashes are non-canonical.
 
 ## Submission checklist
-
 - [x] exact GitHub release frozen
 - [x] dedicated Zenodo DOI published
 - [x] author identity/affiliation available
-- [x] AI disclosure requirement identified
+- [x] AI disclosure requirement identified and embedded
 - [x] non-production evidence boundary identified
-- [x] SSRN submission requirements checked on 2026-08-27
-- [x] empirical replay dataset frozen
-- [x] baseline implementations frozen
-- [x] calibrated World 8 ensemble variant implemented
-- [x] evaluator/UOP implementation frozen for the study
+- [x] SSRN requirements checked on 2026-08-27
+- [x] empirical datasets/baselines/evaluator/ablations frozen
 - [x] no-lookahead checks pass
-- [x] experiment produces machine-readable results
-- [x] calibration/correlation-control robustness analysis complete
-- [x] disagreement/regime/shadow ablations complete
-- [x] independent Decision/UOP + risk-veto study complete
-- [x] analyst error-correlation artifact complete
-- [x] Forecast Contract v2 version/hash evidence complete
-- [x] Forecast Contract v3 lifecycle-integrity evidence complete
+- [x] lifecycle-integrity evidence complete
 - [x] independent non-crypto replication complete
 - [x] related-work bibliography verified
-- [x] final experiment evidence package frozen with package SHA256
+- [x] evidence package frozen with SHA256
 - [x] English manuscript complete
-- [x] AI disclosure embedded in manuscript/PDF
-- [x] full-text PDF rendered and visually verified
+- [x] full-text PDF visually verified
 - [x] machine/receipt claim-to-evidence audit complete
-- [x] SSRN form submission packet prepared
+- [x] SSRN form packet prepared
+- [x] provider duplicate/account-recovery preflight completed
+- [x] final rendered-file hash integrity rechecked and corrected
 - [ ] author explicitly approves final claims and assumes submission responsibility
+- [ ] SSRN account/profile authenticated/verified
+- [ ] provider licence/taxonomy choices completed
 - [ ] SSRN submission created
 
 ## Evidence ceiling
-
 Allowed claims are limited to measured replay findings. The manuscript MUST NOT claim trading profitability, production readiness, universal cross-market superiority, causal superiority, AGI/autonomous intelligence, or general benefit from disagreement/regime/correlation/shadow/risk-veto mechanisms.

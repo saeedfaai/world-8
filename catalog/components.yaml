@@ -19,6 +19,9 @@ components:
   - capability: world8.engineering-fabric
     artifact: artifact-world8-engineering-fabric-foundation-v1
     target_state: REVIEW
+  - capability: world8.developer-admission
+    artifact: artifact-world8-engineering-fabric-foundation-v1
+    target_state: REVIEW
   - capability: world8.change-propagation
     artifact: artifact-world8-dcp-core-v1
     target_state: REVIEW

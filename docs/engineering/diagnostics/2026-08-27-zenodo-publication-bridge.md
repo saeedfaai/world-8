@@ -55,15 +55,52 @@ Result:
 - DOI: https://doi.org/10.5281/zenodo.22127650
 - exact release commit: `b14f2feea0fa233851a774d6ebd295b63cde75c0`
 
-## Engineering rule derived
+## Incident C — Hugging Face DOI sync workflow YAML parse failure
+
+### Failed run
+https://github.com/saeedfaai/world-v6/actions/runs/33073330003
+
+### Symptom
+GitHub created a failed workflow run with no jobs. The workflow path appeared as its display name, indicating the workflow file itself could not be parsed.
+
+### Root cause
+A Python multiline string embedded in a YAML `run: |` block introduced physical lines that were not indented as YAML block-scalar content.
+
+### Safety behavior
+No GitHub job started, `HF_API_KEY` was not consumed by a job, and no Hugging Face repository or Space was modified.
+
+### Fix
+The multiline Markdown payload was changed to a Python `"\n".join([...])` construction so every physical source line remains correctly indented inside the YAML block.
+
+Fix commit on private Hugging Face bridge:
+`22f0aa2d6e2d3131c582ec22a4d5ac1e24ba7b61`
+
+### Successful rerun
+https://github.com/saeedfaai/world-v6/actions/runs/33073402200
+
+Sanitized result:
+- `Saeedfa/world8-core` README — UPDATED / OK
+- `Saeedfa/world8-forecast-hall` README — UPDATED / OK
+- `Saeedfa/world8-market-data` README — UPDATED / OK
+- `Saeedfa/world8-demo` README — UPDATED / OK
+- `Saeedfa/world8-demo` `index.html` — UPDATED / OK
+- DOI synchronized: `10.5281/zenodo.22127650`
+
+## Engineering rules derived
 1. Artifact checksum manifests SHOULD use archive-relative paths independent of producer workspace layout.
 2. If a manifest embeds a producer prefix, the verifier MUST explicitly map that prefix before verification.
-3. External publication workflows MUST stop before provider mutation when any package, checksum, metadata, or identity gate fails.
+3. External publication workflows MUST stop before provider mutation when any package, checksum, metadata, identity, or parser gate fails.
 4. Publication bridges MUST be idempotent and check for an existing matching published record/draft before creating a new record.
 5. Secret values MUST never appear in logs, issues, Drive documents, receipts, or repository files; only secret names and validated status may be recorded.
+6. Generated GitHub Actions workflows MUST avoid unindented physical lines inside YAML block scalars; construct multiline runtime payloads in a YAML-safe form.
+7. Temporary workflows that consume publication/provider secrets SHOULD be retired from the branch after completion; Git history and sanitized receipts preserve reproducibility/evidence.
+
+## Cleanup receipt
+After successful publication/synchronization, temporary Zenodo and Hugging Face secret-consuming workflows were removed from repository heads. The non-secret exact-release package builder remains available for reproducibility.
 
 ## Canonical receipts
 - GitHub release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0
 - Zenodo gate: https://github.com/saeedfaai/world-8/issues/9
 - Zenodo receipt: https://github.com/saeedfaai/World-v6-public/blob/main/ops/zenodo/world8-v0.1.0-publication.json
+- Hugging Face sync receipt: https://github.com/saeedfaai/world-v6/blob/main/ops/hf-world8-doi-sync-result.json
 - Drive package backup: https://drive.google.com/file/d/1t2145gm9QGHEcCzKLnqvuDJ5CvO4a10N/view

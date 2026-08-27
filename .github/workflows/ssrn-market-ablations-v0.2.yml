@@ -1,0 +1,114 @@
+name: SSRN Market Ablations v0.2
+
+on:
+  push:
+    branches:
+      - work/ssrn-market-ablations-v0.2
+    paths:
+      - 'experiments/ssrn_market_replay_v0_2/**'
+      - '.github/workflows/ssrn-market-ablations-v0.2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ablations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/ssrn-market-ablations-v0.2
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: experiments/ssrn_market_replay_v0_1/requirements.txt
+
+      - name: Install pinned parent environment
+        run: pip install -r experiments/ssrn_market_replay_v0_1/requirements.txt
+
+      - name: Verify parent snapshot exists and is continuous
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('experiments/ssrn_market_replay_v0_1/data/frozen/snapshot_manifest.json')
+          m=json.loads(p.read_text())
+          assert len(m['symbols']) == 3
+          for s in m['symbols']:
+              assert s['rows'] == s['expected_rows']
+              assert s['row_delta'] == 0
+              assert s['discontinuity_count'] == 0
+          print('parent snapshot VALID')
+          PY
+
+      - name: Unit tests
+        env:
+          PYTHONPATH: experiments
+        run: python -m pytest -q experiments/ssrn_market_replay_v0_2/tests
+
+      - name: Run disagreement regime and shadow ablations
+        env:
+          PYTHONPATH: experiments
+        run: python experiments/ssrn_market_replay_v0_2/scripts/run_ablations.py
+
+      - name: Bitwise determinism gate
+        env:
+          PYTHONPATH: experiments
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd experiments/ssrn_market_replay_v0_2
+          sha256sum results/metrics.csv results/bootstrap_robustness.csv results/summary.json > /tmp/first.sha256
+          python scripts/run_ablations.py >/tmp/second-run.txt
+          sha256sum results/metrics.csv results/bootstrap_robustness.csv results/summary.json > /tmp/second.sha256
+          diff -u /tmp/first.sha256 /tmp/second.sha256
+          cat /tmp/second.sha256
+          echo 'bitwise determinism PASS'
+
+      - name: Validate generated evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s experiments/ssrn_market_replay_v0_2/results/metrics.csv
+          test -s experiments/ssrn_market_replay_v0_2/results/bootstrap_robustness.csv
+          test -s experiments/ssrn_market_replay_v0_2/results/summary.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('experiments/ssrn_market_replay_v0_2/results/summary.json').read_text())
+          assert r['status'] == 'ABLATIONS_COMPLETE'
+          assert r['schema'] == 'WORLD8_SSRN_MARKET_ABLATION_RESULT/2.1'
+          assert r['canonical_float_decimals'] == 12
+          assert len(r['configuration']) == 3
+          assert all(x['shadow_identity_max_abs'] == 0.0 for x in r['configuration'])
+          print('v0.2 evidence VALID')
+          PY
+
+      - name: Commit generated ablation evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add experiments/ssrn_market_replay_v0_2/results
+          if git diff --cached --quiet; then
+            echo 'No evidence changes'
+          else
+            git commit -m 'experiment: record deterministic SSRN ablation evidence v0.2 [skip ci]'
+            git pull --rebase origin work/ssrn-market-ablations-v0.2
+            git push origin HEAD:work/ssrn-market-ablations-v0.2
+          fi
+
+      - name: Upload ablation evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: world8-ssrn-market-ablations-v0.2
+          path: experiments/ssrn_market_replay_v0_2/results/
+          retention-days: 90

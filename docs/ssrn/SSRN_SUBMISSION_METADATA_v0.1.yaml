@@ -1,0 +1,63 @@
+schema: WORLD8_SSRN_SUBMISSION_METADATA/1.0
+status: DRAFT_NOT_SUBMITTED
+last_checked: 2026-08-27
+
+paper:
+  title: "Forecast, Decision, and Order as Separate Objects: A Contract-Based Evaluation Architecture for Multi-Agent Market Systems"
+  written_date: 2026-08-27
+  language: en
+  document_type: working_paper
+  full_text_pdf_status: BLOCKED_BY_EMPIRICAL_GATE
+
+authors:
+  - name: Saeed Farrokhi
+    affiliation: Mechanical Engineering, University of Tehran
+    email: Saeed.farokhi@ut.ac.ir
+    role: author
+
+release_binding:
+  canonical_repository: https://github.com/saeedfaai/world-8
+  github_release: https://github.com/saeedfaai/world-8/releases/tag/V0.1.0
+  exact_commit: b14f2feea0fa233851a774d6ebd295b63cde75c0
+  zenodo_record: https://zenodo.org/records/22127650
+  zenodo_doi: https://doi.org/10.5281/zenodo.22127650
+  classification: development_pre_release_non_production
+
+abstract:
+  status: HOLD_UNTIL_EMPIRICAL_RESULTS
+  draft: >-
+    Multi-agent market systems often collapse prediction, action selection, and execution into a single agent output, making retrospective evaluation vulnerable to hidden policy changes, data leakage, and ambiguous responsibility for error. This working paper develops a testable contract-based architecture in which Forecast, Decision, and Order are distinct objects with separate lifecycles, evidence boundaries, and evaluators. Forecasts are issued against explicit targets and horizons using immutable data-cutoff and strategy/model references; decisions are evaluated separately under cost- and risk-aware expected-value rules; orders remain downstream execution artifacts subject to independent policy and portfolio vetoes. The empirical study will compare simple majority aggregation with weighted, calibrated, and correlation-controlled ensembles under deterministic historical replay, with explicit ablations for disagreement signals, regime detection, and cold-start policy. Results and performance claims are intentionally withheld until the preregistered replay, baseline, calibration, ablation, and robustness gates are completed. The released World 8 v0.1.0 artifact provides the versioned architecture and evidence boundary to which the study will be bound.
+
+keywords:
+  - multi-agent systems
+  - probabilistic forecasting
+  - forecast evaluation
+  - decision architecture
+  - market data
+  - calibration
+  - ensemble forecasting
+  - algorithmic trading architecture
+  - reproducibility
+  - AI agents
+
+ai_disclosure:
+  required: true
+  status: READY_FOR_AUTHOR_REVIEW
+  text: >-
+    AI-assisted tools were used for structured drafting, language editing, software/documentation support, and consistency checking. The author reviewed the resulting material and remains responsible for the research design, claims, code, data choices, interpretation, and final manuscript.
+
+license:
+  ssrn_selection: AUTHOR_DECISION_REQUIRED
+  note: "SSRN's 2026 submission flow supports Creative Commons/public-domain options or retaining the default all-rights-reserved approach. Do not choose on behalf of the author without an explicit publication decision."
+
+readiness:
+  exact_release: PASS
+  zenodo_doi: PASS
+  author_metadata: PASS
+  english_abstract_structure: PASS_DRAFT
+  ai_disclosure: PASS_DRAFT
+  empirical_results: OPEN
+  related_work_verified: OPEN
+  full_text_pdf: OPEN
+  author_final_claim_review: OPEN
+  ssrn_submission: OPEN

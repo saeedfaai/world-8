@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/saeedfaai/world-8/experiments/ssrn_market_replay_v0_1/forecast_contract.schema.json",
+  "title": "World 8 SSRN Replay Forecast Contract v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "symbol",
+    "forecast_type",
+    "variant",
+    "horizon_hours",
+    "issued_at",
+    "data_cutoff_at",
+    "valid_from",
+    "probability",
+    "resolved_target",
+    "raw_immutable"
+  ],
+  "properties": {
+    "symbol": {"type": "string", "enum": ["BTCUSDT", "ETHUSDT", "SOLUSDT"]},
+    "forecast_type": {"const": "EVENT_PROBABILITY"},
+    "variant": {
+      "type": "string",
+      "enum": [
+        "single_momentum6",
+        "majority_vote",
+        "equal_weight_raw",
+        "calibrated_weighted",
+        "calibrated_corr_controlled"
+      ]
+    },
+    "horizon_hours": {"const": 6},
+    "issued_at": {"type": "string", "format": "date-time"},
+    "data_cutoff_at": {"type": "string", "format": "date-time"},
+    "valid_from": {"type": "string", "format": "date-time"},
+    "probability": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+    "resolved_target": {"type": "integer", "enum": [0, 1]},
+    "raw_immutable": {"const": true}
+  }
+}

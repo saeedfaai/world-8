@@ -118,13 +118,13 @@ update public.world8_operational_guardian_leaders
 set current_epoch=7
 where society_id='society-test-b';
 
-if exists (
-  select 1 from public.world8_operational_guardian_leaders
-  where society_id in ('society-test-a','society-test-b')
-  group by current_epoch having count(*)=2
-) then
-  -- expected: duplicate epoch values across distinct Society leader identities are valid.
-  null;
-end if;
+do $$
+declare c bigint;
+begin
+  select count(*) into c
+  from public.world8_operational_guardian_leaders
+  where society_id in ('society-test-a','society-test-b') and current_epoch=7;
+  if c<>2 then raise exception 'DB_K8_CROSS_SOCIETY_EQUAL_EPOCH_NOT_ALLOWED'; end if;
+end $$;
 
 rollback;

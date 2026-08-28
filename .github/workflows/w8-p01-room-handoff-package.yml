@@ -5,6 +5,10 @@ on:
     branches: [work/w8-p01-manuscript-v0.1]
     paths:
       - '.github/workflows/w8-p01-room-handoff-package.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/w8-p01-room-handoff-package.yml'
   workflow_dispatch:
 
 permissions:
@@ -23,11 +27,9 @@ jobs:
           OUT="$ROOT/w8-p01-room-handoff"
           mkdir -p "$OUT/docs/publications/manuscript" "$OUT/workflows"
 
-          # Current manuscript and all W8-P01 publication/evidence/audit receipts produced on this line.
           cp docs/publications/manuscript/W8_P01_MANUSCRIPT_JAAMAS_v0.4.md "$OUT/docs/publications/manuscript/"
           find docs/publications -maxdepth 1 -type f -name 'W8_P01_*' -print0 | xargs -0 -I{} cp {} "$OUT/docs/publications/"
 
-          # Submission/reproducibility workflows created for this manuscript line.
           for f in \
             .github/workflows/w8-p01-p02-overlap-audit.yml \
             .github/workflows/w8-p01-jaamas-docx.yml \

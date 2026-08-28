@@ -21,3 +21,4 @@ jobs:
       - run: python scripts/validate_credential_broker_external_worker.py
       - run: python scripts/validate_first_real_provider_canary.py
       - run: python scripts/validate_provider_failover_mesh.py
+      - run: python scripts/validate_operational_guardian_contract.py

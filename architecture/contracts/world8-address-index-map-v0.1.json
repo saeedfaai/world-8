@@ -1,0 +1,54 @@
+{
+  "schema": "WORLD8_ADDRESS_INDEX_MAP/1.0",
+  "repo_ref": "saeedfaai/world-8",
+  "world_id": "world-001",
+  "default": {
+    "society_id": "shared-core",
+    "project_id": "engineering",
+    "artifact_id": "artifact-world8-engineering-fabric-foundation-v1",
+    "tags": ["DOMAIN:ENGINEERING", "SCOPE:SHARED_CORE"]
+  },
+  "rules": [
+    {
+      "path_prefix": "docs/engineering/ENGINEERING_GUARDIAN.md",
+      "artifact_id": "artifact-world8-engineering-guardian-v1",
+      "tags": ["DOMAIN:ENGINEERING", "ROLE:GUARDIAN"]
+    },
+    {
+      "path_prefix": "supabase/migrations/20260827114300_world8_n_mason_merge_queue_v01.sql",
+      "artifact_id": "artifact-world8-dcp-core-v1",
+      "tags": ["DOMAIN:DCP", "RUNTIME:POSTGRES"]
+    },
+    {
+      "path_prefix": "supabase/migrations/20260827201500_world8_academy_access_runtime_v01.sql",
+      "artifact_id": "artifact-world8-access-mesh-v1",
+      "tags": ["DOMAIN:ACCESS", "RUNTIME:POSTGRES"]
+    },
+    {
+      "path_prefix": "supabase/migrations/20260827202030_world8_academy_machine_checkride_v03.sql",
+      "artifact_id": "artifact-world8-academy-v1",
+      "tags": ["DOMAIN:ACADEMY", "RUNTIME:POSTGRES"]
+    },
+    {
+      "path_prefix": "services/address_mesh/",
+      "artifact_id": "artifact-world8-engineering-fabric-foundation-v1",
+      "tags": ["DOMAIN:ADDRESS_MESH", "DOMAIN:ENGINEERING"]
+    },
+    {
+      "path_prefix": "tests/address_mesh/",
+      "artifact_id": "artifact-world8-engineering-fabric-foundation-v1",
+      "tags": ["DOMAIN:ADDRESS_MESH", "ROLE:TEST"]
+    },
+    {
+      "path_prefix": "supabase/drafts/20260828_world8_universal_address_graph",
+      "artifact_id": "artifact-world8-engineering-fabric-foundation-v1",
+      "tags": ["DOMAIN:ADDRESS_MESH", "RUNTIME:POSTGRES", "STATE:DRAFT"]
+    },
+    {
+      "path_prefix": "supabase/drafts/20260828_world8_address_mesh",
+      "artifact_id": "artifact-world8-engineering-fabric-foundation-v1",
+      "tags": ["DOMAIN:ADDRESS_MESH", "RUNTIME:POSTGRES", "STATE:DRAFT"]
+    }
+  ],
+  "rule": "Longest path_prefix wins. Mapping is an index projection only; it never creates Artifact truth. Unknown paths use the declared existing umbrella artifact until a governed artifact mapping exists."
+}

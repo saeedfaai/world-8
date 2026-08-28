@@ -1,0 +1,56 @@
+contract_id: world8-role-hierarchy-v0.1
+version: '0.1'
+status: DRAFT_PENDING_AUTHORIZATION
+deployment_status: NOT_DEPLOYED
+purpose: >-
+  Add supervision/routing hierarchy TOP_GUARDIAN -> GUARDIAN -> MASTER_MASON -> MASON
+  without encoding mutable roles into Actor identity or letting role/message/label grant authority.
+roles:
+  order: [TOP_GUARDIAN, GUARDIAN, MASTER_MASON, MASON]
+  exact_parent:
+    TOP_GUARDIAN: null
+    GUARDIAN: TOP_GUARDIAN
+    MASTER_MASON: GUARDIAN
+    MASON: MASTER_MASON
+actor_kind_eligibility:
+  AI_ARCHITECT: [TOP_GUARDIAN, GUARDIAN, MASTER_MASON, MASON]
+  AI_MASON: [MASTER_MASON, MASON]
+  HUMAN: []
+  SERVICE: []
+solo_bootstrap:
+  allowed_actor_kind: AI_ARCHITECT
+  descent_only: true
+  exact_one_level_per_transition: true
+  privilege_shedding: required
+  inherited_privileges: forbidden
+identity:
+  actor_id_stable_across_role_changes: true
+  role_is_actor_kind: false
+  provider_is_actor_identity: false
+labels:
+  belongs_to: ADDRESS_ENTITY
+  persistent_query_dimension: true
+  history: APPEND_ONLY_EVENTS
+  authority_effect: NONE
+messages:
+  truth_store: public.world8_internal_messages
+  role_routing_is_metadata_only: true
+  address_context_routing_is_metadata_only: true
+  authority_effect: NONE
+  role_targets: [ACTOR, ROLE_BINDING, ROLE_KIND, SUBTREE, SUPERVISOR]
+  address_targets: [ENTITY_ID, ADDRESS, TAG, ARTIFACT_TREE, SELECTOR]
+reporting:
+  path: MASON_TO_MASTER_TO_GUARDIAN_TO_TOP
+  skip_level_default: forbidden
+  source_refs_required: true
+  report_message_truth: public.world8_internal_messages
+  receipt_append_only: true
+boundaries:
+  human_root_outside_ai_role_hierarchy: true
+  observer_independent: true
+  evaluator_independent: true
+  promotion_authority_independent: true
+  role_binding_grants_code_write: false
+  message_grants_authority: false
+  label_grants_authority: false
+  top_guardian_may_directly_code_without_descent_and_lease: false

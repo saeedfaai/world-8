@@ -1,0 +1,293 @@
+contract_id: world8-universal-address-graph-v0.1
+kind: UNIVERSAL_ADDRESS_GRAPH
+version: '0.1'
+status: DESIGN_FREEZE_CANDIDATE
+implementation_status: CODE_DRAFTED
+evidence_status: CODE_AND_REPO_INDEX_EVIDENCED
+deployment_status: NOT_DEPLOYED
+runtime_database_status: NOT_APPLIED
+
+purpose: >-
+  Give every addressable World 8 engineering/ecosystem object a stable identity,
+  hierarchical semantic address, queryable tags/relations, and selector-based
+  subscription/message routing without creating duplicate Actor, Artifact, Message,
+  Diagnostic, Work, Authority, or Code Shadow truth stores.
+
+identity_model:
+  immutable_entity_id:
+    format: W8-<KIND>-<OPAQUE_STABLE_ID>
+    examples:
+      - W8-SYM-01JX83K7
+      - W8-ART-ENGINEERING-FABRIC
+      - W8-ACTOR-0002
+    rule: >-
+      Mutable placement/role/society/file-path information MUST NOT be embedded as
+      the sole immutable identity. Moving a symbol or changing its maintainer MUST
+      not require a new entity identity.
+  semantic_address:
+    scheme: w8
+    hierarchical: true
+    example: w8://society/company/project/taminyaran/artifact/pricing/module/supplier/symbol/update_price
+    mutable_with_history: true
+    previous_addresses_become_aliases: true
+  address_card:
+    required_fields:
+      - entity_id
+      - entity_kind
+      - canonical_address
+      - world_id
+      - tags
+      - revision
+      - content_hash
+  explicit_rebind:
+    evidence_required: true
+    fuzzy_or_llm_identity_guess: forbidden
+    previous_address_becomes_alias: true
+
+entity_kinds:
+  - WORLD
+  - SOCIETY
+  - PROJECT
+  - ARTIFACT
+  - MODULE
+  - FILE
+  - SYMBOL
+  - FUNCTION
+  - CLASS
+  - METHOD
+  - RPC
+  - DB_FUNCTION
+  - TABLE
+  - TEST
+  - SERVICE_ENTRYPOINT
+  - ACTOR
+  - ROLE
+  - WORK
+  - WORKSPACE
+  - ASSIGNMENT
+  - PROVIDER
+  - CHANNEL
+  - DIAGNOSTIC_OBJECT
+  - POLICY
+  - CONTRACT
+
+existing_truth_reuse:
+  actor_registry: public.world8_actor_registry
+  artifact_catalog: public.world8_dev_artifacts
+  code_shadow: public.world8_code_shadow_manifests
+  diagnostics_tags: public.world8_diag_tags
+  diagnostics_bindings: public.world8_diag_tag_bindings
+  internal_messages: public.world8_internal_messages
+  attention_queue: public.world8_attention_items
+  work_truth: public.world8_dev_work_items
+  workspace_truth: public.world8_dev_workspaces
+  assignment_truth: public.world8_mason_assignments
+
+forbidden_duplicate_truth:
+  - second_actor_registry
+  - second_artifact_registry
+  - second_internal_message_table_as_message_truth
+  - second_diagnostic_tag_registry
+  - second_work_or_workspace_registry
+  - message_as_authority
+  - line_number_as_stable_symbol_identity
+
+address_dimensions:
+  structural:
+    - world
+    - society
+    - project
+    - artifact
+    - module
+    - symbol
+  semantic_tags_examples:
+    - DOMAIN:PRICING
+    - DOMAIN:TRADING
+    - CHANNEL:TELEGRAM
+    - RUNTIME:SUPABASE
+    - LANGUAGE:PLPGSQL
+    - RISK:MONEY
+    - RISK:SECURITY
+    - ROLE:MASON
+    - EFFECT:EXTERNAL
+    - DATA:MARKET
+  rule: >-
+    Roles and tags are query dimensions and bindings, not immutable identity.
+
+selector_model:
+  boolean_operators:
+    - ALL
+    - ANY
+    - NOT
+  predicates:
+    - entity_id
+    - entity_kind
+    - address_exact
+    - address_prefix
+    - address_glob
+    - tags_all
+    - tags_any
+    - tags_none
+    - world_id
+    - society_id
+    - project_id
+    - artifact_id
+    - owner_ref
+    - role_ref
+    - relation_to
+  examples:
+    company_all:
+      address_prefix: w8://society/company/
+    company_money_functions:
+      all:
+        - society_id: company
+        - entity_kind: FUNCTION
+        - tags_all: [RISK:MONEY]
+    telegram_related:
+      tags_any: [CHANNEL:TELEGRAM, INTEGRATION:TELEGRAM]
+    supabase_render_risk:
+      tags_all: [RUNTIME:SUPABASE, RISK:RENDER]
+
+subscriptions:
+  model: SELECTOR_BASED
+  fields:
+    - subscription_id
+    - subscriber_ref
+    - selector
+    - event_kinds
+    - minimum_priority
+    - delivery_mode
+    - status
+  delivery_modes:
+    - INBOX
+    - ATTENTION
+    - GUARDIAN_CONTEXT
+    - MASON_PREFLIGHT
+  rule: >-
+    A subscription does not duplicate source events. It creates delivery/attention
+    receipts referencing the authoritative source event or internal message.
+  role_fanout:
+    receipt_identity_includes_actual_recipient: true
+    unresolved_role: FAIL_CLOSED_NO_DELIVERY
+    v0_1_mason_mapping: ACTIVE_ACTOR_KIND_AI_MASON
+
+messaging_integration:
+  message_truth: public.world8_internal_messages
+  direct_recipients_continue_to_use: recipient_refs
+  selector_targets: attached_routing_objects
+  fanout_strategy: RESOLVE_ON_CONTEXT_OR_DELIVERY
+  duplicate_message_rows_per_matching_symbol: forbidden
+  message_is_authority: false
+  supported_target_classes:
+    - ENTITY_ID
+    - ADDRESS
+    - SELECTOR
+    - TAG
+    - ROLE
+    - ARTIFACT_TREE
+
+context_delivery:
+  on_mason_enter_scope:
+    resolve:
+      - direct_messages
+      - selector_messages
+      - subscriptions
+      - diagnostics
+      - required_tests
+      - dependencies
+      - recent_changes
+      - active_work
+      - current_ownership
+    output: ADDRESS_CONTEXT_BUNDLE
+  on_guardian_pre_action:
+    same_address_context_resolver: required
+  on_diagnostic_event:
+    affected_entity_resolution: required
+  authority_effect: NONE
+
+change_impact:
+  relation_graph: required
+  relation_types:
+    - CONTAINS
+    - DEPENDS_ON
+    - CALLS
+    - READS
+    - WRITES
+    - PUBLISHES_TO
+    - SUBSCRIBES_TO
+    - IMPLEMENTS
+    - TESTS
+    - OWNS
+    - AFFECTS
+  impact_query: >-
+    Given an entity/event, resolve direct and bounded transitive dependents plus
+    selector subscribers without claiming semantic impact beyond known relations/tags.
+
+security_and_authority:
+  messaging_may_notify: true
+  messaging_may_grant_authority: false
+  guardian_may_emit_warning_or_attention: true
+  guardian_message_may_promote_or_hard_revoke: false
+  mason_may_message_other_entities: true
+  mason_message_may_write_other_entity_without_lease: false
+  selector_resolution_respects_society_scope_and_visibility: required
+
+history:
+  address_aliases_append_only: true
+  relation_history_replayable: true
+  subscription_changes_versioned: true
+  delivery_receipts_append_only: true
+
+indexing:
+  python_symbols_are_module_scoped: true
+  sql_runtime_object_identity:
+    migration_filename_is_identity: false
+    repeated_create_or_replace_one_entity: true
+    preserve_each_definition_file_relation: true
+    conflicting_duplicate_identity_fields: FAIL_CLOSED
+  unsupported_language: FILE_ONLY_NO_FAKE_SYMBOLS
+
+ci_evidence:
+  date: '2026-08-28'
+  workflow: W8 Address Mesh v0.1
+  run_id: 33167001149
+  job_id: 98834689338
+  unit_tests:
+    passed: 30
+    failed: 0
+  whole_repo_manifest:
+    status: PASS
+    unique_entities: 938
+    relations: 659
+    duplicate_entity_validation: PASS
+
+runtime_gate:
+  work_id: work-f50ecf53e1dbc58d69889b601973
+  workspace_id: workspace-ecad938a154397fffbed2a54d96388bc
+  branch_ref: w8-address-mesh-v0.1
+  code_write_admission: BLOCKED_NO_MATCHING_AUTHORITY_RULE
+  authority_request_id: authreq-addressmesh-f50e-20260828-01
+  human_root_attention_id: attn-7cc42f399e484e8772926e31cf8c9c
+  developer_lease_acquired: false
+
+implementation_order:
+  - deterministic identity/address model
+  - selector engine
+  - code symbol indexer adapters
+  - SQL schema draft reusing existing truth
+  - message target/subscription resolver
+  - Mason/Guardian context integration
+  - impact graph queries
+  - executable negative/concurrency tests
+  - governed DB migration and manifest import after authority/admission/lease
+
+freeze_rule: >-
+  Any implementation that embeds mutable role/path as sole identity, creates a second
+  message/actor/artifact truth store, or lets messaging grant authority is non-conformant.
+
+next_safe_action: >-
+  After Human Root approves authreq-addressmesh-f50e-20260828-01, re-run Admission
+  v2, acquire Developer Lease, compose reviewed SQL drafts into an executable migration,
+  execute Address Mesh DB regression on an authorized disposable/dev database, import
+  the green manifest into the thin Address index, and prove subscription/Attention plus
+  Mason/Guardian context delivery before Production deployment.

@@ -1,0 +1,69 @@
+schema: WORLD8_ADDRESS_DEFAULT_SUBSCRIPTIONS/1.0
+status: DESIGN_CANDIDATE_NOT_DEPLOYED
+subscriptions:
+  - subscription_key: human-root-company-critical
+    subscriber_ref: human-root
+    selector:
+      all:
+        - society_id: company
+        - any:
+            - tags_any: [RISK:CRITICAL, RISK:MONEY, EFFECT:EXTERNAL]
+            - entity_kind: SERVICE_ENTRYPOINT
+    event_kinds: [ERROR, SECURITY, CHANGE, BUDGET, EFFECT]
+    minimum_priority: HIGH
+    delivery_mode: ATTENTION
+
+  - subscription_key: human-root-trading-critical
+    subscriber_ref: human-root
+    selector:
+      all:
+        - society_id: trading
+        - any:
+            - tags_any: [RISK:CRITICAL, RISK:MONEY, EFFECT:EXTERNAL]
+            - entity_kind: SERVICE_ENTRYPOINT
+    event_kinds: [ERROR, SECURITY, CHANGE, BUDGET, EFFECT]
+    minimum_priority: HIGH
+    delivery_mode: ATTENTION
+
+  - subscription_key: mason-telegram-context
+    subscriber_ref: role:MASON
+    selector:
+      tags_any: [CHANNEL:TELEGRAM, TELEGRAM]
+    event_kinds: ['*']
+    minimum_priority: NORMAL
+    delivery_mode: MASON_PREFLIGHT
+
+  - subscription_key: mason-supabase-context
+    subscriber_ref: role:MASON
+    selector:
+      tags_any: [RUNTIME:SUPABASE, SUPABASE]
+    event_kinds: [ERROR, CHANGE, SECURITY, DATABASE]
+    minimum_priority: NORMAL
+    delivery_mode: MASON_PREFLIGHT
+
+  - subscription_key: guardian-provider-capacity
+    subscriber_ref: role:GUARDIAN
+    selector:
+      any:
+        - tags_any: [PROVIDER:OPENAI, PROVIDER:GROQ, PROVIDER:XAI]
+        - entity_kind: PROVIDER
+    event_kinds: [QUOTA, CAPACITY, PROVIDER_HEALTH, SECURITY]
+    minimum_priority: NORMAL
+    delivery_mode: GUARDIAN_CONTEXT
+
+  - subscription_key: guardian-database-change
+    subscriber_ref: role:GUARDIAN
+    selector:
+      any:
+        - tags_any: [RUNTIME:POSTGRES, RUNTIME:SUPABASE, DATABASE]
+        - entity_kind: DB_FUNCTION
+        - entity_kind: TABLE
+    event_kinds: [DATABASE, CHANGE, MIGRATION, ERROR]
+    minimum_priority: NORMAL
+    delivery_mode: GUARDIAN_CONTEXT
+
+rules:
+  - Role selectors resolve to currently bound/qualified actors at delivery time; role text is not an Actor identity.
+  - These subscriptions do not grant authority and must not bypass Society visibility.
+  - Wildcard event subscription is allowed only for context delivery, not automatic external effects.
+  - Human Root attention subscriptions are informational; approval still follows governed Human Root ceremony.

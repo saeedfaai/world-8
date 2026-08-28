@@ -12,7 +12,7 @@ The current schema candidate identifies an envelope with:
 
 `UNIQUE(society_id, project_id, pool_id, dimension_class, dimension_key)`
 
-This is not a safe identity rule in PostgreSQL when `project_id` or `pool_id` is NULL. Ordinary UNIQUE semantics treat NULL values as distinct, so two rows representing the same Society-level or Project-level budget dimension can coexist.
+This is not a safe identity rule in PostgreSQL when `project_id` or `pool_id` is NULL. ordinary UNIQUE semantics treat NULL values as distinct, so two rows representing the same Society-level or Project-level budget dimension can coexist.
 
 That can create duplicate budget truth for one scope and dimension, which would make reservation/CAS accounting ambiguous.
 

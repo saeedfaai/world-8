@@ -17,6 +17,12 @@ compatibility:
   engineering_guardian_companion: DISTINCT_COMPONENT
   n_mason_pool: REUSE_EXISTING_IDENTITY_EXECUTION_WORK_WORKSPACE_AUTHORITY_AND_LEASE_TRUTH
 
+reconciled_design_changes:
+  - dcr: DCR-0001-operational-guardian-dispatch-idempotency
+    status: ACCEPTED_FOR_V0_1_ARTIFACT_RECONCILIATION
+    trust_boundary_change: false
+    schema_compatibility_change: true
+
 separation_of_duties:
   observer: WHAT_HAPPENED
   guardian_kernel: WHAT_MAY_RUN
@@ -91,11 +97,18 @@ core_objects:
       - SHARDED
     v0_1_forbidden_combinations:
       - SHARDED_X_REDUNDANT_N
+    dispatch_slot_key:
+      immutable: true
+      deterministic: true
+      examples:
+        SINGLE: single
+        REDUNDANT_N: redundant:<ordinal>
+        SHARDED: shard:<work_order_id>
     natural_idempotency_key:
       fields:
         - gap_id
         - policy_version
-        - assignment_kind
+        - dispatch_slot_key
         - attempt_no
     required_fields:
       - assignment_id
@@ -103,6 +116,8 @@ core_objects:
       - society_id
       - project_id
       - dispatch_mode
+      - dispatch_slot_key
+      - assignment_kind
       - mason_slot_id
       - policy_version
       - guardian_epoch

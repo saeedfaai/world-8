@@ -16,6 +16,14 @@ from services.address_mesh.model import AddressCard, EntityKind, semantic_addres
 
 _SUPPORTED = {".py": "python", ".sql": "sql"}
 _SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "dist", "build", "__pycache__"}
+_IDENTITY_FIELDS = (
+    "entity_kind",
+    "canonical_address",
+    "world_id",
+    "society_id",
+    "project_id",
+    "artifact_id",
+)
 
 
 def _load_map(path: Path) -> dict:
@@ -74,14 +82,47 @@ def _file_card(*, path_ref: str, rule: dict, world_id: str) -> AddressCard:
     )
 
 
+def _entity_row(card: AddressCard, *, extra_tags: Iterable[str] = ()) -> dict:
+    return {
+        "record_type": "ENTITY",
+        **card.__dict__,
+        "entity_kind": card.entity_kind.value,
+        "tags": tuple(sorted(set(card.tags) | set(extra_tags))),
+    }
+
+
+def _merge_entity(existing: dict, candidate: dict) -> dict:
+    entity_id = existing["entity_id"]
+    for field in _IDENTITY_FIELDS:
+        if existing.get(field) != candidate.get(field):
+            raise SystemExit(
+                f"ADDRESS_ENTITY_IDENTITY_COLLISION:{entity_id}:{field}:"
+                f"{existing.get(field)!r}!={candidate.get(field)!r}"
+            )
+
+    # Same logical entity seen in another historical definition occurrence.
+    # Keep one entity projection, union stable tags, and let deterministic file order
+    # make the latest occurrence the current source-definition reference.
+    merged = dict(existing)
+    merged["tags"] = tuple(sorted(set(existing.get("tags", ())) | set(candidate.get("tags", ()))))
+    for field in ("authoritative_ref_kind", "authoritative_ref", "content_hash", "owner_ref", "role_refs"):
+        if candidate.get(field) not in (None, "", (), []):
+            merged[field] = candidate[field]
+    return merged
+
+
 def build_manifest(root: Path, mapping: dict) -> list[dict]:
     world_id = mapping.get("world_id", "world-001")
-    rows: list[dict] = []
+    entities: dict[str, dict] = {}
+    relations: dict[tuple[str, str, str, str], dict] = {}
+
     for path in sorted(_walk(root)):
         path_ref = path.relative_to(root).as_posix()
         rule = _rule_for(path_ref, mapping)
         file_card = _file_card(path_ref=path_ref, rule=rule, world_id=world_id)
-        rows.append({"record_type": "ENTITY", **file_card.__dict__, "entity_kind": file_card.entity_kind.value})
+        file_row = _entity_row(file_card)
+        previous = entities.get(file_card.entity_id)
+        entities[file_card.entity_id] = file_row if previous is None else _merge_entity(previous, file_row)
 
         language = _SUPPORTED.get(path.suffix.lower())
         if not language:
@@ -104,17 +145,29 @@ def build_manifest(root: Path, mapping: dict) -> list[dict]:
                 artifact_id=rule["artifact_id"],
                 module_name=Path(path_ref).with_suffix("").as_posix().replace("/", "."),
             )
-            combined_tags = tuple(sorted(set(card.tags) | set(rule.get("tags", []))))
-            row = {**card.__dict__, "entity_kind": card.entity_kind.value, "tags": combined_tags}
-            rows.append({"record_type": "ENTITY", **row})
-            rows.append({
+            candidate = _entity_row(card, extra_tags=rule.get("tags", []))
+            previous = entities.get(card.entity_id)
+            entities[card.entity_id] = candidate if previous is None else _merge_entity(previous, candidate)
+
+            relation = {
                 "record_type": "RELATION",
                 "source_entity_id": file_card.entity_id,
                 "relation_type": "CONTAINS",
                 "target_entity_id": card.entity_id,
                 "source_ref": f"git:{path_ref}",
-            })
-    return rows
+            }
+            relation_key = (
+                relation["source_entity_id"],
+                relation["relation_type"],
+                relation["target_entity_id"],
+                relation["source_ref"],
+            )
+            relations[relation_key] = relation
+
+    return [
+        *[entities[key] for key in sorted(entities)],
+        *[relations[key] for key in sorted(relations)],
+    ]
 
 
 def main() -> int:

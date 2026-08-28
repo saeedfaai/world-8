@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 import hashlib
-from typing import Iterable
+from typing import Iterable, Mapping
 
 from .model import AddressCard, AddressMeshError, normalize_tag
 from .selector import matches, validate_selector
@@ -94,11 +94,59 @@ def _priority_at_least(actual: Priority, minimum: Priority) -> bool:
     return _PRIORITY_RANK[actual] >= _PRIORITY_RANK[minimum]
 
 
-def _receipt_id(subscription_id: str, source_kind: str, source_ref: str, matched_ids: Iterable[str]) -> str:
+def _receipt_id(
+    subscription_id: str,
+    recipient_ref: str,
+    source_kind: str,
+    source_ref: str,
+    matched_ids: Iterable[str],
+) -> str:
     material = "|".join(
-        [subscription_id, source_kind, source_ref, ",".join(sorted(set(matched_ids)))]
+        [subscription_id, recipient_ref, source_kind, source_ref, ",".join(sorted(set(matched_ids)))]
     )
     return "delivery-" + hashlib.sha256(material.encode()).hexdigest()[:32]
+
+
+def _subscription_recipients(
+    subscriber_ref: str,
+    recipient_directory: Mapping[str, Iterable[str]] | None,
+) -> tuple[str, ...]:
+    subscriber_ref = subscriber_ref.strip()
+    if not subscriber_ref.lower().startswith("role:"):
+        return (subscriber_ref,)
+    if recipient_directory is None:
+        return ()
+    direct = recipient_directory.get(subscriber_ref)
+    if direct is None:
+        direct = recipient_directory.get(subscriber_ref.split(":", 1)[1])
+    if direct is None:
+        return ()
+    recipients = tuple(sorted({str(ref).strip() for ref in direct if str(ref).strip()}))
+    return recipients
+
+
+def _matched_entities(
+    *,
+    subscription: Subscription,
+    event: RoutingEvent,
+    cards: Iterable[AddressCard],
+) -> tuple[str, ...]:
+    if subscription.status != "ACTIVE":
+        return ()
+    if event.event_kind not in subscription.event_kinds and "*" not in subscription.event_kinds:
+        return ()
+    if not _priority_at_least(event.priority, subscription.minimum_priority):
+        return ()
+
+    affected_ids = set(event.affected_entity_ids)
+    affected_tags = set(event.affected_tags)
+    matching: list[str] = []
+    for card in cards:
+        directly_affected = card.entity_id in affected_ids
+        tag_affected = bool(affected_tags & set(card.tags))
+        if (directly_affected or tag_affected) and matches(card, subscription.selector):
+            matching.append(card.entity_id)
+    return tuple(sorted(set(matching)))
 
 
 def resolve_subscription(
@@ -106,43 +154,32 @@ def resolve_subscription(
     subscription: Subscription,
     event: RoutingEvent,
     cards: Iterable[AddressCard],
-) -> DeliveryMatch | None:
-    if subscription.status != "ACTIVE":
-        return None
-    if event.event_kind not in subscription.event_kinds and "*" not in subscription.event_kinds:
-        return None
-    if not _priority_at_least(event.priority, subscription.minimum_priority):
-        return None
+    recipient_directory: Mapping[str, Iterable[str]] | None = None,
+) -> list[DeliveryMatch]:
+    matched_ids = _matched_entities(subscription=subscription, event=event, cards=cards)
+    if not matched_ids:
+        return []
 
-    affected_ids = set(event.affected_entity_ids)
-    affected_tags = set(event.affected_tags)
-    matching: list[str] = []
-
-    for card in cards:
-        directly_affected = card.entity_id in affected_ids
-        tag_affected = bool(affected_tags & set(card.tags))
-        if (directly_affected or tag_affected) and matches(card, subscription.selector):
-            matching.append(card.entity_id)
-
-    if not matching:
-        return None
-
-    matched_ids = tuple(sorted(set(matching)))
-    return DeliveryMatch(
-        delivery_receipt_id=_receipt_id(
-            subscription.subscription_id,
-            event.source_kind,
-            event.source_ref,
-            matched_ids,
-        ),
-        subscriber_ref=subscription.subscriber_ref,
-        subscription_id=subscription.subscription_id,
-        source_kind=event.source_kind,
-        source_ref=event.source_ref,
-        event_kind=event.event_kind,
-        delivery_mode=subscription.delivery_mode,
-        matched_entity_ids=matched_ids,
-    )
+    recipients = _subscription_recipients(subscription.subscriber_ref, recipient_directory)
+    return [
+        DeliveryMatch(
+            delivery_receipt_id=_receipt_id(
+                subscription.subscription_id,
+                recipient_ref,
+                event.source_kind,
+                event.source_ref,
+                matched_ids,
+            ),
+            subscriber_ref=recipient_ref,
+            subscription_id=subscription.subscription_id,
+            source_kind=event.source_kind,
+            source_ref=event.source_ref,
+            event_kind=event.event_kind,
+            delivery_mode=subscription.delivery_mode,
+            matched_entity_ids=matched_ids,
+        )
+        for recipient_ref in recipients
+    ]
 
 
 def resolve_subscriptions(
@@ -150,14 +187,20 @@ def resolve_subscriptions(
     subscriptions: Iterable[Subscription],
     event: RoutingEvent,
     cards: Iterable[AddressCard],
+    recipient_directory: Mapping[str, Iterable[str]] | None = None,
 ) -> list[DeliveryMatch]:
     card_list = list(cards)
-    matches_out = [
-        match
-        for subscription in subscriptions
-        if (match := resolve_subscription(subscription=subscription, event=event, cards=card_list)) is not None
-    ]
-    return sorted(matches_out, key=lambda item: (item.subscriber_ref, item.subscription_id))
+    matches_out: list[DeliveryMatch] = []
+    for subscription in subscriptions:
+        matches_out.extend(
+            resolve_subscription(
+                subscription=subscription,
+                event=event,
+                cards=card_list,
+                recipient_directory=recipient_directory,
+            )
+        )
+    return sorted(matches_out, key=lambda item: (item.subscriber_ref, item.subscription_id, item.delivery_receipt_id))
 
 
 def message_target_matches(card: AddressCard, target: dict) -> bool:

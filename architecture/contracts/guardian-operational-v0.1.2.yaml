@@ -1,0 +1,79 @@
+contract_id: guardian-operational-contract-v0.1.2
+kind: OPERATIONAL_GUARDIAN
+version: '0.1.2'
+status: DESIGN_FROZEN
+implementation_status: NOT_IMPLEMENTED
+evidence_status: NOT_EVIDENCED
+deployment_status: NOT_DEPLOYED
+base_contract: architecture/contracts/guardian-operational-v0.1.yaml
+previous_effective_revision: architecture/contracts/guardian-operational-v0.1.1.yaml
+change_request: architecture/proposals/DCR-0002-operational-guardian-budget-scope-identity.md
+effective_for_implementation: true
+
+change_scope:
+  trust_boundary_changed: false
+  authority_boundary_changed: false
+  budget_scope_identity_semantics_changed: true
+
+repairs:
+  budget_scope_identity:
+    problem: >-
+      Nullable project_id/pool_id columns cannot safely define a unique logical
+      BudgetEnvelope because ordinary PostgreSQL UNIQUE permits multiple NULL-bearing
+      tuples that represent the same Society/Project scope and budget dimension.
+    required_fields:
+      - society_id
+      - scope_kind
+      - scope_ref
+      - dimension_class
+      - dimension_key
+    scope_kind_enum:
+      - SOCIETY
+      - PROJECT
+      - POOL
+    scope_ref_non_empty: true
+    scope_ref_immutable: true
+    effective_natural_identity:
+      - society_id
+      - scope_kind
+      - scope_ref
+      - dimension_class
+      - dimension_key
+    nullable_project_pool_tuple_as_unique_identity: forbidden
+    project_id_pool_id_role: ROUTING_OR_PROJECTION_REFERENCE_ONLY
+    parent_child_same_society_required: true
+    reservation_assignment_society_match_required: true
+
+unchanged_invariants:
+  accounting: S + R + A = C + O
+  guardian_may_increase_hard_ceiling: false
+  society_isolation: required
+  guardian_epoch_fencing: required
+  advisor_required_for_kernel_liveness: false
+  guardian_may_create_gap: false
+  guardian_may_close_gap: false
+  guardian_may_evaluate_candidate_quality: false
+  guardian_may_promote_candidate: false
+  guardian_may_hard_revoke_authority: false
+  effect_allowance_is_authorization: false
+  cross_ledger_2pc: forbidden
+  cross_ledger_linearizability_claim: forbidden
+
+implementation_read_order:
+  - architecture/contracts/guardian-operational-v0.1.yaml
+  - architecture/contracts/guardian-operational-v0.1.1.yaml
+  - architecture/contracts/guardian-operational-v0.1.2.yaml
+  - architecture/proposals/DCR-0001-operational-guardian-dispatch-idempotency.md
+  - architecture/proposals/DCR-0002-operational-guardian-budget-scope-identity.md
+  - docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.sql
+  - docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.1.sql
+  - docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.2.sql
+  - tests/guardian_operational/NEGATIVE_TEST_MATRIX_v0.1.md
+  - tests/guardian_operational/NEGATIVE_TEST_DELTA_v0.1.1.md
+  - tests/guardian_operational/NEGATIVE_TEST_DELTA_v0.1.2.md
+
+freeze_rule: >-
+  v0.1.2 is the effective implementation/evidence revision marker for the v0.1
+  design family. Further schema identity, trust-boundary, writer-authority, ledger
+  consistency, or accounting-invariant changes require another explicit Design
+  Change Request and revision. Silent mutation is forbidden.

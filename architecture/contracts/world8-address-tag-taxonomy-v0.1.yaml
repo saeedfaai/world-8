@@ -1,0 +1,57 @@
+taxonomy_id: world8-address-tag-taxonomy-v0.1
+status: DESIGN_FREEZE_CANDIDATE
+purpose: >-
+  Provide orthogonal, queryable tag dimensions across code, runtime, societies,
+  diagnostics, channels, risk, roles and data without embedding mutable semantics into immutable IDs.
+
+preferred_namespaces:
+  SCOPE:
+    examples: [WORLD, COMPANY, TRADING, SHARED_CORE]
+  DOMAIN:
+    examples: [PRICING, SALES, FORECAST, MARKET_DATA, AUTHORITY, DIAGNOSTICS]
+  CHANNEL:
+    examples: [TELEGRAM, EMAIL, WEB, API]
+  RUNTIME:
+    examples: [SUPABASE, POSTGRES, GITHUB, WORDPRESS, EDGE_FUNCTION]
+  LANGUAGE:
+    examples: [PYTHON, SQL, PLPGSQL, TYPESCRIPT, JAVASCRIPT]
+  RISK:
+    examples: [MONEY, SECURITY, AUTHORITY, RENDER, DATA_LOSS, QUOTA]
+  EFFECT:
+    examples: [EXTERNAL, CANONICAL, READ_ONLY, WRITE]
+  DATA:
+    examples: [MARKET, PRICE, SUPPLIER, CUSTOMER, TELEMETRY]
+  ROLE:
+    examples: [MASON, EVALUATOR, OBSERVER, GUARDIAN, INTEGRATOR, HUMAN_ROOT]
+  COMPONENT:
+    examples: [MESSAGE_BUS, ADDRESS_MESH, GUARDIAN, SALES_BOT, FORECAST_HALL]
+  PROVIDER:
+    examples: [OPENAI, GROQ, XAI, DEEPSEEK]
+  SECURITY:
+    examples: [AAL2, TOTP, RLS, SECRET, CREDENTIAL]
+  LIFECYCLE:
+    examples: [ACTIVE, DEPRECATED, EXPERIMENTAL, FROZEN]
+  EVENT:
+    examples: [ERROR, CHANGE, QUOTA, SECURITY, DEPLOY, MIGRATION]
+
+legacy_compatibility:
+  accepted_flat_tags: true
+  examples: [SUPABASE, RENDER, DCP, MASON, WORLD, AUTH, SECURITY]
+  rule: >-
+    Existing flat Diagnostic Memory tags remain queryable. New Address Mesh tags should
+    use namespaced form when a stable namespace exists. A migration/alias layer may map
+    legacy tags to namespaced equivalents, but historical bindings are never rewritten silently.
+
+selector_rules:
+  tags_all: intersection_required
+  tags_any: at_least_one_required
+  tags_none: no_intersection_allowed
+  unknown_tag: allowed_if_registered_or_legacy_visible
+  unknown_selector_key: fail_closed
+
+anti_patterns:
+  - encode_current_mason_in_entity_id
+  - encode_line_number_as_identity
+  - overload_one_tag_with_multiple_dimensions
+  - infer_authority_from_tag
+  - rewrite_historical_tags_silently

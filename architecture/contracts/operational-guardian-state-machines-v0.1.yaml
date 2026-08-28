@@ -1,0 +1,184 @@
+schema: WORLD8_OPERATIONAL_GUARDIAN_STATE_MACHINES/0.1
+status: DESIGN_FROZEN
+implementation: NOT_IMPLEMENTED
+evidence: NOT_EVIDENCED
+
+objects:
+  GapSignal:
+    truth_domain: OBSERVATION
+    immutable: true
+    writers: [OBSERVER]
+    guardian_write: forbidden
+  GapLifecycleEvent:
+    truth_domain: OBSERVATION
+    append_only: true
+    writers: [OBSERVER, GOVERNANCE_FOR_CONTRACT_SUCCESSION_ONLY]
+  WorkAssignment:
+    truth_domain: OPERATIONAL_CONTROL
+    aggregate_cas: true
+    writers: [OPERATIONAL_GUARDIAN_KERNEL]
+  BudgetReservation:
+    truth_domain: OPERATIONAL_CONTROL
+    aggregate_cas: true
+    writers: [OPERATIONAL_GUARDIAN_KERNEL]
+  ResourceLease:
+    truth_domain: OPERATIONAL_CONTROL
+    aggregate_cas: true
+    writers: [OPERATIONAL_GUARDIAN_KERNEL]
+  AdvisoryReceipt:
+    truth_domain: EVIDENCE_ADVISORY
+    append_only: true
+    authoritative: false
+    writers: [ADVISOR_ADAPTER]
+  Candidate:
+    truth_domain: DEVELOPMENT
+    writers: [MASON, INTEGRATOR_MASON, DETERMINISTIC_ASSEMBLER]
+  EvaluationReceipt:
+    truth_domain: EVIDENCE
+    writers: [EVALUATOR]
+  SelectionDecision:
+    truth_domain: EVIDENCE_GOVERNANCE
+    writers: [GOVERNANCE, PROMOTION_AUTHORITY]
+    guardian_write: forbidden
+  SpineCitationPack:
+    truth_domain: EVIDENCE_GOVERNANCE
+    writers: [GOVERNANCE_COMMIT_PATH]
+
+work_assignment:
+  states: [PLANNED, ASSIGNED, ACTIVE, COMPLETED, FAILED, CANCELLED, EXPIRED]
+  allowed_transitions:
+    PLANNED: [ASSIGNED, CANCELLED, EXPIRED]
+    ASSIGNED: [ACTIVE, CANCELLED, EXPIRED]
+    ACTIVE: [COMPLETED, FAILED, CANCELLED, EXPIRED]
+    COMPLETED: []
+    FAILED: []
+    CANCELLED: []
+    EXPIRED: []
+  terminal: [COMPLETED, FAILED, CANCELLED, EXPIRED]
+  activation_requires:
+    - valid_guardian_epoch
+    - current_policy_version
+    - valid_budget_reservation
+    - required_resource_leases_acquired_all_or_none
+    - circuit_breaker_allows
+    - society_scope_match
+    - idempotency_key_unique_for_semantics
+
+budget_reservation:
+  states: [REQUESTED, RESERVED, ACTIVE, SETTLED, RELEASED, EXPIRED]
+  allowed_transitions:
+    REQUESTED: [RESERVED, RELEASED, EXPIRED]
+    RESERVED: [ACTIVE, RELEASED, EXPIRED]
+    ACTIVE: [SETTLED, RELEASED, EXPIRED]
+    SETTLED: []
+    RELEASED: []
+    EXPIRED: []
+  terminal: [SETTLED, RELEASED, EXPIRED]
+  fencing_required: true
+  ttl_required: true
+  dimension_aware_extension: true
+
+soft_quarantine:
+  modes: [IMMEDIATE, DRAIN]
+  ttl_required: true
+  review_deadline_required: true
+  max_renewals_policy_bound: true
+  immediate:
+    new_assignment: forbidden
+    lease_extension: forbidden
+    new_write_or_effect_lease: forbidden
+    current_write_lease: fence
+    bounded_read_handoff: allowed
+  drain:
+    new_assignment: forbidden
+    lease_extension: forbidden
+    safe_current_work_until_existing_lease_end: allowed
+  hard_revoke_by_guardian: forbidden
+
+gap_lifecycle:
+  resolution_status: [OPEN, STILL_VIOLATED, RESOLVED, SUPERSEDED]
+  actionability_status: [ACTIVE, SUSPENDED, EXPIRED]
+  work_completion_implies_resolution: false
+  observer_remeasurement_required_for_resolution: true
+  compatibility_class: [STRICTER, RELAXED, BREAKING]
+
+retry_budgets:
+  fields:
+    - repair_retry_budget
+    - provider_switch_budget
+    - timeout_budget
+    - max_assignments
+    - max_concurrent_assignments
+    - max_failed_attempts
+  provider_switch_resets_deadline: false
+  circuit_breaker_overflow: ESCALATE_NOT_RETRY
+
+dispatch_modes:
+  allowed: [SINGLE, REDUNDANT_N, SHARDED]
+  forbidden_combinations:
+    - SHARDED_X_REDUNDANT_N
+  redundant_n:
+    default_max_n: 3
+    winner_selected_by_guardian: false
+    selection_decision_required: true
+  sharded:
+    same_parent_gap_id_required: true
+    new_gap_creation_by_guardian: false
+    decomposition_policy_validation_required: true
+    completion_contract_required: true
+    integrated_candidate_derived_from_required: true
+    integration_failure_outcome: INTEGRATION_FAILED
+
+budget_accounting:
+  variables:
+    C: ceiling
+    S: settled
+    R: reserved
+    A: available
+    O: overhang
+  invariant: S + R + A = C + O
+  nonnegative: [A, O]
+  dispatch_requires: O == 0 AND A >= requested_amount
+  hard_ceiling_extension_writer: GOVERNANCE_ONLY
+  within_envelope_assignment_extension_writer: OPERATIONAL_GUARDIAN_KERNEL
+  live_reservation_broken_by_shrink: false
+  settled_history_rewritten_by_shrink: false
+
+control_ledger:
+  global_head: false
+  per_aggregate_version: monotonic
+  cas_required: true
+  append_only: true
+  guardian_epoch_required_on_every_control_event: true
+  causation_event_ref_supported: true
+  correlation_id_supported: true
+  canonical_bytes_hash_required: true
+  idempotency_key_required: true
+  raw_telemetry_allowed: false
+  heartbeat_stream_allowed: false
+
+cross_ledger:
+  spine_operational_2pc: forbidden
+  linearizability_claim: forbidden
+  bridge: HASH_VERSION_CITATION
+  frozen_cited_bytes_required_for_long_term_evidence: true
+
+forbidden:
+  - GUARDIAN_CREATE_GAP
+  - GUARDIAN_MUTATE_GAP
+  - GUARDIAN_RESOLVE_GAP
+  - GUARDIAN_SUPPRESS_OBSERVER
+  - GUARDIAN_JUDGE_CANDIDATE_QUALITY
+  - GUARDIAN_CREATE_SELECTION_DECISION
+  - GUARDIAN_PROMOTE_CANDIDATE
+  - GUARDIAN_HARD_REVOKE
+  - GUARDIAN_INCREASE_HARD_CEILING
+  - EFFECT_ALLOWANCE_AS_EFFECT_AUTHORIZATION
+  - STALE_GUARDIAN_EPOCH_WRITE
+  - UNBOUNDED_ADVISOR_FIELD
+  - ADVISOR_REQUIRED_FOR_KERNEL_LIVENESS
+  - SHARDED_X_REDUNDANT_N
+  - PROVIDER_SWITCH_DEADLINE_RESET
+  - CROSS_SOCIETY_BUDGET_OR_QUARANTINE
+  - RETRY_BEYOND_CIRCUIT_BREAKER
+  - NONATOMIC_EVENT_PROJECTION_DUAL_WRITE

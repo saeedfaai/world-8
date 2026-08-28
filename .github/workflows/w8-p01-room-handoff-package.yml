@@ -1,0 +1,94 @@
+name: W8-P01 Room Handoff Package
+
+on:
+  push:
+    branches: [work/w8-p01-manuscript-v0.1]
+    paths:
+      - '.github/workflows/w8-p01-room-handoff-package.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build complete W8-P01 handoff package
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$GITHUB_WORKSPACE"
+          OUT="$ROOT/w8-p01-room-handoff"
+          mkdir -p "$OUT/docs/publications/manuscript" "$OUT/workflows"
+
+          # Current manuscript and all W8-P01 publication/evidence/audit receipts produced on this line.
+          cp docs/publications/manuscript/W8_P01_MANUSCRIPT_JAAMAS_v0.4.md "$OUT/docs/publications/manuscript/"
+          find docs/publications -maxdepth 1 -type f -name 'W8_P01_*' -print0 | xargs -0 -I{} cp {} "$OUT/docs/publications/"
+
+          # Submission/reproducibility workflows created for this manuscript line.
+          for f in \
+            .github/workflows/w8-p01-p02-overlap-audit.yml \
+            .github/workflows/w8-p01-jaamas-docx.yml \
+            .github/workflows/w8-p01-room-handoff-package.yml; do
+            if [ -f "$f" ]; then cp "$f" "$OUT/workflows/"; fi
+          done
+
+          cat > "$OUT/START_HERE_NEXT_ROOM.md" <<'EOF'
+          # W8-P01 — START HERE IN NEXT ROOM
+
+          Paper: **A Governed Shared-Kernel Architecture for Persistent, Auditable Multi-Agent Societies Beyond the LLM Session**
+          Target: **Autonomous Agents and Multi-Agent Systems (JAAMAS)**
+          Article type: **Regular Paper / Original Research**
+          Current manuscript: `docs/publications/manuscript/W8_P01_MANUSCRIPT_JAAMAS_v0.4.md`
+          Status: **NOT SUBMITTED / PUBLIC REPRODUCTION PASS / DOCX VISUAL QA PASS / AUTHOR CONFIRMATIONS OPEN**
+
+          ## Canonical evidence
+          - private evidence commit: `34ed68b6e04c548e7ee14aa16e0e3eecdb1b31f0`
+          - private evidence ref: `freeze/w8-p01-evidence-v0.1`
+          - public reviewer ref: `saeedfaai/World-v6-public@freeze/w8-p01-review-package-v0.1`
+          - public reviewer commit: `07b37691076652f8373f8b6020a198fa70fc285a`
+          - unified public reproduction run: `33113474577` PASS
+          - public reproduction artifact SHA256: `46e15a72c59c5e6035e0732590941f20d1ed7c44b7870b8d54002c790efe166c`
+
+          ## Frozen figures
+          - ref: `saeedfaai/World-v6-public@freeze/w8-p01-figures-v0.1`
+          - run: `33114847279` PASS
+          - artifact SHA256: `d8b73fe170b8d5d654ead7a1d815c4bbf0e11089d418d5484e7ab249378a16e2`
+
+          ## DOCX QA
+          See `docs/publications/W8_P01_JAAMAS_DOCX_QA_RECEIPT_v0.1.md`.
+          Final DOCX hashes recorded there:
+          - Manuscript v0.4: `3da78d6e13575780c208c95b3158f47a2b91ffd0355addb423671ac791fe010f`
+          - Information Sheet v0.3: `f2708c3580c227a36872e7be1204198ae36ea7a5ffe2c68ae96db0050dff5075`
+          - Cover Letter v0.1: `b114d891f4032d856dfa67e7dff68e81e0f0ea27b94374591bc464cdb85a394c`
+
+          ## W8-P01 / W8-P02 boundary
+          W8-P02 (SSRN Abstract ID `7359740`) owns market forecasting/performance evidence. W8-P01 uses Trading only as governance/conformance. Direct canonical-source post-draft overlap audit PASS WITH EXECUTION LIMITATION; automated private runner failed before step allocation. Publisher similarity screening remains required.
+
+          ## Do not strengthen claims
+          No claim of production readiness, profitability, universal security, general framework superiority, or standalone novelty for persistent identity, MAS governance/norms, RBAC/ABAC, leases/fencing, CAS/idempotency, recovery, provenance/hash chains, delegation, tracing, or orchestration.
+
+          ## Remaining author-only gates before submission
+          1. Confirm Competing Interests statement.
+          2. Confirm Funding statement.
+          3. Confirm manuscript is not simultaneously under consideration by another journal.
+          4. Final author approval.
+
+          After those confirmations: provider-side JAAMAS submission + publisher similarity screening.
+          EOF
+
+          git rev-parse HEAD > "$OUT/PACKAGED_FROM_COMMIT.txt"
+          (cd "$OUT" && find . -type f -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS.txt)
+          (cd "$ROOT" && zip -qr W8_P01_NEXT_ROOM_SOURCE_AND_RECEIPTS_20260828.zip w8-p01-room-handoff)
+          sha256sum W8_P01_NEXT_ROOM_SOURCE_AND_RECEIPTS_20260828.zip | tee W8_P01_NEXT_ROOM_SOURCE_AND_RECEIPTS_20260828.zip.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: W8_P01_NEXT_ROOM_SOURCE_AND_RECEIPTS_20260828
+          path: |
+            W8_P01_NEXT_ROOM_SOURCE_AND_RECEIPTS_20260828.zip
+            W8_P01_NEXT_ROOM_SOURCE_AND_RECEIPTS_20260828.zip.sha256
+          retention-days: 90
+          if-no-files-found: error

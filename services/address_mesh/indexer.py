@@ -103,6 +103,13 @@ _SQL_PATTERNS: tuple[tuple[EntityKind, re.Pattern[str]], ...] = (
     (EntityKind.SYMBOL, re.compile(r"\bcreate\s+(?:or\s+replace\s+)?view\s+([a-zA-Z_][\w$.]*)", re.I)),
 )
 
+_SQL_ADDRESS_SEGMENT = {
+    EntityKind.DB_FUNCTION: "db-function",
+    EntityKind.RPC: "rpc",
+    EntityKind.TABLE: "table",
+    EntityKind.SYMBOL: "view",
+}
+
 
 def _line_number(source: str, offset: int) -> int:
     return source.count("\n", 0, offset) + 1
@@ -121,6 +128,7 @@ def index_sql(
         for match in pattern.finditer(source):
             raw_name = match.group(1)
             qualified_name = raw_name.lower()
+            # DB-object identity is the runtime object, not the migration file that defined it.
             stable_key = f"sql|{artifact_id}|{qualified_name}|{kind.value}"
             entity_id = stable_entity_id(kind, stable_key)
             line = _line_number(source, match.start())
@@ -154,13 +162,26 @@ def descriptor_to_card(
     artifact_id: str,
     module_name: str,
 ) -> AddressCard:
-    address = semantic_address(
-        ("society", society_id),
-        ("project", project_id),
-        ("artifact", artifact_id),
-        ("module", module_name),
-        ("symbol", descriptor.qualified_name),
-    )
+    if descriptor.entity_kind in _SQL_ADDRESS_SEGMENT:
+        # Historical CREATE/CREATE OR REPLACE statements across many migrations all point
+        # to one stable runtime DB object. Migration path is provenance, not identity/address.
+        address = semantic_address(
+            ("society", society_id),
+            ("project", project_id),
+            ("artifact", artifact_id),
+            (_SQL_ADDRESS_SEGMENT[descriptor.entity_kind], descriptor.qualified_name),
+        )
+        authoritative_ref_kind = "DB_OBJECT_DEFINITION"
+    else:
+        address = semantic_address(
+            ("society", society_id),
+            ("project", project_id),
+            ("artifact", artifact_id),
+            ("module", module_name),
+            ("symbol", descriptor.qualified_name),
+        )
+        authoritative_ref_kind = "CODE_SYMBOL"
+
     return AddressCard(
         entity_id=descriptor.entity_id,
         entity_kind=descriptor.entity_kind,
@@ -169,7 +190,7 @@ def descriptor_to_card(
         society_id=society_id,
         project_id=project_id,
         artifact_id=artifact_id,
-        authoritative_ref_kind="CODE_SYMBOL",
+        authoritative_ref_kind=authoritative_ref_kind,
         authoritative_ref=f"{descriptor.path_ref}#{descriptor.qualified_name}",
         tags=descriptor.tags,
         content_hash=descriptor.signature_hash,

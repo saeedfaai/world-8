@@ -1,6 +1,6 @@
 # World 8 Universal Address Graph / Addressable Engineering Mesh v0.1
 
-Status: DESIGN FREEZE CANDIDATE / PARTIAL CODE DRAFTED / NOT DEPLOYED
+Status: DESIGN FREEZE CANDIDATE / CODE DRAFTED / UNIT+INDEX CI PASS / DB NOT APPLIED / NOT DEPLOYED
 
 ## Why
 
@@ -168,6 +168,8 @@ The first adapters are:
 
 The indexer produces deterministic symbol descriptors but does not silently decide that two renamed symbols are the same semantic entity. Rename/move reconciliation is explicit through alias/rebind operations.
 
+Historical SQL migration files are definition provenance, not DB-object identity. Repeated `CREATE OR REPLACE` statements for the same runtime DB object resolve to one stable Entity and one migration-independent canonical address, while every defining file retains an explicit file-to-object relation. A repeated entity ID with conflicting identity fields fails closed.
+
 ## Context delivery
 
 When a Mason enters a Work/Artifact/Symbol, resolve a single `ADDRESS_CONTEXT_BUNDLE` containing:
@@ -183,6 +185,8 @@ When a Mason enters a Work/Artifact/Symbol, resolve a single `ADDRESS_CONTEXT_BU
 - owner/role bindings
 
 Guardian Pre-Action must use the same resolver.
+
+Compatibility wrappers are drafted as `world8_mason_preflight_v2` and `world8_guardian_pre_action_v2`; existing v1 behavior remains the rollback baseline and Address Mesh cannot remove an existing blocker or grant authority.
 
 ## Impact graph
 
@@ -200,6 +204,8 @@ No semantic impact is inferred from proximity alone.
 
 Messages can notify, warn, request review or create Attention Items. They cannot grant code-write authority, Promotion, HARD_REVOKE or external-effect authorization.
 
+Role fan-out is also non-authoritative. In v0.1, `role:MASON` resolves only through active Actor Registry rows with `actor_kind=AI_MASON`; unresolved roles deliver to nobody rather than guessing from names. Every actual recipient gets a distinct deterministic delivery receipt identity.
+
 ## Desired operator experience
 
 Examples:
@@ -214,3 +220,56 @@ show all code, diagnostics, PDFs/docs, GitHub changes and Work touching SUPABASE
 ```
 
 The Address Mesh is therefore the common internal "GPS + query language + routing fabric" for World 8.
+
+## Executable code/index evidence — 2026-08-28
+
+GitHub Actions workflow `W8 Address Mesh v0.1`, run `33167001149`, job `98834689338`:
+
+- unit tests: **30 / 30 PASS**;
+- whole-repository Address Manifest build: **PASS**;
+- unique address entities: **938**;
+- explicit provenance/containment relations: **659**;
+- duplicate-entity validation: **PASS**.
+
+The green manifest includes the repeated-SQL-definition regression: multiple migration definitions of one DB object collapse to one Entity without deleting definition provenance. Distinct Python module symbols remain distinct.
+
+This is code/index evidence only. SQL runtime behavior is not yet evidenced.
+
+## Governed runtime status
+
+Current Work: `work-f50ecf53e1dbc58d69889b601973`  
+Workspace: `workspace-ecad938a154397fffbed2a54d96388bc`  
+Branch: `w8-address-mesh-v0.1`
+
+Current CODE_WRITE Admission is blocked with `NO_MATCHING_AUTHORITY_RULE`.
+
+A narrowly scoped Human Root request exists:
+
+`authreq-addressmesh-f50e-20260828-01`
+
+Human Root Attention item:
+
+`attn-7cc42f399e484e8772926e31cf8c9c`
+
+The challenge token is intentionally not stored in documentation/messages.
+
+Until governed approval + Developer Lease:
+
+- Address Mesh SQL remains in `supabase/drafts`;
+- no Address Mesh DDL is applied to Production;
+- the 938-entity manifest is not imported into Production;
+- default subscriptions are not activated;
+- Mason Preflight v2 / Guardian Pre-Action v2 runtime behavior is not claimed.
+
+## Next safe action
+
+After Human Root CODE_WRITE approval:
+
+1. re-run Admission v2;
+2. acquire Developer Lease;
+3. review/compose the SQL drafts into an executable migration;
+4. execute `tests/address_mesh/address_mesh_db_regression_v01.sql` on an authorized disposable/dev database;
+5. import the generated manifest into the thin Address index;
+6. test selector fan-out and idempotent Attention delivery;
+7. test Mason Preflight v2 and Guardian Pre-Action v2 with real Address Context;
+8. only then consider Production deployment/promotion.

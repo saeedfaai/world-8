@@ -1,0 +1,64 @@
+contract_id: guardian-operational-contract-v0.1.4
+kind: OPERATIONAL_GUARDIAN
+version: '0.1.4'
+status: DESIGN_FROZEN
+implementation_status: PARTIAL_CODE_DRAFTED
+evidence_status: NOT_EVIDENCED
+deployment_status: NOT_DEPLOYED
+base_contract: architecture/contracts/guardian-operational-v0.1.yaml
+previous_effective_revision: architecture/contracts/guardian-operational-v0.1.3.yaml
+change_request: architecture/proposals/DCR-0004-operational-guardian-envelope-allocation.md
+effective_for_implementation: true
+
+change_scope:
+  trust_boundary_changed: false
+  authority_boundary_changed: false
+  accounting_schema_realization_changed: true
+
+repairs:
+  hierarchical_envelope_allocation:
+    explicit_allocation_aggregate: required
+    parent_bucket_for_active_child_allocation: reserved
+    child_spend_updates_parent_per_task: forbidden
+    parent_reconciliation_events:
+      - ALLOCATION_RECLAIMED
+      - ALLOCATION_SPEND_FINALIZED
+      - ALLOCATION_RESIZED
+      - ALLOCATION_CLOSED
+    same_society_required: true
+    same_dimension_required: true
+    hard_ceiling_increase_by_guardian: forbidden
+
+  allocation_invariant:
+    expression: allocated_amount = reclaimed_amount + finalized_spend_amount + remaining_encumbered
+    remaining_encumbered_nonnegative: true
+    remaining_encumbered_contributes_to_parent_reserved: true
+
+unchanged_invariants:
+  guardian_may_create_gap: false
+  guardian_may_close_gap: false
+  guardian_may_evaluate_candidate_quality: false
+  guardian_may_promote_candidate: false
+  guardian_may_hard_revoke_authority: false
+  effect_allowance_is_authorization: false
+  cross_ledger_2pc: forbidden
+  society_isolation: required
+  budget_accounting: S + R + A = C + O
+  dispatch_slot_key_required: true
+  budget_scope_identity_non_null: true
+  guardian_leadership_scope: SOCIETY
+
+implementation_read_order:
+  - architecture/contracts/guardian-operational-v0.1.yaml
+  - architecture/contracts/guardian-operational-v0.1.1.yaml
+  - architecture/contracts/guardian-operational-v0.1.2.yaml
+  - architecture/contracts/guardian-operational-v0.1.3.yaml
+  - architecture/contracts/guardian-operational-v0.1.4.yaml
+  - architecture/proposals/DCR-0004-operational-guardian-envelope-allocation.md
+  - docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.4.sql
+  - tests/guardian_operational/NEGATIVE_TEST_DELTA_v0.1.4.md
+
+freeze_rule: >-
+  v0.1.4 is the effective implementation/evidence revision marker for the v0.1
+  family. Any later change to accounting identity, authority, trust boundary,
+  leader/fencing identity, or cross-Society semantics requires an explicit DCR.

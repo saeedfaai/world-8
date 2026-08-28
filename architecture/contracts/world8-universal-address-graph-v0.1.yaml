@@ -2,9 +2,10 @@ contract_id: world8-universal-address-graph-v0.1
 kind: UNIVERSAL_ADDRESS_GRAPH
 version: '0.1'
 status: DESIGN_FREEZE_CANDIDATE
-implementation_status: PARTIAL_CODE_DRAFTED
-evidence_status: NOT_EVIDENCED
+implementation_status: CODE_DRAFTED
+evidence_status: CODE_AND_REPO_INDEX_EVIDENCED
 deployment_status: NOT_DEPLOYED
+runtime_database_status: NOT_APPLIED
 
 purpose: >-
   Give every addressable World 8 engineering/ecosystem object a stable identity,
@@ -38,6 +39,10 @@ identity_model:
       - tags
       - revision
       - content_hash
+  explicit_rebind:
+    evidence_required: true
+    fuzzy_or_llm_identity_guess: forbidden
+    previous_address_becomes_alias: true
 
 entity_kinds:
   - WORLD
@@ -161,6 +166,10 @@ subscriptions:
   rule: >-
     A subscription does not duplicate source events. It creates delivery/attention
     receipts referencing the authoritative source event or internal message.
+  role_fanout:
+    receipt_identity_includes_actual_recipient: true
+    unresolved_role: FAIL_CLOSED_NO_DELIVERY
+    v0_1_mason_mapping: ACTIVE_ACTOR_KIND_AI_MASON
 
 messaging_integration:
   message_truth: public.world8_internal_messages
@@ -194,6 +203,7 @@ context_delivery:
     same_address_context_resolver: required
   on_diagnostic_event:
     affected_entity_resolution: required
+  authority_effect: NONE
 
 change_impact:
   relation_graph: required
@@ -228,6 +238,38 @@ history:
   subscription_changes_versioned: true
   delivery_receipts_append_only: true
 
+indexing:
+  python_symbols_are_module_scoped: true
+  sql_runtime_object_identity:
+    migration_filename_is_identity: false
+    repeated_create_or_replace_one_entity: true
+    preserve_each_definition_file_relation: true
+    conflicting_duplicate_identity_fields: FAIL_CLOSED
+  unsupported_language: FILE_ONLY_NO_FAKE_SYMBOLS
+
+ci_evidence:
+  date: '2026-08-28'
+  workflow: W8 Address Mesh v0.1
+  run_id: 33167001149
+  job_id: 98834689338
+  unit_tests:
+    passed: 30
+    failed: 0
+  whole_repo_manifest:
+    status: PASS
+    unique_entities: 938
+    relations: 659
+    duplicate_entity_validation: PASS
+
+runtime_gate:
+  work_id: work-f50ecf53e1dbc58d69889b601973
+  workspace_id: workspace-ecad938a154397fffbed2a54d96388bc
+  branch_ref: w8-address-mesh-v0.1
+  code_write_admission: BLOCKED_NO_MATCHING_AUTHORITY_RULE
+  authority_request_id: authreq-addressmesh-f50e-20260828-01
+  human_root_attention_id: attn-7cc42f399e484e8772926e31cf8c9c
+  developer_lease_acquired: false
+
 implementation_order:
   - deterministic identity/address model
   - selector engine
@@ -237,7 +279,15 @@ implementation_order:
   - Mason/Guardian context integration
   - impact graph queries
   - executable negative/concurrency tests
+  - governed DB migration and manifest import after authority/admission/lease
 
 freeze_rule: >-
   Any implementation that embeds mutable role/path as sole identity, creates a second
   message/actor/artifact truth store, or lets messaging grant authority is non-conformant.
+
+next_safe_action: >-
+  After Human Root approves authreq-addressmesh-f50e-20260828-01, re-run Admission
+  v2, acquire Developer Lease, compose reviewed SQL drafts into an executable migration,
+  execute Address Mesh DB regression on an authorized disposable/dev database, import
+  the green manifest into the thin Address index, and prove subscription/Attention plus
+  Mason/Guardian context delivery before Production deployment.

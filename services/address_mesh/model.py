@@ -85,7 +85,10 @@ _KIND_PREFIX: dict[EntityKind, str] = {
     EntityKind.CONTRACT: "CTR",
 }
 
-_TAG_RE = re.compile(r"^[A-Z][A-Z0-9_]*:[A-Z0-9][A-Z0-9_.:/-]*$")
+# Namespaced tags are preferred for new Address Mesh data (e.g. RUNTIME:SUPABASE),
+# but legacy Diagnostic Memory uses valid flat tags (e.g. SUPABASE, RENDER).
+# Both are accepted so the new mesh cannot orphan existing diagnostics.
+_TAG_RE = re.compile(r"^[A-Z][A-Z0-9_]*(?::[A-Z0-9][A-Z0-9_.:/-]*)?$")
 _SEGMENT_RE = re.compile(r"^[A-Za-z0-9._~-]+$")
 
 

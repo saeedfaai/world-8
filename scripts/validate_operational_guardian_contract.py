@@ -4,15 +4,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 contract = (ROOT / 'architecture/contracts/guardian-operational-v0.1.yaml').read_text()
 contract_v011 = (ROOT / 'architecture/contracts/guardian-operational-v0.1.1.yaml').read_text()
+contract_v012 = (ROOT / 'architecture/contracts/guardian-operational-v0.1.2.yaml').read_text()
 adr = (ROOT / 'architecture/adr/ADR-0003-operational-guardian-boundary.md').read_text()
 dcr = (ROOT / 'architecture/proposals/DCR-0001-operational-guardian-dispatch-idempotency.md').read_text()
+dcr2 = (ROOT / 'architecture/proposals/DCR-0002-operational-guardian-budget-scope-identity.md').read_text()
 state = (ROOT / 'docs/engineering/guardian-operational/STATE_MACHINES_v0.1.md').read_text()
 state_v011 = (ROOT / 'docs/engineering/guardian-operational/STATE_MACHINES_v0.1.1.md').read_text()
 writer = (ROOT / 'docs/engineering/guardian-operational/WRITER_MATRIX_v0.1.md').read_text()
 schema = (ROOT / 'docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.sql').read_text()
 schema_v011 = (ROOT / 'docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.1.sql').read_text()
+schema_v012 = (ROOT / 'docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.2.sql').read_text()
 negative = (ROOT / 'tests/guardian_operational/NEGATIVE_TEST_MATRIX_v0.1.md').read_text()
 negative_v011 = (ROOT / 'tests/guardian_operational/NEGATIVE_TEST_DELTA_v0.1.1.md').read_text()
+negative_v012 = (ROOT / 'tests/guardian_operational/NEGATIVE_TEST_DELTA_v0.1.2.md').read_text()
 engineering_guardian = (ROOT / 'docs/engineering/ENGINEERING_GUARDIAN.md').read_text()
 n_mason = (ROOT / 'docs/engineering/N_MASON_POOL.md').read_text()
 worklog = (ROOT / 'docs/engineering/diagnostics/GUARDIAN_CONTRACT_V0_1_WORKLOG.md').read_text()
@@ -71,7 +75,7 @@ checks = {
     'schema enforces dispatch slot families': all(x in schema for x in ("dispatch_slot_key='single'", "dispatch_slot_key like 'redundant:%'", "dispatch_slot_key like 'shard:%'")),
     'work lifecycle does not encode quarantine': "'EXPIRED','QUARANTINED'" not in schema and 'QUARANTINED` is not a second WorkAssignment truth state' in state,
 
-    # v0.1.1 is the explicit effective implementation/evidence revision marker.
+    # v0.1.1 explicit corrective marker.
     'v011 frozen not implemented': all(x in contract_v011 for x in (
         "version: '0.1.1'",
         'status: DESIGN_FROZEN',
@@ -97,7 +101,35 @@ checks = {
     'v011 tests immutable slot': 'immutable identity field' in negative_v011,
     'v011 tests quarantine overlay': 'WorkControl core state is set to `QUARANTINED`' in negative_v011,
     'v011 no runtime pass claim': 'NO RUNTIME PASS CLAIM' in negative_v011,
-    'worklog effective baseline records v011': 'v0.1.1` is the effective corrective revision for implementation' in worklog,
+
+    # DCR-0002 / v0.1.2 budget-scope identity repair.
+    'dcr0002 accepted': 'Status: ACCEPTED FOR v0.1 FAMILY ARTIFACT RECONCILIATION' in dcr2,
+    'dcr0002 identifies null unique risk': 'ordinary UNIQUE semantics treat NULL values as distinct' in dcr2,
+    'v012 frozen not implemented': all(x in contract_v012 for x in (
+        "version: '0.1.2'",
+        'status: DESIGN_FROZEN',
+        'implementation_status: NOT_IMPLEMENTED',
+        'evidence_status: NOT_EVIDENCED',
+        'deployment_status: NOT_DEPLOYED',
+        'effective_for_implementation: true',
+    )),
+    'v012 references previous and dcr2': 'previous_effective_revision: architecture/contracts/guardian-operational-v0.1.1.yaml' in contract_v012 and 'DCR-0002-operational-guardian-budget-scope-identity.md' in contract_v012,
+    'v012 trust authority unchanged': 'trust_boundary_changed: false' in contract_v012 and 'authority_boundary_changed: false' in contract_v012,
+    'v012 canonical scope identity': all(x in contract_v012 for x in ('- society_id', '- scope_kind', '- scope_ref', '- dimension_class', '- dimension_key')),
+    'v012 nullable tuple forbidden': 'nullable_project_pool_tuple_as_unique_identity: forbidden' in contract_v012,
+    'v012 same society requirements': 'parent_child_same_society_required: true' in contract_v012 and 'reservation_assignment_society_match_required: true' in contract_v012,
+    'v012 preserves accounting invariant': 'accounting: S + R + A = C + O' in contract_v012,
+    'v012 schema overlay requires nonnull scope': all(x in schema_v012 for x in ('scope_kind text not null', 'scope_ref text not null', 'length(trim(scope_ref)) > 0')),
+    'v012 schema overlay requires null safe identity': 'UNIQUE(society_id, scope_kind, scope_ref, dimension_class, dimension_key)' in schema_v012,
+    'v012 schema overlay forbids nullable identity': 'Forbidden future physical identity:' in schema_v012,
+    'v012 test delta complete': all(f'| OG-N{i} |' in negative_v012 for i in range(64, 74)),
+    'v012 tests cross society hierarchy': 'Parent envelope Society A allocates child envelope in Society B' in negative_v012,
+    'v012 tests concurrent identity race': 'Two concurrent creates race' in negative_v012,
+    'v012 no runtime pass claim': 'NO RUNTIME PASS CLAIM' in negative_v012,
+    'worklog effective baseline records v012': 'v0.1.2` is the effective corrective revision for implementation' in worklog,
+    'worklog records budget null identity diagnostic': 'BUDGET_SCOPE_NULL_UNIQUENESS_RISK' in worklog,
+
+    # Historical diagnostic retained.
     'worklog records freeze reconciliation diagnostic': 'FROZEN_ARTIFACT_RECONCILED_IN_PLACE_RISK' in worklog,
 }
 
@@ -108,5 +140,5 @@ if failed:
 print(
     'Operational Guardian static contract validation PASS:',
     len(checks),
-    'checks; evidence ceiling=STATIC_DESIGN_CONFORMANCE_ONLY; runtime evidence=NONE',
+    'checks; effective_revision=v0.1.2; evidence ceiling=STATIC_DESIGN_CONFORMANCE_ONLY; runtime evidence=NONE',
 )

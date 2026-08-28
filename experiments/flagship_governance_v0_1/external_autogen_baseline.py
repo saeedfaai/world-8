@@ -197,6 +197,7 @@ class GovernanceStore:
         altered[-1] = Receipt(last.seq, last.kind, "attacker", last.detail, last.prev_hash, last.receipt_hash)
         return not self.verify_receipts(altered)
 
+
 class ExecutorAgent(RoutedAgent):
     def __init__(self, store: GovernanceStore) -> None:
         super().__init__(description="Deterministic effect executor; no LLM or external provider")

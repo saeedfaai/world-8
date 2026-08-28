@@ -1,0 +1,101 @@
+-- World 8 Operational Guardian v0.1.4 — EFFECTIVE ACCOUNTING SCHEMA OVERLAY
+-- Status: DESIGN_FROZEN / NOT A MIGRATION / NOT APPLIED / NOT EVIDENCED
+-- DCR: architecture/proposals/DCR-0004-operational-guardian-envelope-allocation.md
+-- Effective revision: architecture/contracts/guardian-operational-v0.1.4.yaml
+
+-- ===========================================================================
+-- REQUIREMENT 1 — explicit parent/child EnvelopeAllocation aggregate
+-- ===========================================================================
+-- Future executable schema MUST include an operational object equivalent to:
+--
+-- create table public.world8_guardian_envelope_allocations (
+--   allocation_id text primary key,
+--   parent_envelope_id text not null references public.world8_guardian_budget_envelopes(envelope_id),
+--   child_envelope_id text not null references public.world8_guardian_budget_envelopes(envelope_id),
+--   society_id text not null,
+--   dimension_class text not null,
+--   dimension_key text not null,
+--   unit text not null,
+--   allocated_amount numeric(30,6) not null,
+--   reclaimed_amount numeric(30,6) not null default 0,
+--   finalized_spend_amount numeric(30,6) not null default 0,
+--   remaining_encumbered numeric(30,6) not null,
+--   state text not null check (state in ('ACTIVE','CLOSED','CANCELLED')),
+--   parent_envelope_version_at_allocate bigint not null,
+--   policy_version text not null,
+--   guardian_epoch bigint not null,
+--   fencing_token bigint not null,
+--   created_at timestamptz not null default clock_timestamp(),
+--   updated_at timestamptz not null default clock_timestamp(),
+--   unique(parent_envelope_id,child_envelope_id,dimension_class,dimension_key),
+--   check (allocated_amount > 0),
+--   check (reclaimed_amount >= 0),
+--   check (finalized_spend_amount >= 0),
+--   check (remaining_encumbered >= 0),
+--   check (allocated_amount = reclaimed_amount + finalized_spend_amount + remaining_encumbered)
+-- );
+
+-- ===========================================================================
+-- REQUIREMENT 2 — parent accounting uses R as active allocation encumbrance
+-- ===========================================================================
+-- On allocation amount X:
+--   parent.available -= X
+--   parent.reserved  += X
+--   child.ceiling    += X (or initialize to X)
+--   child.available  += X
+--
+-- Parent and child envelope_version advance only in their own rare allocation transaction.
+-- Per-Mason child reservation/settlement MUST NOT update ancestors.
+
+-- ===========================================================================
+-- REQUIREMENT 3 — rare reconciliation, no per-task ancestor hot row
+-- ===========================================================================
+-- On child allocation reconciliation:
+--   reclaimed unused amount U:
+--     allocation.reclaimed_amount += U
+--     allocation.remaining_encumbered -= U
+--     child.ceiling/available -= U
+--     parent.reserved -= U
+--     parent release semantics route U to parent.available or parent.overhang reduction
+--
+--   finalized child spend F:
+--     allocation.finalized_spend_amount += F
+--     allocation.remaining_encumbered -= F
+--     parent.reserved -= F
+--     parent.settled += F
+--
+-- This reconciliation is parent-level CAS and occurs on explicit allocation resize/reclaim/finalize,
+-- not on every child assignment spend.
+
+-- ===========================================================================
+-- REQUIREMENT 4 — isolation / dimension matching
+-- ===========================================================================
+-- Allocation RPC MUST reject:
+--   parent.society_id != child.society_id
+--   parent.dimension_class != child.dimension_class
+--   parent.dimension_key != child.dimension_key
+--   parent.unit != child.unit
+--   parent.available < requested allocation when parent.overhang=0
+--   any new allocation while parent.overhang > 0 or parent.status != ACTIVE
+--
+-- Hard ceiling increase remains Governance-only.
+
+-- ===========================================================================
+-- REQUIREMENT 5 — Operational Ledger evidence
+-- ===========================================================================
+-- Allocation mutations are fenced aggregate events with aggregate_type='ENVELOPE_ALLOCATION'.
+-- Required event families:
+--   ALLOCATION_CREATED
+--   ALLOCATION_RESIZED
+--   ALLOCATION_RECLAIMED
+--   ALLOCATION_SPEND_FINALIZED
+--   ALLOCATION_CLOSED
+--
+-- Parent/child envelope projections and allocation projection MUST be mutated atomically
+-- with the control event(s) for that allocation operation inside the operational DB transaction.
+-- This does NOT create cross-ledger 2PC with Canonical Spine.
+
+-- Required delta tests:
+--   tests/guardian_operational/NEGATIVE_TEST_DELTA_v0.1.4.md
+--
+-- Evidence ceiling: DESIGN/SCHEMA SPECIFICATION ONLY. No runtime PASS claim.

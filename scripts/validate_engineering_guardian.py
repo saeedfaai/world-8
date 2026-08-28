@@ -4,7 +4,10 @@ ROOT = Path(__file__).resolve().parents[1]
 foundation = (ROOT / 'supabase/migrations/20260827140600_world8_engineering_guardian_foundation_v01.sql').read_text()
 policy = (ROOT / 'supabase/migrations/20260827143630_world8_engineering_guardian_policy_v011.sql').read_text()
 privacy_repair = (ROOT / 'supabase/migrations/20260827152400_world8_guardian_privacy_false_positive_repair_v011.sql').read_text()
-guardian_migrations = foundation + '\n' + policy + '\n' + privacy_repair
+diagnostic_context_repair = (ROOT / 'supabase/migrations/20260828102300_world8_guardian_diagnostic_environment_tag_propagation_v012.sql').read_text()
+direct_edge_repair = (ROOT / 'supabase/migrations/20260828102400_world8_guardian_direct_edge_render_tag_fix_v0121.sql').read_text()
+diag_regression = (ROOT / 'tests/guardian_operational/diagnostic_environment_tag_regression.sql').read_text()
+guardian_migrations = foundation + '\n' + policy + '\n' + privacy_repair + '\n' + diagnostic_context_repair + '\n' + direct_edge_repair
 doc = (ROOT / 'docs/engineering/ENGINEERING_GUARDIAN.md').read_text()
 start = (ROOT / 'START_HERE.md').read_text()
 workflow = (ROOT / '.github/workflows/validate-architecture.yml').read_text()
@@ -39,6 +42,21 @@ checks = {
     'welcome first': 'Welcome first' in doc,
     'start here guardian': 'Engineering Guardian' in start,
     'workflow guardian validator': 'validate_engineering_guardian.py' in workflow,
+
+    # Diagnostic Memory -> environment -> Mason/Guardian repair.
+    'environment tag helper': 'world8_guardian_environment_tags_v1' in diagnostic_context_repair,
+    'explicit context tags consumed': "p_environment_ref->'context_tags'" in diagnostic_context_repair,
+    'explicit diagnostic tags consumed': "p_environment_ref->'diagnostic_tags'" in diagnostic_context_repair,
+    'environment ref participates in preflight classification': "coalesce(p_environment_ref::text,'')" in diagnostic_context_repair,
+    'per-tag union retrieval avoids TOKEN_ALL false negative': 'TOKEN_ANY_PER_TAG_UNION' in diagnostic_context_repair and 'world8_diag_context_search_v1' in diagnostic_context_repair,
+    'pre-action diagnostic lookup': "v_diag:=public.world8_diag_context_search_v1" in diagnostic_context_repair,
+    'pre-action recurrence advisory persisted': 'Known Diagnostic Memory recurrence risk surfaced before action' in diagnostic_context_repair,
+    'direct edge URL classified as render risk': "supabase\\.co/functions" in direct_edge_repair and "'RENDER'" in direct_edge_repair,
+    'regression requires Supabase tag': 'TEST_FAIL_SUPABASE_TAG_NOT_PROPAGATED' in diag_regression,
+    'regression requires Access Mesh tag': 'TEST_FAIL_ACCESS_MESH_TAG_NOT_PROPAGATED' in diag_regression,
+    'regression requires Render tag': 'TEST_FAIL_DIRECT_EDGE_RENDER_TAG_NOT_PROPAGATED' in diag_regression,
+    'regression proves incident surfaced': 'TEST_FAIL_ENVIRONMENT_TAG_INCIDENT_NOT_SURFACED' in diag_regression,
+    'regression rolls back fixture': 'rollback;' in diag_regression.lower(),
 }
 
 failed = [name for name, ok in checks.items() if not ok]

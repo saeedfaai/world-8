@@ -5,7 +5,7 @@ from enum import Enum
 import hashlib
 from typing import Iterable
 
-from .model import AddressCard, AddressMeshError
+from .model import AddressCard, AddressMeshError, normalize_tag
 from .selector import matches, validate_selector
 
 
@@ -37,8 +37,8 @@ class Subscription:
     subscriber_ref: str
     selector: dict
     event_kinds: tuple[str, ...]
-    minimum_priority: Priority = Priority.NORMAL
-    delivery_mode: DeliveryMode = DeliveryMode.INBOX
+    minimum_priority: Priority | str = Priority.NORMAL
+    delivery_mode: DeliveryMode | str = DeliveryMode.INBOX
     status: str = "ACTIVE"
 
     def __post_init__(self) -> None:
@@ -51,8 +51,12 @@ class Subscription:
         if not normalized_events:
             raise AddressMeshError("SUBSCRIPTION_EVENT_KINDS_REQUIRED")
         object.__setattr__(self, "event_kinds", normalized_events)
-        if self.status not in {"ACTIVE", "SUSPENDED", "RETIRED"}:
+        object.__setattr__(self, "minimum_priority", Priority(self.minimum_priority))
+        object.__setattr__(self, "delivery_mode", DeliveryMode(self.delivery_mode))
+        normalized_status = self.status.strip().upper()
+        if normalized_status not in {"ACTIVE", "SUSPENDED", "RETIRED"}:
             raise AddressMeshError("INVALID_SUBSCRIPTION_STATUS")
+        object.__setattr__(self, "status", normalized_status)
 
 
 @dataclass(frozen=True)
@@ -60,7 +64,7 @@ class RoutingEvent:
     source_kind: str
     source_ref: str
     event_kind: str
-    priority: Priority
+    priority: Priority | str
     affected_entity_ids: tuple[str, ...] = field(default_factory=tuple)
     affected_tags: tuple[str, ...] = field(default_factory=tuple)
     metadata: dict = field(default_factory=dict)
@@ -69,8 +73,9 @@ class RoutingEvent:
         if not self.source_kind.strip() or not self.source_ref.strip() or not self.event_kind.strip():
             raise AddressMeshError("ROUTING_EVENT_SOURCE_REQUIRED")
         object.__setattr__(self, "event_kind", self.event_kind.strip().upper())
+        object.__setattr__(self, "priority", Priority(self.priority))
         object.__setattr__(self, "affected_entity_ids", tuple(sorted(set(self.affected_entity_ids))))
-        object.__setattr__(self, "affected_tags", tuple(sorted({tag.upper() for tag in self.affected_tags})))
+        object.__setattr__(self, "affected_tags", tuple(sorted({normalize_tag(tag) for tag in self.affected_tags})))
 
 
 @dataclass(frozen=True)
@@ -164,7 +169,7 @@ def message_target_matches(card: AddressCard, target: dict) -> bool:
         address = target.get("address")
         return card.canonical_address == address
     if target_type == "TAG":
-        return str(target.get("tag", "")).upper() in set(card.tags)
+        return normalize_tag(str(target.get("tag", ""))) in set(card.tags)
     if target_type == "ROLE":
         return str(target.get("role_ref", "")) in set(card.role_refs)
     if target_type == "ARTIFACT_TREE":

@@ -1,0 +1,92 @@
+contract_id: guardian-operational-contract-v0.1.1
+kind: OPERATIONAL_GUARDIAN
+version: '0.1.1'
+status: DESIGN_FROZEN
+implementation_status: NOT_IMPLEMENTED
+evidence_status: NOT_EVIDENCED
+deployment_status: NOT_DEPLOYED
+base_contract: architecture/contracts/guardian-operational-v0.1.yaml
+change_request: architecture/proposals/DCR-0001-operational-guardian-dispatch-idempotency.md
+effective_for_implementation: true
+
+versioning_note: >-
+  v0.1 is the frozen family/base contract. During concurrent artifact reconciliation,
+  the v0.1 working copy was updated to reflect DCR-0001 so the base and physical
+  candidate do not contradict the accepted repair. v0.1.1 is therefore the explicit
+  effective revision marker for implementation and evidence attribution, not a second
+  independent trust model. Git history preserves the pre-reconciliation artifact state.
+
+change_scope:
+  trust_boundary_changed: false
+  authority_boundary_changed: false
+  schema_identity_semantics_changed: true
+
+repairs:
+  dispatch_idempotency:
+    original_problem: >-
+      The initial v0.1 natural key used assignment_kind and could collide with valid
+      REDUNDANT_N or SHARDED parallel lanes for the same Gap/attempt.
+    reconciled_in_base_working_copy: true
+    required_field: dispatch_slot_key
+    immutable: true
+    deterministic: true
+    examples:
+      SINGLE: single
+      REDUNDANT_N: redundant:<ordinal>
+      SHARDED: shard:<work_order_id>
+    effective_natural_idempotency_key:
+      - gap_id
+      - policy_version
+      - dispatch_slot_key
+      - attempt_no
+    assignment_kind_is_unique_slot_identity: false
+    unbounded_slot_minting: forbidden
+    circuit_breaker_still_required: true
+
+  quarantine_overlay:
+    reconciled_in_base_working_copy: true
+    work_assignment_core_states:
+      - PLANNED
+      - ASSIGNED
+      - ACTIVE
+      - COMPLETED
+      - FAILED
+      - CANCELLED
+      - EXPIRED
+    quarantined_is_core_work_state: false
+    soft_quarantine_truth: SEPARATE_QUARANTINE_DECISION_AGGREGATE
+    projection_may_derive_blocked_state: true
+    modes:
+      - IMMEDIATE
+      - DRAIN
+
+unchanged_invariants:
+  guardian_is_plane_six: false
+  guardian_may_create_gap: false
+  guardian_may_close_gap: false
+  guardian_may_evaluate_candidate_quality: false
+  guardian_may_promote_candidate: false
+  guardian_may_hard_revoke_authority: false
+  effect_allowance_is_authorization: false
+  cross_ledger_2pc: forbidden
+  cross_ledger_linearizability_claim: forbidden
+  sharded_x_redundant_n: forbidden_in_v0_1_family
+  advisor_required_for_kernel_liveness: false
+  society_isolation: required
+  guardian_epoch_fencing: required
+
+implementation_read_order:
+  - architecture/contracts/guardian-operational-v0.1.yaml
+  - architecture/contracts/guardian-operational-v0.1.1.yaml
+  - docs/engineering/guardian-operational/STATE_MACHINES_v0.1.md
+  - docs/engineering/guardian-operational/STATE_MACHINES_v0.1.1.md
+  - docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.sql
+  - docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.1.sql
+  - tests/guardian_operational/NEGATIVE_TEST_MATRIX_v0.1.md
+  - tests/guardian_operational/NEGATIVE_TEST_DELTA_v0.1.1.md
+
+freeze_rule: >-
+  v0.1.1 is the effective implementation/evidence revision marker for the v0.1
+  design family. Further schema identity, trust-boundary, writer-authority, ledger
+  consistency, or accounting-invariant changes require another explicit Design
+  Change Request and revision. Silent mutation is forbidden.

@@ -1,0 +1,427 @@
+contract_id: guardian-operational-contract-v0.1
+kind: OPERATIONAL_GUARDIAN
+version: '0.1'
+status: DESIGN_FROZEN
+implementation_status: NOT_IMPLEMENTED
+evidence_status: NOT_EVIDENCED
+deployment_status: NOT_DEPLOYED
+
+purpose: >-
+  Deterministic orchestration and resource-governance contract between immutable
+  Observation GapSignals and proposal-only Mason execution. This contract does
+  not create a sixth World 8 plane and does not replace the existing Engineering
+  Guardian companion service.
+
+compatibility:
+  z0a_five_plane_model: REQUIRED
+  engineering_guardian_companion: DISTINCT_COMPONENT
+  n_mason_pool: REUSE_EXISTING_IDENTITY_EXECUTION_WORK_WORKSPACE_AUTHORITY_AND_LEASE_TRUTH
+
+reconciled_design_changes:
+  - dcr: DCR-0001-operational-guardian-dispatch-idempotency
+    status: ACCEPTED_FOR_V0_1_ARTIFACT_RECONCILIATION
+    trust_boundary_change: false
+    schema_compatibility_change: true
+
+separation_of_duties:
+  observer: WHAT_HAPPENED
+  guardian_kernel: WHAT_MAY_RUN
+  planner_advisor: WHAT_MIGHT_BE_A_GOOD_PLAN
+  mason: HOW_TO_BUILD_OR_FIX
+  integrator_mason: HOW_TO_COMBINE_SHARDS
+  evaluator: IS_CANDIDATE_ACCEPTABLE
+  promotion_authority: MAY_IT_BECOME_ACCEPTED
+  canonical_spine: WHAT_WAS_ACCEPTED
+
+non_authority_rules:
+  guardian_is_plane_six: false
+  guardian_may_create_gap: false
+  guardian_may_mutate_gap_signal: false
+  guardian_may_close_gap: false
+  guardian_may_evaluate_candidate_quality: false
+  guardian_may_promote_candidate: false
+  guardian_may_hard_revoke_authority: false
+  guardian_may_authorize_external_effect: false
+  guardian_may_modify_own_policy: false
+  guardian_may_pause_or_filter_observer: false
+
+core_objects:
+  GapSignal:
+    store: OBSERVATION
+    immutable: true
+    required_fields:
+      - gap_id
+      - objective_version
+      - observation_contract_version
+      - resolution_predicate_hash
+      - detector_version
+      - measurement_window
+      - evidence_refs
+      - severity
+    forbidden_fields:
+      - mutable_status
+      - guardian_claim
+      - guardian_resolution
+
+  GapLifecycleEvent:
+    store: OBSERVATION
+    append_only: true
+    allowed_writers:
+      - OBSERVER
+      - GOVERNANCE_FOR_CONTRACT_SUCCESSION_ONLY
+    event_types:
+      - MEASURED
+      - STILL_VIOLATED
+      - RESOLVED
+      - SUPERSEDED
+      - WINDOW_EXPIRED
+      - SUSPENDED
+      - RESUMED
+    derived_views:
+      resolution_status:
+        - OPEN
+        - STILL_VIOLATED
+        - RESOLVED
+        - SUPERSEDED
+      actionability_status:
+        - ACTIVE
+        - SUSPENDED
+        - EXPIRED
+
+  WorkAssignment:
+    store: OPERATIONAL_CONTROL_LEDGER
+    append_only_aggregate: true
+    dispatch_modes:
+      - SINGLE
+      - REDUNDANT_N
+      - SHARDED
+    v0_1_forbidden_combinations:
+      - SHARDED_X_REDUNDANT_N
+    dispatch_slot_key:
+      immutable: true
+      deterministic: true
+      examples:
+        SINGLE: single
+        REDUNDANT_N: redundant:<ordinal>
+        SHARDED: shard:<work_order_id>
+    natural_idempotency_key:
+      fields:
+        - gap_id
+        - policy_version
+        - dispatch_slot_key
+        - attempt_no
+    required_fields:
+      - assignment_id
+      - gap_id
+      - society_id
+      - project_id
+      - dispatch_mode
+      - dispatch_slot_key
+      - assignment_kind
+      - mason_slot_id
+      - policy_version
+      - guardian_epoch
+      - control_fencing_token
+      - budget_reservation_refs
+      - resource_lease_refs
+      - repair_retry_budget
+      - provider_switch_budget
+      - timeout_budget
+      - issued_at
+      - recorded_at
+
+  GapDecompositionPlan:
+    store: OPERATIONAL_CONTROL_LEDGER
+    proposal_only: true
+    proposed_by:
+      - MASON_PLANNER
+      - DETERMINISTIC_PLANNER
+    guardian_policy_validation_required: true
+    guardian_may_create_new_gap_from_plan: false
+    required_fields:
+      - plan_id
+      - parent_gap_id
+      - policy_version
+      - work_orders
+      - dependency_dag
+      - resource_declarations
+      - completion_contract
+
+  IntegratorMason:
+    plane: DEVELOPMENT_MASON
+    proposal_only: true
+    deterministic_assembler_preferred_when_semantic_choice_not_required: true
+    independence_policy:
+      LOW: OPTIONAL_DISTINCT_INTEGRATOR
+      MEDIUM: OPTIONAL_DISTINCT_INTEGRATOR
+      HIGH: DISTINCT_INTEGRATOR_REQUIRED
+      CRITICAL: DISTINCT_INTEGRATOR_AND_INDEPENDENT_EVALUATOR_REQUIRED
+    required_candidate_provenance:
+      - derived_from_candidate_ids
+    failure_outcome:
+      - INTEGRATION_FAILED
+
+  AdvisoryReceipt:
+    store: OPERATIONAL_CONTROL_LEDGER
+    append_only: true
+    authoritative: false
+    required_for_dispatch: false
+    allowed_fields_bounded_by_policy: true
+    required_fields:
+      - advisory_id
+      - advisor_provider
+      - advisor_model
+      - advisor_build
+      - prompt_contract_version
+      - input_hash
+      - recommendation
+      - allowed_field
+      - bounded_value
+      - issued_at
+    forbidden_effects:
+      - hard_budget_ceiling_change
+      - authority_change
+      - hard_revoke
+      - promotion
+      - policy_change
+      - observer_suppression
+
+  SelectionDecision:
+    store: EVIDENCE_GOVERNANCE
+    guardian_writable: false
+    purpose: SELECT_ONE_ACCEPTABLE_CANDIDATE_FROM_REDUNDANT_SET
+    required_fields:
+      - candidate_set
+      - evaluation_receipts
+      - selection_policy_version
+      - selected_candidate
+      - decision_principal
+      - evidence_refs
+
+operational_control_ledger:
+  model: PARTITIONED_APPEND_ONLY_EVENT_SOURCING
+  global_head: false
+  telemetry_allowed: false
+  aggregate_version_cas_required: true
+  event_projection_same_transaction_when_same_postgres: true
+  external_projection_mode: OUTBOX_PLUS_IDEMPOTENT_PROJECTOR
+  dual_write_without_atomicity: forbidden
+  every_control_event_requires:
+    - event_id
+    - aggregate_type
+    - aggregate_id
+    - aggregate_version
+    - event_type
+    - guardian_epoch
+    - control_fencing_token
+    - policy_version
+    - correlation_id
+    - causation_event_ref
+    - issued_at
+    - recorded_at
+    - canonical_bytes_hash
+    - idempotency_key
+  must_not_store:
+    - high_frequency_heartbeats
+    - raw_latency_samples
+    - raw_mason_logs
+    - private_chain_of_thought
+    - raw_secrets
+
+cross_ledger_consistency:
+  relationship: HASH_CITATION_AND_HAPPENS_BEFORE
+  distributed_2pc: forbidden
+  xa: forbidden
+  cross_ledger_linearizability_claim: forbidden
+  spine_citation_pack_requires:
+    - operational_event_id
+    - operational_aggregate_type
+    - operational_aggregate_id
+    - operational_aggregate_version
+    - operational_event_sha256
+    - cited_object_hashes
+    - policy_version
+  archive_rule: >-
+    Any Operational bytes cited by a Spine revision must be preserved in a frozen
+    evidence bundle even if the operational aggregate later moves to cold storage.
+
+budget_model:
+  classes:
+    Spend:
+      fields:
+        - money
+        - tokens
+        - compute_units
+        - external_effect_allowance
+    Capacity:
+      fields:
+        - mason_slots
+        - evaluator_slots
+        - integrator_slots
+        - provider_slots
+        - resource_locks
+    Deadline:
+      fields:
+        - max_wall_time
+        - idle_timeout
+        - lease_timeout
+  hierarchical_model: PREFUNDED_CHILD_ENVELOPES
+  cross_society_borrowing: forbidden
+  hard_ceiling_extension_writer:
+    - GOVERNANCE
+    - HUMAN_ROOT
+  within_child_envelope_assignment_extension_writer:
+    - GUARDIAN_KERNEL
+  provider_switch_resets_deadline: false
+  retry_dimensions:
+    - repair_retry_budget
+    - provider_switch_budget
+    - timeout_budget
+
+budget_accounting:
+  symbols:
+    C: ceiling
+    S: settled
+    R: reserved
+    A: available
+    O: overhang
+  invariant: S + R + A = C + O
+  non_negative:
+    - A
+    - O
+  new_dispatch_condition: O == 0 AND A_is_sufficient
+  shrink_semantics:
+    break_live_reservations: false
+    settled_history_rewritten: false
+    new_dispatch_during_overhang: false
+    release_under_overhang_returns_to_parent_first: true
+    settled_overhang_clearance:
+      - GOVERNED_CEILING_INCREASE
+      - GOVERNED_WRITE_OFF
+  reservation_requires_envelope_version_cas: true
+
+reservation_and_lease:
+  reservation_states:
+    - REQUESTED
+    - RESERVED
+    - ACTIVE
+    - SETTLED
+    - RELEASED
+    - FAILED
+    - CANCELLED
+    - EXPIRED
+  ttl_required: true
+  fencing_required: true
+  extension_dimension_specific: true
+  bounded_extension_requests_required: true
+
+resource_locking:
+  acquisition: ATOMIC_ALL_OR_NONE
+  global_ordering_key_required: true
+  lock_modes:
+    - READ
+    - WRITE
+    - EXCLUSIVE
+  semantic_resource_domains_supported: true
+  deadlock_cycle_detection: SECOND_LINE_DEFENSE
+
+quarantine:
+  hard_revoke_writer:
+    - GOVERNANCE
+    - HUMAN_ROOT
+  failure_class:
+    type: CLOSED_ENUM
+    llm_may_define_new_class: false
+  scope_function: PURE_FUNCTION_OF_FAILURE_CLASS_SUBJECT_POLICY_AND_LEDGER_SNAPSHOT
+  guardian_may_expand_scope_ad_hoc: false
+  modes:
+    SOFT_QUARANTINE_IMMEDIATE:
+      new_dispatch: false
+      new_writes: false
+      external_effects: false
+      current_write_leases: FENCED
+      read_handoff: BOUNDED_TTL_ONLY
+    SOFT_QUARANTINE_DRAIN:
+      new_dispatch: false
+      lease_extension: false
+      current_safe_work: MAY_FINISH_WITHIN_EXISTING_LEASE
+  ttl_required: true
+  max_renewals_policy_required: true
+  provider_quarantine_does_not_revoke_actor_identity: true
+  guardian_cannot_quarantine:
+    - OBSERVER
+    - EVALUATOR
+    - PROMOTION_AUTHORITY
+  escalation_to_hard_revoke: ADVISORY_ONLY_UNTIL_GOVERNED_DECISION
+
+high_availability:
+  guardian_leader_lease_required: true
+  guardian_epoch_required: true
+  every_control_write_fenced_by_epoch: true
+  stale_epoch_write: REJECT
+  takeover_before_new_dispatch:
+    - REPLAY_CONTROL_LEDGER
+    - RESTORE_VALID_SOFT_QUARANTINES
+    - AUDIT_STALE_ASSIGNMENTS
+    - INHERIT_VALID_ASSIGNMENTS_WITH_CURRENT_POLICY_AND_VALID_LEASE
+    - FENCE_EXPIRED_OR_STALE_ASSIGNMENTS
+  kill_all_on_failover: false
+
+observation_contract:
+  versioned: true
+  compatibility_class:
+    - STRICTER
+    - RELAXED
+    - BREAKING
+  stricter_change_auto_resolves_old_gap: false
+  relaxed_change_auto_resolves_old_gap: false
+  breaking_change:
+    old_gap_resolution: SUPERSEDED
+    successor_gap_auto_mint: false
+    successor_requires_new_measurement_violation: true
+
+circuit_breakers:
+  per_gap_required:
+    - max_assignments
+    - max_concurrent_assignments
+    - max_failed_attempts
+  on_limit_exceeded: ESCALATE_TO_GOVERNANCE
+  unlimited_retry: forbidden
+
+external_effects:
+  allowance_is_authorization: false
+  guardian_may_allocate_effect_capacity: true
+  guardian_may_authorize_effect: false
+  authorization_path: GOVERNED_EFFECT_PATH
+
+policy_governance:
+  guardian_policy_source: CANONICAL_SPINE
+  policy_version_required_on_every_decision: true
+  hot_patch_by_guardian: forbidden
+  advisor_absence_behavior: KERNEL_CONTINUES_WITH_DETERMINISTIC_POLICY
+  human_absence_behavior:
+    existing_envelope_work: MAY_CONTINUE_WITHIN_VALID_LEASE_AND_POLICY
+    hard_ceiling_extension: WAIT_FAIL_CLOSED_FOR_NEW_SPEND
+    hard_revoke: WAIT_FOR_GOVERNANCE
+    soft_quarantine: FOLLOW_TTL_AND_POLICY
+
+society_isolation:
+  default_guardian_scope: CURRENT_SOCIETY
+  cross_society_budget_query: forbidden
+  cross_society_quarantine_query: forbidden
+  world_scope_visibility:
+    - HUMAN_ROOT
+    - EXPLICIT_WORLD_GOVERNANCE
+
+known_v0_1_limits:
+  - SHARDED_X_REDUNDANT_N_FORBIDDEN
+  - NO_CROSS_LEDGER_LINEARIZABILITY
+  - NO_GUARDIAN_AUTO_POLICY_CHANGE
+  - NO_GUARDIAN_EFFECT_AUTHORIZATION
+  - NO_LLM_REQUIRED_FOR_LIVENESS
+  - RETENTION_INTERVALS_AND_DEFAULT_TTLS_ARE_IMPLEMENTATION_PARAMETERS_NOT_DESIGN_FACTS
+
+freeze_rule: >-
+  Any future change that alters an object boundary, allowed writer, authority boundary,
+  ledger consistency model, accounting invariant, or forbidden transition requires a
+  versioned Design Change Request and a new contract revision. Silent mutation is forbidden.

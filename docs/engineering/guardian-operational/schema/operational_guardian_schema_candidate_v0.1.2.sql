@@ -1,0 +1,69 @@
+-- World 8 Operational Guardian v0.1.2 — EFFECTIVE CORRECTIVE SCHEMA OVERLAY
+-- Status: DESIGN_FROZEN / NOT A MIGRATION / NOT APPLIED / NOT EVIDENCED
+-- Base candidate: operational_guardian_schema_candidate_v0.1.sql
+-- Prior overlay: operational_guardian_schema_candidate_v0.1.1.sql
+-- Effective revision: architecture/contracts/guardian-operational-v0.1.2.yaml
+-- DCR: architecture/proposals/DCR-0002-operational-guardian-budget-scope-identity.md
+
+-- ===========================================================================
+-- EFFECTIVE REQUIREMENT 1 — nullable routing columns are not envelope identity
+-- ===========================================================================
+-- Forbidden future physical identity:
+--   UNIQUE(society_id, project_id, pool_id, dimension_class, dimension_key)
+-- when project_id/pool_id are nullable and ordinary NULL-distinct UNIQUE semantics apply.
+--
+-- Future executable world8_guardian_budget_envelopes MUST represent a deterministic,
+-- non-null canonical scope identity with fields equivalent to:
+--
+--   society_id text not null,
+--   scope_kind text not null check (scope_kind in ('SOCIETY','PROJECT','POOL')),
+--   scope_ref text not null check (length(trim(scope_ref)) > 0),
+--
+-- and uniqueness equivalent to:
+--
+--   UNIQUE(society_id, scope_kind, scope_ref, dimension_class, dimension_key)
+--
+-- project_id/pool_id may remain routing/projection references only.
+
+-- ===========================================================================
+-- EFFECTIVE REQUIREMENT 2 — scope identity is immutable
+-- ===========================================================================
+-- Mutation RPC MUST reject changes to an envelope lineage's:
+--   society_id
+--   scope_kind
+--   scope_ref
+--   dimension_class
+--   dimension_key
+--
+-- Ceiling/accounting changes advance envelope_version; they do not rewrite identity.
+
+-- ===========================================================================
+-- EFFECTIVE REQUIREMENT 3 — Society isolation through hierarchy and reservation
+-- ===========================================================================
+-- Parent/child allocation RPC MUST reject parent_envelope.society_id != child.society_id.
+-- Reservation RPC MUST reject assignment/work Society != envelope.society_id.
+-- Ordinary Guardian code MUST NOT use routing metadata changes to cross Society.
+
+-- ===========================================================================
+-- EFFECTIVE REQUIREMENT 4 — accounting semantics unchanged
+-- ===========================================================================
+-- The identity repair does not alter:
+--   S + R + A = C + O
+--   A >= 0
+--   O >= 0
+--   no new dispatch while O > 0
+--   hard-ceiling increases remain Governance-only
+
+-- ===========================================================================
+-- IMPLEMENTATION OPTIONS
+-- ===========================================================================
+-- A runtime implementation MAY use PostgreSQL UNIQUE NULLS NOT DISTINCT on a proven
+-- canonical nullable tuple only if runtime PostgreSQL version/support and scope-shape
+-- constraints are explicitly verified. The preferred contract representation is the
+-- non-null (society_id, scope_kind, scope_ref, dimension_class, dimension_key) key
+-- because its logical meaning is database-version independent.
+
+-- Required delta tests:
+--   tests/guardian_operational/NEGATIVE_TEST_DELTA_v0.1.2.md
+--
+-- Evidence ceiling: DESIGN/SCHEMA SPECIFICATION ONLY. No runtime PASS claim.

@@ -1,0 +1,33 @@
+-- SUPERSEDED DRAFT — DO NOT APPLY
+--
+-- This earlier Operational Guardian schema candidate is intentionally retained as
+-- a historical diagnostic marker, but its executable DDL has been removed from
+-- the active branch state to prevent accidental use.
+--
+-- Reason for supersession:
+--   Repository inspection confirmed `public.world8_mason_assignments` is already
+--   the authoritative Mason assignment identity/binding registry. This draft had
+--   proposed `public.world8_guardian_work_assignments` as a separate assignment
+--   registry/projection, which creates an avoidable duplicate-truth risk.
+--
+-- Current schema candidate:
+--   docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.sql
+--
+-- Current physical-model decision:
+--   * `public.world8_mason_assignments` remains assignment truth.
+--   * proposed `public.world8_guardian_work_controls` is a 1:1 orchestration/control
+--     extension keyed by the existing assignment_id.
+--   * `public.world8_dev_leases` remains the authority-bearing developer write lease.
+--   * proposed `public.world8_guardian_capacity_leases` is capacity/semantic
+--     orchestration only and grants no developer/canonical write authority.
+--
+-- Evidence / rationale:
+--   architecture/contracts/guardian-operational-v0.1.yaml
+--   architecture/adr/ADR-0003-operational-guardian-boundary.md
+--   docs/engineering/guardian-operational/WRITER_MATRIX_v0.1.md
+--   docs/engineering/diagnostics/GUARDIAN_CONTRACT_V0_1_WORKLOG.md
+--
+-- Historical error class:
+--   DUPLICATE_ASSIGNMENT_TRUTH_RISK
+--
+-- No runtime migration was ever applied from this file.

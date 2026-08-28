@@ -1,0 +1,54 @@
+schema: WORLD8_ENGINEERING_ENTRY_GATEWAY_CONTRACT/0.4
+status: DESIGN_FREEZE_CANDIDATE
+runtime_state: NOT_APPLIED
+code_state: LOCAL_NON_CANONICAL_CANDIDATE
+truth_boundary:
+  fresh_login_identity: world8_actor_executions
+  dev_session: world8_dev_session_liveness
+  qualification: world8_actor_qualifications
+  work: world8_dev_work_items
+  workspace: world8_dev_workspaces
+  messages: world8_internal_messages
+  attention: world8_attention_items
+  diagnostics: World 8 Diagnostic Memory
+  continuity: world8_dev_session_journal + world8_dev_session_checkpoints
+  authority: existing World 8 Authority Fabric
+  lease: world8_dev_leases
+new_evidence_only:
+  - world8_academy_coding_entry_receipts
+  - world8_dev_prewrite_recovery_receipts
+  - world8_dev_admission_entry_bindings
+invariants:
+  - Brain != Actor != Role != Authority
+  - Every coding login is a fresh Actor Execution and requires a fresh Academy Coding Entry Receipt
+  - Qualification may persist; entry orientation/readiness does not
+  - Academy Entry has authority_effect NONE
+  - Entry PASS grants permission to attempt governed work, never correctness
+  - No Admission v3 PASS without a current exact Entry Receipt
+  - No write Lease v5 without Admission v3 plus current compatible Recovery Receipt
+  - CODE_ONLY recovery requires immutable Git baseline + checkpoint
+  - DB_TOUCHING recovery additionally requires DB runtime snapshot + explicit restore strategy evidence
+  - Post-work correctness remains independent Handoff/Postflight/conformance evidence
+  - No duplicate Actor, Work, Workspace, Message, Diagnostic, Admission, Authority, Lease, or Git truth
+entry_order:
+  - Resume Board / Resume Capsule
+  - Preflight / Search / Work Claim / Workspace
+  - Actor Execution + Dev Session Start
+  - Guardian attach/welcome
+  - Academy Coding Entry
+  - persistent Qualification check
+  - Authorization
+  - Admission v3
+  - Pre-write Recovery Receipt
+  - Lease v5 / fencing / CAS
+  - Code
+  - independent conformance / PR / CI
+  - Session Close / Handoff / Postflight
+idempotency:
+  identity: execution_id + work_id + workspace_id
+  semantic_hash_excludes:
+    - issued_at
+    - expires_at
+  exact_replay: return existing PASS receipt
+  semantic_drift_same_execution: ACADEMY_ENTRY_IDEMPOTENCY_COLLISION
+bootstrap_note: Existing v0.3 Academy and v2/v4 Admission/Lease remain authoritative until this candidate is separately authorized, tested, migrated, and promoted.

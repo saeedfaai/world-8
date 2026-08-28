@@ -197,7 +197,6 @@ class GovernanceStore:
         altered[-1] = Receipt(last.seq, last.kind, "attacker", last.detail, last.prev_hash, last.receipt_hash)
         return not self.verify_receipts(altered)
 
-
 class ExecutorAgent(RoutedAgent):
     def __init__(self, store: GovernanceStore) -> None:
         super().__init__(description="Deterministic effect executor; no LLM or external provider")
@@ -246,7 +245,6 @@ async def run_case(mode: str, scenario: str, seed: int) -> Observation:
         return await runtime.send_message(
             EffectRequest(approval, version, key, use_fence),
             recipient=agent,
-            sender=AgentId("caller", f"caller_{seed}"),
         )
 
     valid_success = False

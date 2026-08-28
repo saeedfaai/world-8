@@ -4,7 +4,12 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import sys
 from typing import Iterable
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from services.address_mesh.indexer import descriptor_to_card, index_source
 from services.address_mesh.model import AddressCard, EntityKind, semantic_address, stable_entity_id
@@ -120,7 +125,10 @@ def main() -> int:
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
-    mapping = _load_map(Path(args.map))
+    mapping_path = Path(args.map)
+    if not mapping_path.is_absolute():
+        mapping_path = REPO_ROOT / mapping_path
+    mapping = _load_map(mapping_path)
     rows = build_manifest(root, mapping)
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)

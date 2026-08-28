@@ -6,9 +6,11 @@ This document is normative for schema and tests under `guardian-operational-cont
 
 ## 1. WorkAssignment
 
-States:
+Core lifecycle states:
 
-`PLANNED -> ASSIGNED -> ACTIVE -> COMPLETED | FAILED | CANCELLED | EXPIRED | QUARANTINED`
+`PLANNED -> ASSIGNED -> ACTIVE -> COMPLETED | FAILED | CANCELLED | EXPIRED`
+
+Soft quarantine is an **orthogonal control overlay**, represented by the separate SoftQuarantine aggregate. `QUARANTINED` is not a second WorkAssignment truth state. A UI/projection may derive a blocked/quarantined display state from an active SoftQuarantine, but the WorkAssignment aggregate itself keeps its core lifecycle state.
 
 Allowed transitions:
 
@@ -18,7 +20,7 @@ Allowed transitions:
 - `ACTIVE -> FAILED` on typed deterministic failure or exhausted retry policy.
 - `ACTIVE -> CANCELLED` on governed/allowed cancellation.
 - `ASSIGNED|ACTIVE -> EXPIRED` when assignment lease/deadline expires.
-- `ASSIGNED|ACTIVE -> QUARANTINED` only through typed soft-quarantine policy.
+- Soft quarantine does not rewrite the lifecycle state; it changes allowed operations through the separate quarantine policy/aggregate.
 
 Forbidden:
 
@@ -28,7 +30,8 @@ Forbidden:
 - changing `society_id` after creation;
 - changing dispatch mode after activation;
 - resetting original deadline on provider switch;
-- creating a second assignment with the same natural idempotency key.
+- creating a second assignment with the same natural idempotency key;
+- using a WorkAssignment status mutation as a substitute for the SoftQuarantine aggregate.
 
 Natural idempotency key:
 
@@ -205,6 +208,8 @@ Forbidden:
 
 ## 9. Soft quarantine
 
+SoftQuarantine is a separate aggregate/overlay and does not replace WorkAssignment lifecycle truth.
+
 Modes:
 
 ### IMMEDIATE
@@ -333,7 +338,8 @@ Implementation is not eligible for evidence claims until negative tests demonstr
 17. expired/fenced assignment cannot write;
 18. cross-Society budget/quarantine operation rejected;
 19. cited Operational bytes remain verifiable after archival simulation;
-20. projection lag/corruption cannot create an accepted control transition inconsistent with committed ledger events.
+20. projection lag/corruption cannot create an accepted control transition inconsistent with committed ledger events;
+21. SoftQuarantine cannot be represented by mutating WorkAssignment lifecycle into a second quarantine truth state.
 
 ## 16. Evidence ceiling
 

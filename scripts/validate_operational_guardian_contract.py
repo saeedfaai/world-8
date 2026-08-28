@@ -60,7 +60,7 @@ checks = {
     'mutation families present': 'Required mutation families' in negative,
     'no pass claim in base test spec': 'NO RUNTIME PASS CLAIM' in negative,
 
-    # DCR-0001 reconciliation visible in base artifacts.
+    # DCR-0001 reconciliation visible in base working-copy artifacts.
     'dcr0001 accepted': 'Status: ACCEPTED FOR v0.1 ARTIFACT RECONCILIATION' in dcr,
     'contract cites dcr0001': 'DCR-0001-operational-guardian-dispatch-idempotency' in contract,
     'contract dispatch slot key required': 'dispatch_slot_key' in contract and '- dispatch_slot_key' in contract,
@@ -71,21 +71,23 @@ checks = {
     'schema enforces dispatch slot families': all(x in schema for x in ("dispatch_slot_key='single'", "dispatch_slot_key like 'redundant:%'", "dispatch_slot_key like 'shard:%'")),
     'work lifecycle does not encode quarantine': "'EXPIRED','QUARANTINED'" not in schema and 'QUARANTINED` is not a second WorkAssignment truth state' in state,
 
-    # Explicit effective corrective revision; prevents ambiguous in-place freeze drift.
+    # v0.1.1 is the explicit effective implementation/evidence revision marker.
     'v011 frozen not implemented': all(x in contract_v011 for x in (
         "version: '0.1.1'",
         'status: DESIGN_FROZEN',
         'implementation_status: NOT_IMPLEMENTED',
         'evidence_status: NOT_EVIDENCED',
         'deployment_status: NOT_DEPLOYED',
-        'supersedes: guardian-operational-contract-v0.1',
+        'effective_for_implementation: true',
     )),
-    'v011 references dcr0001': 'DCR-0001-operational-guardian-dispatch-idempotency.md' in contract_v011,
+    'v011 references base and dcr': 'base_contract: architecture/contracts/guardian-operational-v0.1.yaml' in contract_v011 and 'DCR-0001-operational-guardian-dispatch-idempotency.md' in contract_v011,
     'v011 trust authority boundary unchanged': 'trust_boundary_changed: false' in contract_v011 and 'authority_boundary_changed: false' in contract_v011,
-    'v011 dispatch slot immutable': 'required_field: dispatch_slot_key' in contract_v011 and 'immutable: true' in contract_v011,
+    'v011 records base working-copy reconciliation': 'reconciled_in_base_working_copy: true' in contract_v011,
+    'v011 dispatch slot immutable deterministic': 'required_field: dispatch_slot_key' in contract_v011 and 'immutable: true' in contract_v011 and 'deterministic: true' in contract_v011,
     'v011 assignment kind not slot identity': 'assignment_kind_is_unique_slot_identity: false' in contract_v011,
     'v011 quarantine overlay': 'quarantined_is_core_work_state: false' in contract_v011 and 'SEPARATE_QUARANTINE_DECISION_AGGREGATE' in contract_v011,
-    'v011 state replaces natural key': '(gap_id, policy_version, dispatch_slot_key, attempt_no)' in state_v011,
+    'v011 read order explicit': 'implementation_read_order:' in contract_v011 and 'NEGATIVE_TEST_DELTA_v0.1.1.md' in contract_v011,
+    'v011 state uses effective natural key': '(gap_id, policy_version, dispatch_slot_key, attempt_no)' in state_v011,
     'v011 state defines slot forms': all(x in state_v011 for x in ('`single`', '`redundant:<ordinal>`', '`shard:<work_order_id>`')),
     'v011 schema overlay requires slot': 'dispatch_slot_key text not null' in schema_v011,
     'v011 schema overlay requires corrected unique tuple': 'unique(gap_id, policy_version, dispatch_slot_key, attempt_no)' in schema_v011,
@@ -95,7 +97,7 @@ checks = {
     'v011 tests immutable slot': 'immutable identity field' in negative_v011,
     'v011 tests quarantine overlay': 'WorkControl core state is set to `QUARANTINED`' in negative_v011,
     'v011 no runtime pass claim': 'NO RUNTIME PASS CLAIM' in negative_v011,
-    'worklog effective baseline records v011': 'v0.1.1 is the effective corrective revision for implementation' in worklog,
+    'worklog effective baseline records v011': 'v0.1.1` is the effective corrective revision for implementation' in worklog,
     'worklog records freeze reconciliation diagnostic': 'FROZEN_ARTIFACT_RECONCILED_IN_PLACE_RISK' in worklog,
 }
 

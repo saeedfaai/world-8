@@ -246,7 +246,6 @@ async def run_case(mode: str, scenario: str, seed: int) -> Observation:
         return await runtime.send_message(
             EffectRequest(approval, version, key, use_fence),
             recipient=agent,
-            sender=AgentId("caller", f"caller_{seed}"),
         )
 
     valid_success = False

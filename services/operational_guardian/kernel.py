@@ -37,6 +37,9 @@ class FailureClass(str, Enum):
     MASON_POLICY_VIOLATION = "MASON_POLICY_VIOLATION"
     MASON_CREDENTIAL_SUSPECT = "MASON_CREDENTIAL_SUSPECT"
     RESOURCE_LOCK_TIMEOUT = "RESOURCE_LOCK_TIMEOUT"
+    DEADLOCK_DETECTED = "DEADLOCK_DETECTED"
+    BUDGET_EXHAUSTED = "BUDGET_EXHAUSTED"
+    DEADLINE_EXPIRED = "DEADLINE_EXPIRED"
 
 
 class QuarantineMode(str, Enum):
@@ -242,4 +245,7 @@ def quarantine_mode(failure_class: FailureClass | str) -> QuarantineMode:
         failure = FailureClass(failure_class)
     except ValueError as exc:
         raise GuardianKernelError("UNKNOWN_FAILURE_CLASS") from exc
-    return _QUARANTINE_MODE[failure]
+    mode = _QUARANTINE_MODE.get(failure)
+    if mode is None:
+        raise GuardianKernelError("FAILURE_CLASS_NOT_QUARANTINE_TRIGGER", failure_class=failure.value)
+    return mode

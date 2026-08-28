@@ -4,6 +4,8 @@ Status: DESIGN_FROZEN / NOT IMPLEMENTED / NOT EVIDENCED / NOT DEPLOYED
 
 This document is normative for schema and tests under `guardian-operational-contract-v0.1`.
 
+Reconciliation note: DCR-0001 replaces the original parallel-lane idempotency representation with an immutable deterministic `dispatch_slot_key`. This is a schema compatibility repair, not a trust-boundary change.
+
 ## 1. WorkAssignment
 
 Core lifecycle states:
@@ -15,7 +17,7 @@ Soft quarantine is an **orthogonal control overlay**, represented by the separat
 Allowed transitions:
 
 - `PLANNED -> ASSIGNED` only after deterministic policy validation.
-- `ASSIGNED -> ACTIVE` only if all required BudgetReservation and ResourceLease references are valid and fenced to the current Guardian epoch.
+- `ASSIGNED -> ACTIVE` only if all required BudgetReservation and capacity/resource-lease references are valid and fenced to the current Guardian epoch.
 - `ACTIVE -> COMPLETED` only after worker completion evidence exists.
 - `ACTIVE -> FAILED` on typed deterministic failure or exhausted retry policy.
 - `ACTIVE -> CANCELLED` on governed/allowed cancellation.
@@ -28,14 +30,25 @@ Forbidden:
 - reactivation from terminal state;
 - changing `gap_id` after creation;
 - changing `society_id` after creation;
+- changing `dispatch_slot_key` after creation;
 - changing dispatch mode after activation;
 - resetting original deadline on provider switch;
 - creating a second assignment with the same natural idempotency key;
 - using a WorkAssignment status mutation as a substitute for the SoftQuarantine aggregate.
 
+Dispatch slot identity:
+
+- SINGLE: `dispatch_slot_key=single`
+- REDUNDANT_N: deterministic `dispatch_slot_key=redundant:<ordinal>`
+- SHARDED: deterministic `dispatch_slot_key=shard:<work_order_id>`
+
+The Guardian may not mint redundant slot keys beyond current redundancy/circuit-breaker policy.
+
 Natural idempotency key:
 
-`(gap_id, policy_version, assignment_kind, attempt_no)`
+`(gap_id, policy_version, dispatch_slot_key, attempt_no)`
+
+`assignment_kind` remains descriptive/policy metadata; it is not the parallel-lane identity.
 
 ## 2. BudgetReservation
 
@@ -93,15 +106,17 @@ Shrink semantics:
 - released reservation under overhang returns to parent first until overhang is reduced;
 - settled overhang requires governed ceiling increase or governed write-off.
 
-## 4. ResourceLease
+## 4. Capacity / semantic resource lease
 
 States:
 
 `REQUESTED -> GRANTED -> ACTIVE -> RELEASED | EXPIRED | FENCED | FAILED`
 
+This Guardian lease is an orchestration/capacity object only. It does **not** replace or grant the authority carried by existing governed Developer Lease v3 / `world8_dev_leases`.
+
 Rules:
 
-- acquire full declared resource set atomically or acquire nothing;
+- acquire the full declared resource set atomically or acquire nothing;
 - resource ordering key is global and deterministic;
 - lock modes are READ / WRITE / EXCLUSIVE;
 - semantic resource domains may be declared in addition to file/object resources;
@@ -111,6 +126,7 @@ Forbidden:
 
 - partial lock acquisition followed by worker execution;
 - stale epoch grant;
+- treating a Guardian capacity lease as code/canonical write authority;
 - lease extension after DRAIN quarantine;
 - write/effect use after IMMEDIATE quarantine fencing.
 
@@ -148,11 +164,11 @@ Rules:
 
 ### SINGLE
 
-One assignment path for one Gap attempt.
+One deterministic dispatch slot (`single`) per Gap attempt.
 
 ### REDUNDANT_N
 
-- parallel independent assignments;
+- parallel independent assignments use deterministic `redundant:<ordinal>` slots;
 - default governed maximum N is 3 unless a later policy revision changes it;
 - Guardian never selects the winning Candidate;
 - `SelectionDecision` belongs to Evidence/Governance;
@@ -163,6 +179,7 @@ One assignment path for one Gap attempt.
 - one immutable parent Gap;
 - decomposition creates WorkOrders, not new Gaps;
 - each WorkOrder retains the same `parent_gap_id`;
+- each shard assignment uses deterministic `shard:<work_order_id>` slot identity;
 - dependency graph must be a DAG;
 - decomposition must pass deterministic Guardian policy validation;
 - v0.1 forbids REDUNDANT_N inside SHARDED execution.
@@ -208,7 +225,7 @@ Forbidden:
 
 ## 9. Soft quarantine
 
-SoftQuarantine is a separate aggregate/overlay and does not replace WorkAssignment lifecycle truth.
+Soft quarantine is a separate overlay/aggregate and never becomes a second WorkAssignment lifecycle state.
 
 Modes:
 
@@ -320,9 +337,9 @@ Human Root / explicit World Governance may have wider visibility, but that wider
 Implementation is not eligible for evidence claims until negative tests demonstrate at minimum:
 
 1. stale Guardian epoch write rejected;
-2. duplicate natural assignment key rejected/idempotently returned;
+2. duplicate natural dispatch-slot key rejected/idempotently returned;
 3. activation without valid BudgetReservation rejected;
-4. activation without required ResourceLease rejected;
+4. activation without required capacity/resource evidence rejected;
 5. reservation with stale envelope version rejected;
 6. reservation during overhang rejected;
 7. settled spend cannot be reclaimed;
@@ -339,7 +356,10 @@ Implementation is not eligible for evidence claims until negative tests demonstr
 18. cross-Society budget/quarantine operation rejected;
 19. cited Operational bytes remain verifiable after archival simulation;
 20. projection lag/corruption cannot create an accepted control transition inconsistent with committed ledger events;
-21. SoftQuarantine cannot be represented by mutating WorkAssignment lifecycle into a second quarantine truth state.
+21. two valid REDUNDANT_N slots for the same Gap/attempt do not collide;
+22. two valid SHARDED slots for different WorkOrders do not collide;
+23. replay of the same dispatch slot does not create duplicate Work;
+24. SoftQuarantine enforcement does not rewrite core WorkAssignment lifecycle into `QUARANTINED`.
 
 ## 16. Evidence ceiling
 

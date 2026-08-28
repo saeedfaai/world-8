@@ -1,6 +1,7 @@
 -- World 8 Operational Guardian v0.1 — SCHEMA CANDIDATE ONLY
 -- Status: NOT A MIGRATION / NOT APPLIED / NOT EVIDENCED
 -- Contract: architecture/contracts/guardian-operational-v0.1.yaml
+-- Reconciliation: architecture/proposals/DCR-0001-operational-guardian-dispatch-idempotency.md
 -- IMPORTANT:
 --   1) world8_mason_assignments remains the assignment truth registry.
 --   2) world8_dev_leases remains the governed developer write-authority lease system.
@@ -101,10 +102,11 @@ create table if not exists public.world8_guardian_work_controls (
   society_id text not null,
   project_id text not null,
   dispatch_mode text not null check (dispatch_mode in ('SINGLE','REDUNDANT_N','SHARDED')),
+  dispatch_slot_key text not null,
   assignment_kind text not null,
   attempt_no integer not null check (attempt_no > 0),
   state text not null check (state in (
-    'PLANNED','ASSIGNED','ACTIVE','COMPLETED','FAILED','CANCELLED','EXPIRED','QUARANTINED'
+    'PLANNED','ASSIGNED','ACTIVE','COMPLETED','FAILED','CANCELLED','EXPIRED'
   )),
   parent_assignment_id text null references public.world8_guardian_work_controls(assignment_id),
   decomposition_plan_id text null,
@@ -117,7 +119,12 @@ create table if not exists public.world8_guardian_work_controls (
   deadline_at timestamptz not null,
   created_at timestamptz not null default clock_timestamp(),
   updated_at timestamptz not null default clock_timestamp(),
-  unique(gap_id,policy_version,assignment_kind,attempt_no),
+  unique(gap_id,policy_version,dispatch_slot_key,attempt_no),
+  check (
+    (dispatch_mode='SINGLE' and dispatch_slot_key='single') or
+    (dispatch_mode='REDUNDANT_N' and dispatch_slot_key like 'redundant:%') or
+    (dispatch_mode='SHARDED' and dispatch_slot_key like 'shard:%')
+  ),
   check (dispatch_mode <> 'SHARDED' or parent_assignment_id is not null or assignment_kind='SHARDED_PARENT')
 );
 
@@ -125,6 +132,9 @@ create index if not exists world8_guardian_work_controls_gap_idx
   on public.world8_guardian_work_controls(gap_id,state);
 create index if not exists world8_guardian_work_controls_scope_idx
   on public.world8_guardian_work_controls(society_id,project_id,state);
+
+-- Soft quarantine is intentionally NOT encoded as a WorkControl lifecycle state.
+-- It is an orthogonal overlay in world8_guardian_quarantine_decisions.
 
 -- ============================================================
 -- 4. Gap decomposition plan projection (Gap itself remains external/immutable)
@@ -236,7 +246,6 @@ create table if not exists public.world8_guardian_capacity_leases (
 create index if not exists world8_guardian_capacity_resource_idx
   on public.world8_guardian_capacity_leases(society_id,resource_key,state,expires_at);
 
--- Explicit semantic boundary: these rows MUST NOT be treated as public.world8_dev_leases.
 comment on table public.world8_guardian_capacity_leases is
   'Operational capacity/semantic leases only. Never grants developer/canonical write authority; world8_dev_leases remains authoritative for governed developer writes.';
 

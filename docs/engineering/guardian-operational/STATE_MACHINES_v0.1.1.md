@@ -1,14 +1,12 @@
-# World 8 Operational Guardian — State Machine Corrective Revision v0.1.1
+# World 8 Operational Guardian — State Machine Effective Revision v0.1.1
 
 Status: DESIGN_FROZEN / NOT IMPLEMENTED / NOT EVIDENCED / NOT DEPLOYED
 Base: `STATE_MACHINES_v0.1.md`
 DCR: `architecture/proposals/DCR-0001-operational-guardian-dispatch-idempotency.md`
 
-This file is a narrow corrective overlay. All v0.1 rules remain in force except where explicitly replaced below.
+This file is the effective revision marker for implementation/evidence attribution in the v0.1 family. The current v0.1 working copy has already been reconciled to the accepted DCR; this file preserves the explicit revision boundary and the exact repair obligations. Git history retains the earlier pre-reconciliation state.
 
 ## 1. Effective WorkAssignment core lifecycle
-
-Unchanged:
 
 `PLANNED -> ASSIGNED -> ACTIVE -> COMPLETED | FAILED | CANCELLED | EXPIRED`
 
@@ -16,17 +14,13 @@ Soft Quarantine remains a separate operational overlay/aggregate. `QUARANTINED` 
 
 ## 2. Effective dispatch-slot identity
 
-Replace the v0.1 natural idempotency key:
-
-`(gap_id, policy_version, assignment_kind, attempt_no)`
-
-with:
+Required natural idempotency key:
 
 `(gap_id, policy_version, dispatch_slot_key, attempt_no)`
 
 `dispatch_slot_key` is immutable and deterministic.
 
-Required forms for v0.1.1 implementation:
+Required forms:
 
 - SINGLE: `single`
 - REDUNDANT_N: `redundant:<ordinal>`

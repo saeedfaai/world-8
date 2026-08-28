@@ -1,47 +1,45 @@
--- World 8 Operational Guardian v0.1.1 — CORRECTIVE SCHEMA OVERLAY
+-- World 8 Operational Guardian v0.1.1 — EFFECTIVE CORRECTIVE SCHEMA OVERLAY
 -- Status: DESIGN_FROZEN / NOT A MIGRATION / NOT APPLIED / NOT EVIDENCED
 -- Base candidate: operational_guardian_schema_candidate_v0.1.sql
--- Effective contract: architecture/contracts/guardian-operational-v0.1.1.yaml
+-- Effective revision marker: architecture/contracts/guardian-operational-v0.1.1.yaml
 -- DCR: architecture/proposals/DCR-0001-operational-guardian-dispatch-idempotency.md
 --
--- This file is NOT intended to be executed after the v0.1 candidate. Neither candidate
--- has been applied. It records the exact physical-model corrections that MUST be folded
--- into any future executable migration candidate generated from the v0.1 design family.
+-- The current v0.1 schema working copy has already been reconciled to these repairs.
+-- This overlay therefore records the effective revision boundary and conformance
+-- obligations for any future executable migration. It is NOT intended to be run
+-- after the v0.1 candidate. Neither candidate has been applied.
 
 -- ===========================================================================
--- REPAIR 1 — WorkControl lifecycle excludes QUARANTINED
+-- EFFECTIVE REQUIREMENT 1 — WorkControl lifecycle excludes QUARANTINED
 -- ===========================================================================
--- Soft quarantine is a separate world8_guardian_quarantine_decisions aggregate/overlay.
--- The future executable CREATE TABLE for world8_guardian_work_controls MUST use:
-
+-- Future executable world8_guardian_work_controls MUST use:
+--
 -- state text not null check (state in (
 --   'PLANNED','ASSIGNED','ACTIVE','COMPLETED','FAILED','CANCELLED','EXPIRED'
 -- )),
-
+--
 -- Forbidden future physical model:
 --   state IN (..., 'QUARANTINED')
 -- because that creates a second quarantine truth in WorkControl.
 
 -- ===========================================================================
--- REPAIR 2 — immutable dispatch_slot_key
+-- EFFECTIVE REQUIREMENT 2 — immutable dispatch_slot_key
 -- ===========================================================================
--- The future executable world8_guardian_work_controls table MUST add:
-
+-- Future executable world8_guardian_work_controls MUST include:
+--
 -- dispatch_slot_key text not null,
-
--- The old uniqueness:
---   unique(gap_id, policy_version, assignment_kind, attempt_no)
--- MUST be replaced by:
-
+--
+-- and uniqueness:
+--
 -- unique(gap_id, policy_version, dispatch_slot_key, attempt_no)
-
+--
 -- assignment_kind remains descriptive metadata only.
 
 -- ===========================================================================
--- REPAIR 3 — mode/slot structural checks
+-- EFFECTIVE REQUIREMENT 3 — mode/slot structural checks
 -- ===========================================================================
 -- Future executable schema/RPC validation MUST enforce the equivalent of:
-
+--
 -- check (
 --   (dispatch_mode = 'SINGLE'      and dispatch_slot_key = 'single')
 --   or
@@ -49,16 +47,16 @@
 --   or
 --   (dispatch_mode = 'SHARDED'     and dispatch_slot_key ~ '^shard:.+$')
 -- )
-
+--
 -- Regex shape alone is not authorization:
 -- REDUNDANT_N ordinal must also be <= policy-approved N and the Gap circuit breaker.
 -- SHARDED work_order_id must also exist in the validated decomposition plan.
 -- Those checks belong in the fenced transactional mutation RPC, not only a table CHECK.
 
 -- ===========================================================================
--- REPAIR 4 — dispatch_slot_key immutability
+-- EFFECTIVE REQUIREMENT 4 — dispatch_slot_key immutability
 -- ===========================================================================
--- Once WorkControl is created, the mutation RPC MUST reject any change to:
+-- Once WorkControl is created, mutation RPC MUST reject change to:
 --   gap_id
 --   society_id
 --   policy_version (for that immutable assignment lineage)
@@ -98,11 +96,12 @@
 --   outside Operational Guardian authority.
 
 -- ===========================================================================
--- PROMOTION GATE
+-- IMPLEMENTATION GATE
 -- ===========================================================================
--- A future executable migration candidate MUST NOT be promoted from v0.1 text by copy/paste.
--- It must be generated/reviewed against v0.1.1 and prove these corrections via negative tests.
--- Required negative tests are specified in:
+-- A future executable migration candidate MUST be reviewed against both the v0.1
+-- base family contract and this v0.1.1 effective revision marker. It must prove
+-- these obligations via executable negative tests and mutation tests.
+-- Required delta tests:
 --   tests/guardian_operational/NEGATIVE_TEST_DELTA_v0.1.1.md
-
+--
 -- Evidence ceiling: DESIGN/SCHEMA SPECIFICATION ONLY. No runtime PASS claim.

@@ -1,7 +1,7 @@
 schema: WORLD8_ENGINEERING_ENTRY_GATEWAY_CONTRACT/0.4
-status: DESIGN_FREEZE_CANDIDATE
+status: DESIGN_FROZEN_CANDIDATE
 runtime_state: NOT_APPLIED
-code_state: LOCAL_NON_CANONICAL_CANDIDATE
+code_state: REVIEWED_BRANCH_CANDIDATE
 truth_boundary:
   fresh_login_identity: world8_actor_executions
   dev_session: world8_dev_session_liveness
@@ -24,8 +24,9 @@ invariants:
   - Qualification may persist; entry orientation/readiness does not
   - Academy Entry has authority_effect NONE
   - Entry PASS grants permission to attempt governed work, never correctness
-  - No Admission v3 PASS without a current exact Entry Receipt
-  - No write Lease v5 without Admission v3 plus current compatible Recovery Receipt
+  - No Admission PASS through the public service-role path without a current exact Entry Receipt after v0.4 runtime cutover
+  - No write Lease through the public service-role path without Admission v3 plus current compatible Recovery Receipt after v0.4 runtime cutover
+  - Direct service_role EXECUTE on Admission v2 and Lease v4 is revoked at v0.4 runtime cutover; v3/v5 may reuse them only internally as SECURITY DEFINER implementation details
   - CODE_ONLY recovery requires immutable Git baseline + checkpoint
   - DB_TOUCHING recovery additionally requires DB runtime snapshot + explicit restore strategy evidence
   - Post-work correctness remains independent Handoff/Postflight/conformance evidence
@@ -51,4 +52,4 @@ idempotency:
     - expires_at
   exact_replay: return existing PASS receipt
   semantic_drift_same_execution: ACADEMY_ENTRY_IDEMPOTENCY_COLLISION
-bootstrap_note: Existing v0.3 Academy and v2/v4 Admission/Lease remain authoritative until this candidate is separately authorized, tested, migrated, and promoted.
+bootstrap_note: Existing v0.3 Academy and v2/v4 Admission/Lease remain authoritative until this candidate is separately authorized, tested, migrated, and promoted. At runtime cutover, direct service_role EXECUTE on v2/v4 must be revoked so v3/v5 become the mandatory public service-role path.

@@ -1,5 +1,9 @@
 import unittest
+from pathlib import Path
 from services.academy.entry_gateway import *
+
+
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def ctx(**overrides):
@@ -60,6 +64,19 @@ class EntryTests(unittest.TestCase):
     def test_recovery_from_other_execution_is_rejected(self):
         e=issue_entry(ctx()); r=RecoveryContext(e.entry_receipt_id,"a","other-execution","w","ws","c"*40,"cp","CODE_ONLY")
         with self.assertRaisesRegex(EntryGateError,"RECOVERY_BINDING_MISMATCH"): lease_v5_gate(actor_id="a",execution_id="e1",work_id="w",workspace_id="ws",entry=e,recovery=r,entry_current=True,recovery_current=True,required_recovery_class="CODE_ONLY")
+
+    def test_sql_revokes_legacy_service_role_bypass(self):
+        sql=(ROOT / "supabase/drafts/20260828_world8_academy_entry_gateway_v04.sql").read_text(encoding="utf-8").lower()
+        self.assertIn("revoke execute on function public.world8_dev_admission_check_v2(text,text,text,text,jsonb,jsonb,integer) from service_role;", sql)
+        self.assertIn("revoke execute on function public.world8_dev_acquire_lease_v4(text,text,text,text,text,integer,text) from service_role;", sql)
+
+    def test_status_wording_is_promotion_stable(self):
+        contract=(ROOT / "architecture/contracts/world8-engineering-entry-gateway-v0.4.yaml").read_text(encoding="utf-8")
+        doc=(ROOT / "docs/engineering/ENGINEERING_ENTRY_GATEWAY.md").read_text(encoding="utf-8")
+        self.assertNotIn("LOCAL_NON_CANONICAL_CANDIDATE", contract)
+        self.assertNotIn("LOCAL NON-CANONICAL CANDIDATE", doc)
+        self.assertIn("REVIEWED_BRANCH_CANDIDATE", contract)
+        self.assertIn("REVIEWED BRANCH CANDIDATE", doc)
 
 
 if __name__ == "__main__": unittest.main()

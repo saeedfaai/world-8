@@ -1,6 +1,6 @@
 # World 8 Engineering Coding Entry Gateway v0.4
 
-Status: **DESIGN FROZEN / LOCAL NON-CANONICAL CANDIDATE / NOT DEPLOYED**
+Status: **DESIGN FROZEN CANDIDATE / REVIEWED BRANCH CANDIDATE / NOT DEPLOYED**
 
 This extends the existing World 8 Academy v0.3. It does not create a second Academy, session truth, authority system, development plane, or Git repository.
 
@@ -15,6 +15,12 @@ The existing `world8_actor_executions` row is the fresh login identity. A new Ac
 ## Required context
 
 Entry must be backed by existing evidence for current architecture, Inbox/Messages, Attention, access state, continuity/Resume/Checkpoint, Diagnostic Memory, current Academy Code Shadow, Guardian attachment, mission/Work, Workspace and canonical head. References are bound; these truths are not copied into a parallel store.
+
+## Mandatory public cutover
+
+The v0.4 migration must make the Gateway mandatory for the `service_role` public runtime path. `Admission v3` and `Lease v5` remain `SECURITY DEFINER` wrappers that can reuse v2/v4 internally, but the migration revokes direct `service_role` EXECUTE on `world8_dev_admission_check_v2` and `world8_dev_acquire_lease_v4`.
+
+This closes the legacy bypass: after runtime cutover, a service-role caller cannot skip Academy Entry by calling v2/v4 directly. Runtime deployment remains a separate governed action; this repository candidate does not apply the migration.
 
 ## Recovery before write
 

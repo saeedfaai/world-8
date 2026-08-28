@@ -1,5 +1,5 @@
 -- World 8 Academy Engineering Entry Gateway v0.4
--- CODE CANDIDATE ONLY / NOT APPLIED / NOT DEPLOYED
+-- REVIEWED CODE CANDIDATE / NOT APPLIED / NOT DEPLOYED
 -- TRAINING != QUALIFICATION != AUTHORITY. Academy Entry has authority_effect NONE.
 
 create table if not exists public.world8_academy_coding_entry_receipts(
@@ -149,6 +149,15 @@ revoke all on function public.world8_academy_coding_entry_issue_v1(text,text,tex
 revoke all on function public.world8_dev_record_prewrite_recovery_v1(text,text,text,text,text,jsonb,integer) from public,anon,authenticated;
 revoke all on function public.world8_dev_admission_check_v3(text,text,text,text,text,jsonb,jsonb,integer) from public,anon,authenticated;
 revoke all on function public.world8_dev_acquire_lease_v5(text,text,text,text,text,integer,text,text,text) from public,anon,authenticated;
+
+-- Runtime cutover: service_role must not bypass Academy Entry by invoking legacy public gates directly.
+-- v3/v5 remain SECURITY DEFINER and may call v2/v4 internally as implementation details.
+revoke execute on function public.world8_dev_admission_check_v2(text,text,text,text,jsonb,jsonb,integer) from service_role;
+revoke execute on function public.world8_dev_acquire_lease_v4(text,text,text,text,text,integer,text) from service_role;
+
+-- Marker consumed by the static validator and review automation.
+-- REVOKE_DIRECT_SERVICE_ROLE_EXECUTE_ON_ADMISSION_V2_AND_LEASE_V4
+
 grant execute on function public.world8_academy_coding_entry_issue_v1(text,text,text,text,text,text,text,boolean,integer,jsonb) to service_role;
 grant execute on function public.world8_dev_record_prewrite_recovery_v1(text,text,text,text,text,jsonb,integer) to service_role;
 grant execute on function public.world8_dev_admission_check_v3(text,text,text,text,text,jsonb,jsonb,integer) to service_role;

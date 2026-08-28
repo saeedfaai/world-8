@@ -1,0 +1,49 @@
+name: W8 Address Mesh v0.1
+
+on:
+  pull_request:
+    paths:
+      - 'services/address_mesh/**'
+      - 'tests/address_mesh/**'
+      - 'scripts/build_address_mesh_manifest.py'
+      - 'architecture/contracts/world8-address-*.yaml'
+      - 'architecture/contracts/world8-address-*.json'
+      - 'architecture/contracts/world8-universal-address-graph-v0.1.yaml'
+      - 'supabase/drafts/20260828_world8_address_mesh_*.sql'
+      - 'supabase/drafts/20260828_world8_universal_address_graph_v01.sql'
+      - '.github/workflows/w8-address-mesh-v0.1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-index:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Address Mesh unit tests
+        run: python -m unittest discover -s tests/address_mesh -p 'test_*.py' -v
+      - name: Build whole-repo address manifest
+        run: |
+          python scripts/build_address_mesh_manifest.py \
+            --root . \
+            --map architecture/contracts/world8-address-index-map-v0.1.json \
+            --output /tmp/world8-address-manifest-v0.1.jsonl
+      - name: Validate manifest has entities and relations
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/world8-address-manifest-v0.1.jsonl')
+          rows=[json.loads(line) for line in p.read_text(encoding='utf-8').splitlines() if line.strip()]
+          entities=[r for r in rows if r.get('record_type')=='ENTITY']
+          relations=[r for r in rows if r.get('record_type')=='RELATION']
+          assert entities, 'ADDRESS_MANIFEST_HAS_NO_ENTITIES'
+          assert relations, 'ADDRESS_MANIFEST_HAS_NO_RELATIONS'
+          assert len({r['entity_id'] for r in entities})==len(entities), 'DUPLICATE_ADDRESS_ENTITY_ID'
+          print(json.dumps({'entities':len(entities),'relations':len(relations),'status':'PASS'}))
+          PY

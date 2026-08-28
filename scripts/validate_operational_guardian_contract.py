@@ -3,6 +3,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 contract = (ROOT / 'architecture/contracts/guardian-operational-v0.1.yaml').read_text()
 adr = (ROOT / 'architecture/adr/ADR-0003-operational-guardian-boundary.md').read_text()
+dcr = (ROOT / 'architecture/proposals/DCR-0001-operational-guardian-dispatch-idempotency.md').read_text()
 state = (ROOT / 'docs/engineering/guardian-operational/STATE_MACHINES_v0.1.md').read_text()
 writer = (ROOT / 'docs/engineering/guardian-operational/WRITER_MATRIX_v0.1.md').read_text()
 schema = (ROOT / 'docs/engineering/guardian-operational/schema/operational_guardian_schema_candidate_v0.1.sql').read_text()
@@ -47,6 +48,17 @@ checks = {
     'negative test coverage >= 50 ids': sum(1 for line in negative.splitlines() if line.startswith('| OG-N')) >= 50,
     'mutation families present': 'Required mutation families' in negative,
     'no pass claim in test spec': 'NO RUNTIME PASS CLAIM' in negative,
+
+    # DCR-0001 reconciliation: valid parallel lanes must not collide with replay identity.
+    'dcr0001 accepted': 'Status: ACCEPTED FOR v0.1 ARTIFACT RECONCILIATION' in dcr,
+    'contract cites dcr0001': 'DCR-0001-operational-guardian-dispatch-idempotency' in contract,
+    'contract dispatch slot key required': 'dispatch_slot_key' in contract and '- dispatch_slot_key' in contract,
+    'contract natural key uses dispatch slot': all(x in contract for x in ('- gap_id', '- policy_version', '- dispatch_slot_key', '- attempt_no')),
+    'state natural key uses dispatch slot': '(gap_id, policy_version, dispatch_slot_key, attempt_no)' in state,
+    'schema has immutable represented dispatch slot field': 'dispatch_slot_key text not null' in schema,
+    'schema unique key uses dispatch slot': 'unique(gap_id,policy_version,dispatch_slot_key,attempt_no)' in schema,
+    'schema enforces dispatch slot families': all(x in schema for x in ("dispatch_slot_key='single'", "dispatch_slot_key like 'redundant:%'", "dispatch_slot_key like 'shard:%'")),
+    'work lifecycle does not encode quarantine': "'EXPIRED','QUARANTINED'" not in schema and 'QUARANTINED` is not a second WorkAssignment truth state' in state,
 }
 
 failed = [name for name, ok in checks.items() if not ok]

@@ -45,6 +45,14 @@ def main() -> None:
         "envref:MISTRAL_API_KEY",
         "provider-failover-code-assist-v01",
         "CODE_ASSIST_PRIMARY",
+        "world8_provider_capacity_receipts",
+        "WORLD8_PROVIDER_CAPACITY_RECEIPTS_APPEND_ONLY",
+        "world8_provider_capacity_record_v1",
+        "world8_provider_capacity_snapshot_v1",
+        "world8_provider_capacity_claim_gate_v1",
+        "PROVIDER_CONCURRENCY_CEILING_REACHED",
+        "SCALE20_RATE_LIMIT_EVIDENCE",
+        "max_concurrent",
     ]:
         require(sql, marker, "SQL invariant")
 
@@ -72,10 +80,16 @@ def main() -> None:
     require(doc, "ADMIN_BLOCKED / INSUFFICIENT_QUOTA", "documentation circuit breaker")
     require(doc, "envref:GROQ_API_KEY4", "documentation corrected Groq binding")
     require(doc, "GROQ_SCALE_5_SUCCEEDED", "documentation successful scale-5 state")
-    require(doc, "SCALE_20_ELIGIBLE_NOT_STARTED", "documentation next scale gate")
+    require(doc, "GROQ_SCALE_20_FAILED_RATE_LIMIT", "documentation scale-20 observed state")
+    require(doc, "CONCURRENCY_GOVERNOR_ENFORCED", "documentation concurrency governor state")
+    require(doc, "SCALE_100_BLOCKED", "documentation scale-100 gate")
+    require(doc, "max_concurrent=5", "documentation enforced Groq ceiling")
+    require(doc, "10 successful live completions", "documentation scale-20 success count")
+    require(doc, "9 provider HTTP 429", "documentation scale-20 rate-limit count")
+    require(doc, "1 pre-provider dispatch/claim rejection", "documentation scale-20 dispatch count")
     require(wf, "python scripts/validate_provider_failover_mesh.py", "workflow validator step")
 
-    print(f"PASS: Provider Failover Mesh invariants ({len(sql_files)} migration files)")
+    print(f"PASS: Provider Failover Mesh + capacity governor invariants ({len(sql_files)} migration files)")
 
 
 if __name__ == "__main__":

@@ -91,6 +91,42 @@ class AddressMeshTests(unittest.TestCase):
         self.assertEqual((card.entity_id,), matches_out[0].matched_entity_ids)
         self.assertEqual("incident-1", matches_out[0].source_ref)
 
+    def test_role_subscription_fans_out_to_current_actor_members_with_distinct_receipts(self):
+        card = self.make_card(tags=("RUNTIME:SUPABASE",))
+        sub = Subscription(
+            subscription_id="sub-all-masons-supabase",
+            subscriber_ref="role:MASON",
+            selector={"tags_all": ["RUNTIME:SUPABASE"]},
+            event_kinds=("ERROR",),
+            delivery_mode=DeliveryMode.MASON_PREFLIGHT,
+        )
+        event = RoutingEvent(
+            source_kind="DIAGNOSTIC_INCIDENT",
+            source_ref="incident-sql",
+            event_kind="ERROR",
+            priority=Priority.HIGH,
+            affected_tags=("RUNTIME:SUPABASE",),
+        )
+        out = resolve_subscriptions(
+            subscriptions=[sub],
+            event=event,
+            cards=[card],
+            recipient_directory={"role:MASON": ["mason-2", "mason-1", "mason-2"]},
+        )
+        self.assertEqual(["mason-1", "mason-2"], [item.subscriber_ref for item in out])
+        self.assertEqual(2, len({item.delivery_receipt_id for item in out}))
+
+    def test_unresolved_role_subscription_fails_closed_without_delivery(self):
+        card = self.make_card(tags=("RUNTIME:SUPABASE",))
+        sub = Subscription(
+            subscription_id="sub-role",
+            subscriber_ref="role:MASON",
+            selector={"tags_all": ["RUNTIME:SUPABASE"]},
+            event_kinds=("ERROR",),
+        )
+        event = RoutingEvent("DIAGNOSTIC_INCIDENT", "incident-1", "ERROR", Priority.HIGH, affected_tags=("RUNTIME:SUPABASE",))
+        self.assertEqual([], resolve_subscriptions(subscriptions=[sub], event=event, cards=[card]))
+
     def test_low_priority_event_does_not_trigger_high_subscription(self):
         card = self.make_card(tags=("CHANNEL:TELEGRAM",))
         sub = Subscription(

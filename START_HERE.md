@@ -36,6 +36,7 @@
 25. Run tests + PR/CI on the isolated feature branch.
 26. Concurrent coding is allowed; canonical merge is serialized. A stale canonical base must be refreshed/rebased and re-evaluated immediately before merge.
 27. N-Mason automatic merge claim remains fail-closed until GitHub branch protection/ruleset enforcement is independently verified.
+27a. **Before any public release, mirror, demo, archive, paper supplement, or movement of an artifact into an unrestricted public path, run the disclosure-safety gate in `docs/DISCLOSURE_SAFETY_POLICY.md`.** File type is not an exemption: code, documentation, diagrams, prompts, schemas, tests, adapters and deployment recipes are classified by what they materially enable. Unknown/materially disputed classification does not default to public.
 
 ## Close correctly
 
@@ -52,6 +53,7 @@
 - Developer Admission: `docs/engineering/DEVELOPER_ADMISSION.md`
 - Identity & Authority: `docs/engineering/IDENTITY_AUTHORITY.md`
 - N-Mason Pool / serialized merge: `docs/engineering/N_MASON_POOL.md`
+- Disclosure Safety Policy: `docs/DISCLOSURE_SAFETY_POLICY.md`
 
 Important repaired incidents remain queryable in Diagnostic Memory; do not hide an error merely because it was repaired.
 

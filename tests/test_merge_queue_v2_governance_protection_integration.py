@@ -6,8 +6,9 @@ SQL = Path('supabase/drafts/20260829_world8_merge_queue_v2_governance_protection
 def test_claim_rechecks_protection_before_merging():
     assert "world8_merge_protection_gate_v1" in SQL
     assert "validation_check_id" in SQL
-    assert "state='MERGING'" in SQL
-    assert SQL.index("world8_merge_protection_gate_v1") < SQL.index("state='MERGING'")
+    transition = "update public.world8_merge_queue set state='MERGING'"
+    assert transition in SQL
+    assert SQL.index("world8_merge_protection_gate_v1") < SQL.index(transition)
 
 
 def test_complete_rechecks_protection():

@@ -136,6 +136,24 @@ def _lines(text: str) -> set[str]:
     return {line.strip() for line in text.splitlines() if line.strip()}
 
 
+def _list_under_header(text: str, header: str, header_indent: int) -> tuple[str, ...]:
+    raw = text.splitlines()
+    for index, line in enumerate(raw):
+        if line == (" " * header_indent) + header:
+            items: list[str] = []
+            for child in raw[index + 1 :]:
+                if not child.strip():
+                    continue
+                indent = len(child) - len(child.lstrip(" "))
+                if indent <= header_indent:
+                    break
+                stripped = child.strip()
+                if stripped.startswith("- "):
+                    items.append(stripped[2:])
+            return tuple(items)
+    return ()
+
+
 def validate_text(candidate: str, inventory: str) -> ValidationResult:
     errors: list[str] = []
     lines = _lines(candidate)
@@ -144,9 +162,20 @@ def validate_text(candidate: str, inventory: str) -> ValidationResult:
         if line not in lines:
             errors.append(f"MISSING_EXACT_LINE:{line}")
 
+    required_fields = set(_list_under_header(candidate, "required_fields:", 2))
     for field in REQUIRED_FIELDS:
-        if f"- {field}" not in lines:
+        if field not in required_fields:
             errors.append(f"MISSING_ENTITY_FIELD:{field}")
+
+    principal_refs = set(_list_under_header(candidate, "principal_contract_must_reference:", 2))
+    if "entity_id" not in principal_refs:
+        errors.append("PRINCIPAL_ENTITY_ID_BINDING_MISSING")
+    if "entity_identity_version_or_digest" not in principal_refs:
+        errors.append("PRINCIPAL_ENTITY_VERSION_OR_DIGEST_BINDING_MISSING")
+
+    lifecycle_states = set(_list_under_header(candidate, "canonical_states:", 2))
+    if lifecycle_states != {"ACTIVE", "RETIRED", "TOMBSTONED"}:
+        errors.append("ENTITY_LIFECYCLE_STATES_INCOMPLETE_OR_DRIFTED")
 
     for transition in REQUIRED_FORBIDDEN:
         if f"- {transition}" not in lines:
@@ -163,12 +192,6 @@ def validate_text(candidate: str, inventory: str) -> ValidationResult:
     for phrase in INVENTORY_REQUIRED_PHRASES:
         if phrase.lower() not in inventory.lower():
             errors.append(f"INVENTORY_EVIDENCE_MISSING:{phrase}")
-
-    if "- ACTIVE" not in lines or "- RETIRED" not in lines or "- TOMBSTONED" not in lines:
-        errors.append("ENTITY_LIFECYCLE_STATES_INCOMPLETE")
-
-    if "- entity_identity_version_or_digest" not in lines:
-        errors.append("PRINCIPAL_ENTITY_VERSION_OR_DIGEST_BINDING_MISSING")
 
     if "requester_only_evidence_for_high_risk_identity_change: forbidden" not in lines:
         errors.append("HIGH_RISK_IDENTITY_EVIDENCE_INDEPENDENCE_MISSING")

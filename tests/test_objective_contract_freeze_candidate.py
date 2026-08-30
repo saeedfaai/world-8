@@ -22,6 +22,30 @@ class ObjectiveContractFreezeCandidateTests(unittest.TestCase):
         self.assertIn("canonical: false", self.text)
         self.assertIn("pre_schema: true", self.text)
 
+    def test_binding_inventory_is_required(self):
+        mutant = self.text.replace("implementation_binding_inventory:\n", "", 1)
+        result = validate_text(mutant)
+        self.assertFalse(result.ok)
+        self.assertTrue(any("implementation_binding_inventory:" in e for e in result.errors))
+
+    def test_entity_runtime_binding_blocker_cannot_be_deleted(self):
+        mutant = self.text.replace("    - ENTITY_RUNTIME_BINDING_UNRESOLVED\n", "", 1)
+        result = validate_text(mutant)
+        self.assertFalse(result.ok)
+        self.assertIn("MISSING_BINDING_BLOCKER:ENTITY_RUNTIME_BINDING_UNRESOLVED", result.errors)
+
+    def test_objective_canonical_surface_blocker_cannot_be_deleted(self):
+        mutant = self.text.replace("    - OBJECTIVE_CANONICAL_SURFACE_NOT_IMPLEMENTED\n", "", 1)
+        result = validate_text(mutant)
+        self.assertFalse(result.ok)
+        self.assertIn("MISSING_BINDING_BLOCKER:OBJECTIVE_CANONICAL_SURFACE_NOT_IMPLEMENTED", result.errors)
+
+    def test_objective_effect_check_hook_blocker_cannot_be_deleted(self):
+        mutant = self.text.replace("    - OBJECTIVE_EFFECT_CHECK_HOOK_UNBOUND\n", "", 1)
+        result = validate_text(mutant)
+        self.assertFalse(result.ok)
+        self.assertIn("MISSING_BINDING_BLOCKER:OBJECTIVE_EFFECT_CHECK_HOOK_UNBOUND", result.errors)
+
     def test_development_surface_cannot_become_canonical_by_status(self):
         mutant = self.text.replace(
             "development_active_is_canonical_active: false",
@@ -104,6 +128,12 @@ class ObjectiveContractFreezeCandidateTests(unittest.TestCase):
         result = validate_text(mutant)
         self.assertFalse(result.ok)
         self.assertIn("HIGH_RISK_EVIDENCE_INDEPENDENCE_MISSING", result.errors)
+
+    def test_unresolved_blockers_require_schema_to_stay_forbidden(self):
+        mutant = self.text.replace("schema_authoring_allowed_now: false", "schema_authoring_allowed_now: true", 1)
+        result = validate_text(mutant)
+        self.assertFalse(result.ok)
+        self.assertIn("UNRESOLVED_BINDING_BLOCKER_REQUIRES_SCHEMA_BLOCK", result.errors)
 
 
 if __name__ == "__main__":

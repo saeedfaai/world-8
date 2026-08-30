@@ -101,13 +101,14 @@ FORBIDDEN_IMPLEMENTATION_MARKERS = (
 
 def validate_text(text: str) -> ValidationResult:
     errors: list[str] = []
+    normalized_lines = {line.strip() for line in text.splitlines()}
 
     for token in REQUIRED_TOKENS:
         if token not in text:
             errors.append(f"MISSING_REQUIRED_TOKEN:{token}")
 
     for field in REQUIRED_LOGICAL_FIELDS:
-        if f"- {field}" not in text:
+        if f"- {field}" not in normalized_lines:
             errors.append(f"MISSING_LOGICAL_FIELD:{field}")
 
     for transition in REQUIRED_FORBIDDEN_TRANSITIONS:

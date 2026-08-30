@@ -21,6 +21,10 @@ REQUIRED_TOKENS = (
     "canonical: false",
     "production: false",
     "pre_schema: true",
+    "implementation_binding_inventory:",
+    "artifact: architecture/proposals/WORLD8_OBJECTIVE_CONTRACT_IMPLEMENTATION_BINDING_INVENTORY_v0.1.md",
+    "freeze_readiness:",
+    "status: BLOCKED_PENDING_EXACT_BINDINGS_AND_INDEPENDENT_REVIEW",
     "object_ownership:",
     "authoritative_writer:",
     "state_machine:",
@@ -42,7 +46,17 @@ REQUIRED_TOKENS = (
     "schema_authoring_allowed_now: false",
     "migration_authoring_allowed_now: false",
     "canonical_writer_implementation_allowed_now: false",
+    "IMPLEMENTATION_BINDING_INVENTORY_COMPLETE",
+    "FREEZE_BLOCKERS_RESOLVED",
     "INDEPENDENT_REVIEW_REQUIRED",
+)
+
+REQUIRED_BINDING_BLOCKERS = (
+    "ENTITY_RUNTIME_BINDING_UNRESOLVED",
+    "OBJECTIVE_CANONICAL_SURFACE_NOT_IMPLEMENTED",
+    "OBJECTIVE_PROMOTION_BINDING_UNRESOLVED",
+    "OBJECTIVE_EFFECT_CHECK_HOOK_UNBOUND",
+    "OBJECTIVE_WRITER_CAS_FENCING_UNBOUND",
 )
 
 REQUIRED_LOGICAL_FIELDS = (
@@ -107,6 +121,10 @@ def validate_text(text: str) -> ValidationResult:
         if token not in text:
             errors.append(f"MISSING_REQUIRED_TOKEN:{token}")
 
+    for blocker in REQUIRED_BINDING_BLOCKERS:
+        if f"- {blocker}" not in normalized_lines:
+            errors.append(f"MISSING_BINDING_BLOCKER:{blocker}")
+
     for field in REQUIRED_LOGICAL_FIELDS:
         if f"- {field}" not in normalized_lines:
             errors.append(f"MISSING_LOGICAL_FIELD:{field}")
@@ -135,6 +153,13 @@ def validate_text(text: str) -> ValidationResult:
         errors.append("CONCURRENCY_FAIL_CLOSED_CONTRACT_INCOMPLETE")
     if "requester_only_evidence_for_high_risk: forbidden" not in text:
         errors.append("HIGH_RISK_EVIDENCE_INDEPENDENCE_MISSING")
+
+    unresolved = any(f"- {blocker}" in normalized_lines for blocker in REQUIRED_BINDING_BLOCKERS)
+    if unresolved:
+        if "status: CANDIDATE_NOT_FROZEN" not in text:
+            errors.append("UNRESOLVED_BINDING_BLOCKER_REQUIRES_NOT_FROZEN_STATUS")
+        if "schema_authoring_allowed_now: false" not in text:
+            errors.append("UNRESOLVED_BINDING_BLOCKER_REQUIRES_SCHEMA_BLOCK")
 
     return ValidationResult(not errors, tuple(sorted(set(errors))))
 

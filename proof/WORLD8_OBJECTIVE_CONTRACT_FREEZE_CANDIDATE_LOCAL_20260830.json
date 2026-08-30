@@ -1,0 +1,48 @@
+{
+  "schema": "WORLD8_OBJECTIVE_CONTRACT_FREEZE_CANDIDATE_EVIDENCE/0.1",
+  "candidate_id": "world8-objective-contract-freeze-candidate-v0.1",
+  "status": "LOCAL_EXACT_BLOB_VALIDATED_NOT_FROZEN",
+  "canonical": false,
+  "production": false,
+  "world8_base_sha": "8022a60d06d914d25cc969f6850ed44440534c01",
+  "tested_candidate_head_sha": "81581322afd3a0119c02f6a1328d6c0c52600555",
+  "execution_method": "LOCAL_RECONSTRUCTION_FROM_EXACT_GITHUB_BLOB_CONTENT",
+  "tested_blobs": {
+    "architecture/proposals/world8-objective-contract-freeze-candidate-v0.1.yaml": "c7dc0668fb7a5c030cd6a9ad908310ebd5b67852",
+    "scripts/validate_objective_contract_freeze_candidate.py": "f56d3e3ae24b9292201ebd7325150a5ba93fee77",
+    "tests/test_objective_contract_freeze_candidate.py": "bd3ec3e68c4654547758fb478f40412d06dec29a"
+  },
+  "commands": [
+    "python scripts/validate_objective_contract_freeze_candidate.py",
+    "python -m unittest tests.test_objective_contract_freeze_candidate -v"
+  ],
+  "validator_result": {
+    "status": "PASS",
+    "stdout": "WORLD8_OBJECTIVE_CONTRACT_FREEZE_CANDIDATE_VALIDATION: PASS"
+  },
+  "unit_test_result": {
+    "tests_run": 14,
+    "passed": 14,
+    "failed": 0,
+    "errors": 0
+  },
+  "falsifier_history": [
+    {
+      "finding": "protected_metric_contract_refs removal was not detected because substring matching also matched protected_metric_contract_refs_and_digests",
+      "result": "CAUGHT_BY_TEST",
+      "repair_commit": "81581322afd3a0119c02f6a1328d6c0c52600555",
+      "repair": "required logical fields now use exact normalized-line membership"
+    }
+  ],
+  "evidence_ceiling": "E2_LOCAL_REFERENCE_ONLY",
+  "not_claimed": [
+    "GITHUB_ACTIONS_PASS",
+    "INDEPENDENT_REVIEW_PASS",
+    "CONTRACT_FREEZE",
+    "CANONICAL_PROMOTION",
+    "SCHEMA_IMPLEMENTATION",
+    "RUNTIME_WRITER",
+    "PRODUCTION_ACTIVATION"
+  ],
+  "next_gate": "DRAFT_PR_PLUS_INDEPENDENT_REVIEW_OF_FREEZE_CANDIDATE"
+}

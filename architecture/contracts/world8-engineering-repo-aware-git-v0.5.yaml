@@ -1,0 +1,62 @@
+schema: WORLD8_ENGINEERING_REPO_AWARE_GIT_BRIDGE/0.5
+status: PROPOSAL_ONLY
+runtime_state: NOT_APPLIED
+canonical_resource_model:
+  source_of_truth: world8_dev_external_resources
+  required_resource_type: GITHUB
+  required_status: ACTIVE
+  required_metadata:
+    canonical: true
+    role: canonical_architecture_and_code_source
+    canonical_head_commit: exact_40_hex_sha
+    default_branch: nonempty
+  provider_ref_format: github:owner/repo
+  arbitrary_repo_input_allowed: false
+new_evidence:
+  - world8_dev_workspace_git_bindings
+  - world8_academy_entry_git_bindings
+new_entry_points:
+  - world8_dev_canonical_git_resource_current_v1
+  - world8_dev_register_workspace_v2
+  - world8_academy_coding_entry_issue_v2
+  - world8_dev_admission_check_v4
+shared_existing_write_path:
+  - world8_dev_record_prewrite_recovery_v1
+  - world8_dev_acquire_lease_v5
+invariants:
+  - Existing World8-only v1/v0.4 path is not replaced or weakened
+  - Canonical repository membership is evidence, never a caller assertion
+  - No repository is enrolled by the v0.5 migration
+  - Workspace repo_ref must exactly equal the enrolled resource provider_ref repository
+  - WRITE base_commit must exactly equal the enrolled resource current canonical_head_commit
+  - WRITE branch must differ from main, master, and the resource default_branch
+  - Workspace-to-resource binding is append-only
+  - Academy Entry-to-resource binding is append-only
+  - Entry remains authority_effect NONE
+  - Entry resource, Workspace resource, repo and head must remain exact and current at Admission
+  - Resource head movement invalidates stale Workspace/Entry evidence
+  - Admission v4 preserves Qualification != Authorization and invokes the existing Authority Fabric
+  - Authorization scope binds work, execution, workspace, canonical resource, repo, branch and head
+  - Lease v5 remains the common lease/fencing layer because it is repository-neutral
+  - Direct main writes remain forbidden
+  - Proposal installation does not authorize production DDL, provider execution, secrets, tokens or external effects
+world9_target:
+  planned_resource_id: resource-github-world9-runtime-canonical
+  planned_provider_ref: github:saeedfaai/world-9-runtime
+  enrollment_state: NOT_ENROLLED
+  enrollment_requires_separate_governed_action: true
+promotion_order:
+  - proposal-only coder patch
+  - independent exact-head review and patch digest
+  - HumanRoot scoped CODE_WRITE authority for World8 Integrator
+  - Integrator imports exact reviewed patch to governed World8 branch
+  - tests and PostgreSQL transaction+ROLLBACK compile/falsifier
+  - Handoff/Postflight
+  - governed World8 PR and merge
+  - separately governed live migration
+  - separately governed World9 canonical-resource enrollment
+  - World9 Integrator uses Workspace v2 -> Entry v2 -> Admission v4 -> Recovery -> Lease v5
+nonclaims:
+  - v0.5 is not live
+  - World9 is not yet canonical in World8
+  - no production readiness is claimed

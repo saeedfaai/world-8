@@ -1,0 +1,19 @@
+name: KAREST Broker Enrollment Proposal Gate
+on:
+  pull_request:
+    paths:
+      - 'architecture/proposals/KAREST_BROKER_ENROLLMENT_v0_1.md'
+      - 'tests/test_karest_broker_enrollment_v0_1.py'
+      - '.github/workflows/karest-broker-enrollment-proposal.yml'
+jobs:
+  enrollment-proposal-gate:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute KAREST broker enrollment proposal gate
+        run: python -m unittest -v tests.test_karest_broker_enrollment_v0_1

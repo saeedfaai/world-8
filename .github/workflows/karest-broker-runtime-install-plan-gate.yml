@@ -1,0 +1,18 @@
+name: KAREST Broker Runtime Install Plan Gate
+
+on:
+  push:
+    branches:
+      - proposal/karest-broker-runtime-install-plan-v0-1
+  pull_request:
+    paths:
+      - 'proposals/karest_broker_runtime_install_plan_v0_1/**'
+      - '.github/workflows/karest-broker-runtime-install-plan-gate.yml'
+
+jobs:
+  plan-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run non-vacuous install-plan boundary tests
+        run: python -m unittest -v proposals/karest_broker_runtime_install_plan_v0_1/test_install_plan.py

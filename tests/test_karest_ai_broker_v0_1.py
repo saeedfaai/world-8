@@ -2,11 +2,13 @@ from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import importlib.util
 from pathlib import Path
+import sys
 
 MODULE = Path('proposals/karest_ai_broker_v0_1/reference.py')
 spec = importlib.util.spec_from_file_location('karest_ai_broker_reference', MODULE)
-mod = importlib.util.module_from_spec(spec)
 assert spec and spec.loader
+mod = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = mod
 spec.loader.exec_module(mod)
 
 

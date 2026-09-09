@@ -3,6 +3,7 @@ from hashlib import sha256
 import importlib.util
 from pathlib import Path
 import sys
+import unittest
 
 MODULE = Path('proposals/karest_ai_broker_v0_1/reference.py')
 spec = importlib.util.spec_from_file_location('karest_ai_broker_reference', MODULE)
@@ -12,7 +13,7 @@ sys.modules[spec.name] = mod
 spec.loader.exec_module(mod)
 
 
-def request(now: datetime):
+def make_request(now: datetime):
     prompt = 'Summarize current inventory as advisory text only.'
     return {
         'schema': mod.SCHEMA,
@@ -35,100 +36,75 @@ def admit_ok(r, now, seen=None):
     return mod.admit(r, now=now, seen_nonces=set() if seen is None else seen, verify_signature=lambda _: True)
 
 
-def test_valid_request_is_advisory_only_and_cannot_call_worker_directly():
-    now = datetime.now(timezone.utc)
-    result = admit_ok(request(now), now)
-    assert result.advisory_only is True
-    assert result.provider_tools_allowed is False
-    assert result.consequential_effect_allowed is False
-    assert result.paid_fallback_allowed is False
-    assert result.direct_worker_invocation_allowed is False
-    assert result.raw_secret_returned is False
+class KarestAiBrokerAdmissionTests(unittest.TestCase):
+    def test_valid_request_is_advisory_only_and_cannot_call_worker_directly(self):
+        now = datetime.now(timezone.utc)
+        result = admit_ok(make_request(now), now)
+        self.assertTrue(result.advisory_only)
+        self.assertFalse(result.provider_tools_allowed)
+        self.assertFalse(result.consequential_effect_allowed)
+        self.assertFalse(result.paid_fallback_allowed)
+        self.assertFalse(result.direct_worker_invocation_allowed)
+        self.assertFalse(result.raw_secret_returned)
 
+    def test_invalid_signature_fails_closed_and_does_not_consume_nonce(self):
+        now = datetime.now(timezone.utc)
+        r = make_request(now)
+        seen = set()
+        with self.assertRaisesRegex(mod.BrokerAdmissionError, '^BROKER_SIGNATURE_INVALID$'):
+            mod.admit(r, now=now, seen_nonces=seen, verify_signature=lambda _: False)
+        self.assertNotIn(r['nonce'], seen)
 
-def test_invalid_signature_fails_closed_and_does_not_consume_nonce():
-    now = datetime.now(timezone.utc)
-    r = request(now)
-    seen = set()
-    try:
-        mod.admit(r, now=now, seen_nonces=seen, verify_signature=lambda _: False)
-    except mod.BrokerAdmissionError as exc:
-        assert str(exc) == 'BROKER_SIGNATURE_INVALID'
-    else:
-        raise AssertionError('invalid signature passed')
-    assert r['nonce'] not in seen
-
-
-def test_expired_request_fails_closed():
-    now = datetime.now(timezone.utc)
-    r = request(now - timedelta(minutes=2))
-    try:
-        admit_ok(r, now)
-    except mod.BrokerAdmissionError as exc:
-        assert str(exc) == 'BROKER_REQUEST_EXPIRED'
-    else:
-        raise AssertionError('expired request passed')
-
-
-def test_replay_fails_closed():
-    now = datetime.now(timezone.utc)
-    r = request(now)
-    seen = set()
-    admit_ok(r, now, seen)
-    try:
-        admit_ok(r, now, seen)
-    except mod.BrokerAdmissionError as exc:
-        assert str(exc) == 'BROKER_REPLAY_BLOCKED'
-    else:
-        raise AssertionError('replay passed')
-
-
-def test_policy_widening_fails_closed():
-    now = datetime.now(timezone.utc)
-    for key, value in [
-        ('providerToolsAllowed', True),
-        ('consequentialEffectAllowed', True),
-        ('paidFallbackAllowed', True),
-        ('advisoryOnly', False),
-    ]:
-        r = request(now)
-        r['nonce'] = f'nonce-{key}'
-        r['policy'][key] = value
-        try:
+    def test_expired_request_fails_closed(self):
+        now = datetime.now(timezone.utc)
+        r = make_request(now - timedelta(minutes=2))
+        with self.assertRaisesRegex(mod.BrokerAdmissionError, '^BROKER_REQUEST_EXPIRED$'):
             admit_ok(r, now)
-        except mod.BrokerAdmissionError as exc:
-            assert str(exc) == 'BROKER_POLICY_WIDENING_FORBIDDEN'
-        else:
-            raise AssertionError(f'policy widening passed: {key}')
+
+    def test_replay_fails_closed(self):
+        now = datetime.now(timezone.utc)
+        r = make_request(now)
+        seen = set()
+        admit_ok(r, now, seen)
+        with self.assertRaisesRegex(mod.BrokerAdmissionError, '^BROKER_REPLAY_BLOCKED$'):
+            admit_ok(r, now, seen)
+
+    def test_policy_widening_fails_closed(self):
+        now = datetime.now(timezone.utc)
+        for key, value in [
+            ('providerToolsAllowed', True),
+            ('consequentialEffectAllowed', True),
+            ('paidFallbackAllowed', True),
+            ('advisoryOnly', False),
+        ]:
+            with self.subTest(key=key):
+                r = make_request(now)
+                r['nonce'] = f'nonce-{key}'
+                r['policy'][key] = value
+                with self.assertRaisesRegex(mod.BrokerAdmissionError, '^BROKER_POLICY_WIDENING_FORBIDDEN$'):
+                    admit_ok(r, now)
+
+    def test_prompt_hash_mismatch_fails_closed(self):
+        now = datetime.now(timezone.utc)
+        r = make_request(now)
+        r['prompt_sha256'] = '0' * 64
+        with self.assertRaisesRegex(mod.BrokerAdmissionError, '^BROKER_PROMPT_HASH_MISMATCH$'):
+            admit_ok(r, now)
+
+    def test_unknown_or_extra_fields_fail_closed(self):
+        now = datetime.now(timezone.utc)
+        r = make_request(now)
+        r['provider_api_key'] = 'forbidden'
+        with self.assertRaisesRegex(mod.BrokerAdmissionError, '^BROKER_SCHEMA_FIELDS_INVALID$'):
+            admit_ok(r, now)
+
+    def test_reference_source_contains_no_provider_secret_or_direct_worker_endpoint(self):
+        text = MODULE.read_text()
+        self.assertNotIn('gsk_', text)
+        self.assertNotIn('GROQ_API_KEY4', text)
+        self.assertNotIn('world8-provider-worker-generic-v01', text)
+        self.assertNotIn('api.groq.com', text)
 
 
-def test_prompt_hash_mismatch_fails_closed():
-    now = datetime.now(timezone.utc)
-    r = request(now)
-    r['prompt_sha256'] = '0' * 64
-    try:
-        admit_ok(r, now)
-    except mod.BrokerAdmissionError as exc:
-        assert str(exc) == 'BROKER_PROMPT_HASH_MISMATCH'
-    else:
-        raise AssertionError('prompt hash mismatch passed')
-
-
-def test_unknown_or_extra_fields_fail_closed():
-    now = datetime.now(timezone.utc)
-    r = request(now)
-    r['provider_api_key'] = 'forbidden'
-    try:
-        admit_ok(r, now)
-    except mod.BrokerAdmissionError as exc:
-        assert str(exc) == 'BROKER_SCHEMA_FIELDS_INVALID'
-    else:
-        raise AssertionError('unknown field passed')
-
-
-def test_reference_source_contains_no_provider_secret_or_direct_worker_endpoint():
-    text = MODULE.read_text()
-    assert 'gsk_' not in text
-    assert 'GROQ_API_KEY4' not in text
-    assert 'world8-provider-worker-generic-v01' not in text
-    assert 'api.groq.com' not in text
+if __name__ == '__main__':
+    unittest.main()

@@ -1,0 +1,18 @@
+name: KAREST AI Broker Deno Compile Gate
+on:
+  pull_request:
+    paths:
+      - 'proposals/karest_ai_broker_impl_v0_1/edge_entry.ts'
+      - '.github/workflows/karest-ai-broker-deno-compile.yml'
+jobs:
+  deno-check:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Deno type-check broker Edge candidate
+        run: deno check proposals/karest_ai_broker_impl_v0_1/edge_entry.ts

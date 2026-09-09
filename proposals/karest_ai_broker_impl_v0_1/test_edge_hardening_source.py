@@ -20,6 +20,13 @@ class EdgeHardeningGate(unittest.TestCase):
         self.assertIn('b.target_request_id===null', SRC)
         self.assertIn('b.prompt===null&&b.prompt_sha256===null', SRC)
 
+    def test_time_fence_requires_positive_bounded_ttl(self):
+        self.assertIn('expires<=issued', SRC)
+        self.assertIn('expires<=now', SRC)
+        self.assertIn('issued>now+30000', SRC)
+        self.assertIn('expires-issued>60000', SRC)
+        self.assertIn('BROKER_TIME_FENCE_REJECTED', SRC)
+
     def test_verify_jwk_is_public_ed25519_only(self):
         self.assertIn('jwk.kty!=="OKP"', SRC)
         self.assertIn('jwk.crv!=="Ed25519"', SRC)

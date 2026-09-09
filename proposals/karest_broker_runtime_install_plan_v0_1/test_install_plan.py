@@ -5,7 +5,7 @@ TEXT = (pathlib.Path(__file__).resolve().parent / 'INSTALL_PLAN.md').read_text()
 
 class InstallPlanGate(unittest.TestCase):
     def test_all_review_issues_are_mandatory(self):
-        for issue in ('#65', '#68', '#69', '#72', '#74'):
+        for issue in ('#65', '#68', '#69', '#72', '#74', '#77', '#80'):
             self.assertIn(issue, TEXT)
         self.assertIn('PENDING, silence', TEXT)
 
@@ -13,6 +13,7 @@ class InstallPlanGate(unittest.TestCase):
         for sha in (
             '5c8f87f535a32b56b24579a3f34c564b2ba7335a',
             'c6d4d66f7fa19f3d15937f67407efe635bfab0eb',
+            '4cee1cf38e923c0919633ab2b7d6ead854dfd4cc',
             'b00164aeea119f00de9fe3e6e9e8d79c3003cbdc',
             'c324123a930963f9cab97d84fe33121805e1da65',
             'e33716771898993ba32155cd4c2041b1d762e8be',
@@ -29,6 +30,20 @@ class InstallPlanGate(unittest.TestCase):
         self.assertIn('access_mode = `READ_ONLY`', TEXT)
         self.assertIn('isolation_mode = `REMOTE_WORKSPACE`', TEXT)
         self.assertIn('canonical mutation = false', TEXT)
+
+    def test_security_posture_is_fail_closed(self):
+        self.assertIn('RLS disabled', TEXT)
+        self.assertIn('no `anon`/`authenticated` grants were observed', TEXT)
+        self.assertIn('confused deputy', TEXT)
+        self.assertIn('unresolved Issue #77', TEXT)
+        self.assertIn('unexpected anon/authenticated grants', TEXT)
+
+    def test_hardened_edge_is_mandatory(self):
+        self.assertIn('Hardened broker Edge PR #78', TEXT)
+        self.assertIn('bounded body', TEXT)
+        self.assertIn('exact envelope keys', TEXT)
+        self.assertIn('public Ed25519 verification key only', TEXT)
+        self.assertIn('raw_secret_returned=false', TEXT)
 
     def test_secret_and_key_boundaries(self):
         self.assertIn('never read/export raw provider secret', TEXT)
@@ -48,6 +63,7 @@ class InstallPlanGate(unittest.TestCase):
     def test_plan_performs_no_runtime_mutation(self):
         self.assertIn('PLAN_ONLY / NOT_EXECUTED / NO_RUNTIME_MUTATION', TEXT)
         self.assertIn('No World 8 runtime DDL', TEXT)
+        self.assertIn('RLS/grant mutation', TEXT)
         self.assertIn('migration 046', TEXT)
 
 if __name__ == '__main__':

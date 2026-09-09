@@ -1,0 +1,37 @@
+name: KAREST Runtime Prerequisite Hardening Gate
+
+on:
+  push:
+    branches:
+      - proposal/karest-runtime-prereq-hardening-v0-1
+  pull_request:
+    paths:
+      - 'proposals/karest_runtime_prereq_hardening_v0_1/**'
+      - '.github/workflows/karest-runtime-prereq-hardening.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  postgres-runtime-proof:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: world8_karest_prereq_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d world8_karest_prereq_test"
+          --health-interval=2s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/world8_karest_prereq_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute hardened prerequisite registrars on disposable PostgreSQL 17
+        run: bash proposals/karest_runtime_prereq_hardening_v0_1/integration_test.sh

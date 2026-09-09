@@ -1,0 +1,31 @@
+name: KAREST AI Broker Proposal Gate
+
+on:
+  pull_request:
+    paths:
+      - 'architecture/proposals/WORLD8_KAREST_AI_BROKER_ENTRY_v0.1.md'
+      - 'proposals/karest_ai_broker_v0_1/**'
+      - 'tests/test_karest_ai_broker_v0_1.py'
+      - '.github/workflows/karest-ai-broker-proposal.yml'
+  push:
+    branches:
+      - 'proposal/karest-ai-broker-v0-1'
+    paths:
+      - 'architecture/proposals/WORLD8_KAREST_AI_BROKER_ENTRY_v0.1.md'
+      - 'proposals/karest_ai_broker_v0_1/**'
+      - 'tests/test_karest_ai_broker_v0_1.py'
+      - '.github/workflows/karest-ai-broker-proposal.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  broker-negative-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute broker proposal negative suite
+        run: python -m unittest -v tests.test_karest_ai_broker_v0_1

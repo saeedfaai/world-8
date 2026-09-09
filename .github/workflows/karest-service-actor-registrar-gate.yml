@@ -1,0 +1,18 @@
+name: KAREST SERVICE Actor Registrar Proposal Gate
+
+on:
+  push:
+    branches:
+      - proposal/karest-service-actor-registrar-v0-1
+  pull_request:
+    paths:
+      - 'proposals/karest_service_actor_registrar_v0_1/**'
+      - '.github/workflows/karest-service-actor-registrar-gate.yml'
+
+jobs:
+  registrar-source-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run non-vacuous registrar source tests
+        run: python -m unittest -v proposals/karest_service_actor_registrar_v0_1/test_registrar_source.py

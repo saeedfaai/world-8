@@ -23,3 +23,5 @@ jobs:
       - run: python scripts/validate_provider_failover_mesh.py
       - run: python scripts/validate_academy_entry_gateway.py
       - run: python -m unittest tests.academy.test_entry_gateway -v
+      - run: python scripts/validate_objective_contract_freeze_candidate.py
+      - run: python -m unittest tests.test_objective_contract_freeze_candidate -v

@@ -1,0 +1,184 @@
+schema: WORLD8_ENTITY_IDENTITY_CONTRACT_FREEZE_CANDIDATE/0.1
+candidate_id: world8-entity-identity-contract-freeze-candidate-v0.1
+status: CANDIDATE_NOT_FROZEN
+canonical: false
+production: false
+pre_schema: true
+world_id: world-001
+world8_base_sha: 8022a60d06d914d25cc969f6850ed44440534c01
+world9_dependency: WORLD9_R0_1_PRINCIPAL_ENTITY_BACKING
+
+runtime_inventory:
+  artifact: architecture/proposals/WORLD8_ENTITY_IDENTITY_IMPLEMENTATION_INVENTORY_v0.1.md
+  canonical_entity_registry_observed: false
+  canonical_entity_lifecycle_function_observed: false
+  actor_registry_disposition: DO_NOT_ALIAS_AS_ENTITY
+  owner_identity_disposition: DO_NOT_ALIAS_AS_ENTITY
+  access_identity_binding_disposition: DO_NOT_ALIAS_AS_ENTITY
+  legacy_world9_principal_contract_disposition: NOT_R0_1_ENTITY_BACKING
+
+binding_decision:
+  target_plane: CANONICAL_SPINE
+  target_logical_object: World8EntityRecord
+  target_runtime_surface: UNIMPLEMENTED_PRE_SCHEMA
+  dedicated_canonical_aggregate_required: true
+  principal_contract_is_separate_aggregate: true
+  principal_identity_must_reference_existing_entity: true
+  actor_identity_must_not_substitute_entity: true
+  auth_identity_must_not_substitute_entity: true
+  provider_model_session_must_not_define_entity_identity: true
+
+entity_identity_contract:
+  stable_key: entity_id
+  required_fields:
+    - entity_id
+    - world_id
+    - entity_class
+    - identity_version
+    - lifecycle_state
+    - genesis_ref
+    - constitutional_root_ref
+    - content_digest
+    - created_by_governance_actor_ref
+    - created_at
+  immutable_identity_fields:
+    - entity_id
+    - world_id
+    - genesis_ref
+  version_payload_immutable_after_admission: true
+  identity_reuse_for_different_genesis: forbidden
+
+lifecycle:
+  canonical_states:
+    - ACTIVE
+    - RETIRED
+    - TOMBSTONED
+  allowed_transitions:
+    - from: ACTIVE
+      to: RETIRED
+    - from: RETIRED
+      to: TOMBSTONED
+  activation_requires_governance: true
+  resurrection_from_tombstone: forbidden
+  tombstone_preserves_lineage: true
+
+authoritative_writer:
+  logical_role: CanonicalSpineEntityWriter
+  implementation_binding: UNBOUND_PRE_SCHEMA
+  requires_promotion_authority: true
+  proposer_can_write: false
+  evaluator_can_write: false
+  actor_can_self_write: false
+  principal_can_self_write: false
+  model_or_provider_can_write: false
+
+forbidden_transitions:
+  - ACTOR_ID_ALIAS_TO_ENTITY_ID
+  - AUTH_USER_ID_ALIAS_TO_ENTITY_ID
+  - PRINCIPAL_ID_WITHOUT_ENTITY_RECORD
+  - PROVIDER_MODEL_SESSION_TO_ENTITY_ID
+  - MUTATE_ADMITTED_ENTITY_ID
+  - REUSE_ENTITY_ID_FOR_DIFFERENT_GENESIS
+  - DEVELOPMENT_ROW_TO_CANONICAL_ENTITY_WITHOUT_GOVERNANCE
+  - SELF_PROMOTION_OF_ENTITY_IDENTITY
+  - TOMBSTONED_TO_ACTIVE_RESURRECTION
+  - DELETE_ENTITY_LINEAGE_OR_TOMBSTONE_HISTORY
+  - RECOVER_ENTITY_FROM_NONCANONICAL_PROJECTION_ONLY
+
+evidence_requirement:
+  required_refs:
+    - proposal_digest
+    - genesis_evidence_ref
+    - constitutional_root_ref
+    - governance_actor_binding_ref
+    - independent_evaluation_receipt_ref
+    - promotion_authority_decision_ref
+    - expected_canonical_head_or_fencing_basis
+    - source_refs
+    - evidence_ceiling
+  requester_only_evidence_for_high_risk_identity_change: forbidden
+
+principal_binding_requirement:
+  principal_is_governed_entity_specialization: true
+  principal_contract_must_reference:
+    - entity_id
+    - entity_identity_version_or_digest
+  principal_activation_fails_if_entity_missing: true
+  principal_activation_fails_if_entity_not_active: true
+  principal_activation_fails_if_entity_digest_mismatch: true
+  principal_row_does_not_create_entity_implicitly: true
+
+recovery_behavior:
+  authoritative_source: CANONICAL_SPINE_ENTITY_HISTORY
+  actor_registry_authoritative_for_entity_identity: false
+  owner_identity_table_authoritative_for_entity_identity: false
+  access_identity_binding_authoritative_for_entity_identity: false
+  reconstruct:
+    - stable_entity_identity
+    - immutable_identity_versions
+    - lifecycle_events
+    - genesis_and_constitutional_root_evidence
+    - principal_to_entity_bindings
+  verify:
+    - content_digests
+    - identity_version_lineage
+    - canonical_ordering
+    - fencing_or_expected_head
+  fail_closed_on:
+    - missing_genesis_evidence
+    - digest_mismatch
+    - broken_lineage
+    - duplicate_entity_id_with_distinct_genesis
+    - stale_fencing
+    - ambiguous_canonical_head
+
+world8_plane_mapping:
+  CANONICAL_SPINE:
+    - World8EntityRecord
+    - EntityIdentityVersion
+    - EntityLifecycleEvent
+  OPERATIONAL:
+    - entity_runtime_read_model
+  OBSERVATION:
+    - entity_identity_integrity_signal
+    - orphan_principal_signal
+  DEVELOPMENT_MASON:
+    - entity_contract_candidate
+    - entity_schema_candidate_after_freeze
+  EVIDENCE_GOVERNANCE:
+    - entity_evaluator_receipt
+    - entity_promotion_decision
+    - entity_identity_evidence_pack
+  sixth_plane: false
+
+concurrency_contract:
+  expected_head_or_cas_required: true
+  fencing_required: true
+  idempotent_same_payload_replay: allowed
+  idempotency_key_payload_collision: fail
+  duplicate_entity_id_distinct_genesis: fail
+
+freeze_readiness:
+  status: READY_FOR_INDEPENDENT_REVIEW_NOT_FROZEN
+  runtime_absence_is_explicit: true
+  runtime_absence_does_not_authorize_schema_before_freeze: true
+
+freeze_exit_criteria:
+  - ENTITY_OWNERSHIP_EXPLICIT
+  - ENTITY_STABLE_KEY_EXPLICIT
+  - AUTHORITATIVE_WRITER_EXPLICIT
+  - LIFECYCLE_EXPLICIT
+  - FORBIDDEN_TRANSITIONS_EXPLICIT
+  - PRINCIPAL_ENTITY_BINDING_EXPLICIT
+  - EVIDENCE_REQUIREMENT_EXPLICIT
+  - RECOVERY_BEHAVIOR_EXPLICIT
+  - WORLD8_PLANE_MAPPING_EXPLICIT
+  - ACTOR_ENTITY_SEPARATION_EXPLICIT
+  - IMPLEMENTATION_INVENTORY_COMPLETE
+  - INDEPENDENT_REVIEW_REQUIRED
+
+implementation_after_freeze:
+  schema_authoring_allowed_now: false
+  migration_authoring_allowed_now: false
+  canonical_writer_implementation_allowed_now: false
+  next_after_freeze: SEPARATE_GOVERNED_ENTITY_SCHEMA_WRITER_IMPLEMENTATION_CANDIDATE

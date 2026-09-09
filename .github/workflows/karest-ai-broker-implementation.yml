@@ -1,0 +1,19 @@
+name: KAREST AI Broker Implementation Gate
+on:
+  pull_request:
+    paths:
+      - 'proposals/karest_ai_broker_impl_v0_1/**'
+      - 'tests/test_karest_ai_broker_impl_v0_1.py'
+      - '.github/workflows/karest-ai-broker-implementation.yml'
+jobs:
+  implementation-gate:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute KAREST broker implementation source gate
+        run: python -m unittest -v tests.test_karest_ai_broker_impl_v0_1

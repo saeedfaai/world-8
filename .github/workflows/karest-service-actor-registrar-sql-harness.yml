@@ -1,0 +1,34 @@
+name: KAREST SERVICE Actor Registrar SQL Harness
+
+on:
+  push:
+    branches:
+      - proposal/karest-service-actor-registrar-sql-harness-v0-1
+  pull_request:
+    paths:
+      - 'proposals/karest_service_actor_registrar_v0_1/**'
+      - '.github/workflows/karest-service-actor-registrar-sql-harness.yml'
+
+jobs:
+  postgres-runtime-harness:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: world8_registrar_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d world8_registrar_test"
+          --health-interval=2s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/world8_registrar_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute registrar SQL harness on disposable PostgreSQL 17
+        run: bash proposals/karest_service_actor_registrar_v0_1/integration_test.sh

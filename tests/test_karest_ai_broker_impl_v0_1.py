@@ -28,7 +28,10 @@ class KarestAiBrokerImplementationTests(unittest.TestCase):
         self.assertIn('Ed25519', SRC)
         self.assertIn('BROKER_SIGNATURE_INVALID', SRC)
         self.assertIn('BROKER_TIME_FENCE_REJECTED', SRC)
-        self.assertIn('target_request_id:b.target_request_id??null', SRC)
+        self.assertIn('target_request_id:b.target_request_id', SRC)
+        self.assertIn('exactOperationShape', SRC)
+        self.assertIn('b.target_request_id===null', SRC)
+        self.assertIn('b.prompt===null&&b.prompt_sha256===null', SRC)
 
     def test_policy_cannot_widen(self):
         for marker in ['advisoryOnly:true','providerToolsAllowed:false','consequentialEffectAllowed:false','paidFallbackAllowed:false','BROKER_POLICY_WIDENING_FORBIDDEN']:

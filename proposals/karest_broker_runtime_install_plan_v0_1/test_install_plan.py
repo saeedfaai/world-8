@@ -4,17 +4,20 @@ import unittest
 TEXT = (pathlib.Path(__file__).resolve().parent / 'INSTALL_PLAN.md').read_text()
 
 class InstallPlanGate(unittest.TestCase):
-    def test_review_gates_are_explicit(self):
-        for issue in ('#65', '#68', '#69', '#72', '#74', '#77', '#80', '#81'):
+    def test_review_dispositions_are_explicit(self):
+        for issue in ('#65', '#68', '#69', '#72', '#74', '#77', '#80', '#82'):
             self.assertIn(issue, TEXT)
+        self.assertIn('BASE_CONCEPT_ONLY', TEXT)
+        self.assertIn('BLOCKED_FOR_DIRECT_DEPLOYMENT / BASE_ONLY', TEXT)
+        self.assertIn('PASS_AS_RUNTIME_PREREQUISITE_CANDIDATE', TEXT)
+        self.assertIn('PASS_AS_HARDENED_EDGE_CANDIDATE', TEXT)
         self.assertIn('PENDING, silence', TEXT)
-        self.assertIn('BASE_ONLY', TEXT)
 
     def test_exact_dependency_heads_are_pinned(self):
         for sha in (
             '5c8f87f535a32b56b24579a3f34c564b2ba7335a',
             'c6d4d66f7fa19f3d15937f67407efe635bfab0eb',
-            '4cee1cf38e923c0919633ab2b7d6ead854dfd4cc',
+            '806110c00808aed1aa844890fa6ffe7d3096cf95',
             'b00164aeea119f00de9fe3e6e9e8d79c3003cbdc',
             'c324123a930963f9cab97d84fe33121805e1da65',
             'e33716771898993ba32155cd4c2041b1d762e8be',
@@ -23,6 +26,10 @@ class InstallPlanGate(unittest.TestCase):
             '3fc5535ef2ab8eafe3fbb227e236bd1dc6f2779e',
         ):
             self.assertIn(sha, TEXT)
+
+    def test_exact_run_evidence_is_pinned(self):
+        for run_id in ('34367985755','34367985883','34368313635','34368313754','34368313685','34368313734'):
+            self.assertIn(run_id, TEXT)
 
     def test_live_writer_drift_is_corrected(self):
         self.assertIn('world8_dev_create_work_claim_v2', TEXT)
@@ -57,14 +64,15 @@ class InstallPlanGate(unittest.TestCase):
     def test_security_posture_is_fail_closed(self):
         self.assertIn('RLS disabled', TEXT)
         self.assertIn('no `anon`/`authenticated` grants', TEXT)
-        self.assertIn('confused deputy', TEXT)
-        self.assertIn('unresolved Issue #77', TEXT)
+        self.assertIn('confused-deputy', TEXT)
+        self.assertIn('RESOLVED_FOR_DEPLOYMENT_WITH_SIGNED_EDGE_CONTAINMENT', TEXT)
 
     def test_hardened_edge_is_mandatory(self):
         self.assertIn('Hardened broker Edge PR #78', TEXT)
         self.assertIn('bounded body', TEXT)
         self.assertIn('exact envelope keys', TEXT)
         self.assertIn('public Ed25519 verification key only', TEXT)
+        self.assertIn('positive current TTL <=60s', TEXT)
         self.assertIn('raw_secret_returned=false', TEXT)
 
     def test_secret_and_key_boundaries(self):

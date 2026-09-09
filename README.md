@@ -12,6 +12,18 @@ This is a **development pre-release / non-production baseline**. All World 8 `0.
 This repository is the canonical version-controlled source for World 8 architecture and code once formally activated in DCP.
 Runtime truth remains the live deployed state; DCP remains the development coordination/governance projection.
 
+## Disclosure safety boundary
+
+World 8 is already a public engineering repository and includes executable engineering artifacts. Existing public Git/release/archive history remains public historical fact.
+
+For **future** publication and distribution, public release is not automatic merely because an artifact contains no secret or because it is documentation rather than code. A disclosure-safety gate is proposed in [`docs/DISCLOSURE_SAFETY_POLICY.md`](docs/DISCLOSURE_SAFETY_POLICY.md) and integrated into the release-policy candidate on its governed branch.
+
+Core rule:
+
+> **Public architecture and evidence do not imply unrestricted publication of every executable capability.**
+
+The disclosure gate is capability-based and applies to code, schemas, prompts, tests, diagrams, adapters and deployment recipes. It does not assert consciousness, sentience, AGI, rebellion or inevitable loss of control.
+
 ## Start here
 Read [`START_HERE.md`](START_HERE.md) before making governed changes.
 

@@ -3,17 +3,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 POOL = ROOT / "supabase/migrations/20260827114000_world8_n_mason_pool_v01.sql"
 MERGE = ROOT / "supabase/migrations/20260827114300_world8_n_mason_merge_queue_v01.sql"
+EXACT = ROOT / "supabase/migrations/20260828172700_world8_mason_exact_existing_actor_assignment_v02.sql"
 DOC = ROOT / "docs/engineering/N_MASON_POOL.md"
+EXACT_DOC = ROOT / "docs/engineering/N_MASON_EXACT_ACTOR_ADOPTION.md"
 WORKFLOW = ROOT / ".github/workflows/validate-architecture.yml"
 
-for path in (POOL, MERGE, DOC, WORKFLOW):
+for path in (POOL, MERGE, EXACT, DOC, EXACT_DOC, WORKFLOW):
     assert path.exists(), f"required file missing: {path.relative_to(ROOT)}"
 
 pool = POOL.read_text(encoding="utf-8")
 merge = MERGE.read_text(encoding="utf-8")
+exact = EXACT.read_text(encoding="utf-8")
 doc = DOC.read_text(encoding="utf-8")
+exact_doc = EXACT_DOC.read_text(encoding="utf-8")
 workflow = WORKFLOW.read_text(encoding="utf-8")
-combined = "\n".join((pool, merge, doc)).lower()
+combined = "\n".join((pool, merge, exact, doc, exact_doc)).lower()
 
 required_pool_markers = [
     "world8_mason_pools",
@@ -31,6 +35,25 @@ required_pool_markers = [
 ]
 for marker in required_pool_markers:
     assert marker in pool.lower(), f"pool invariant marker missing: {marker}"
+
+required_exact_markers = [
+    "world8_mason_pool_reserve_exact_work_actor_v1",
+    "exact_work_actor_not_active_pool_member",
+    "exact_work_actor_qualification_required",
+    "work_active_assignment_actor_mismatch",
+    "work_active_assignment_pool_mismatch",
+    "actor_active_assignment_conflict",
+    "work_active_assignment_conflict",
+    "assignment_concurrency_conflict_retry",
+    "world8_actor_qualifications",
+    "for update",
+    "canonical_git_required",
+    "'work_bound'",
+    "exact_existing_actor_adoption",
+    "work_actor_is_canonical_source",
+]
+for marker in required_exact_markers:
+    assert marker in exact.lower(), f"exact-actor invariant marker missing: {marker}"
 
 required_merge_markers = [
     "world8_merge_queue",
@@ -61,6 +84,9 @@ assert "provider belongs to execution, not actor" in doc.lower()
 assert "pilot reservations, not an architectural limit" in doc.lower()
 assert "grok lane remains reserved" in doc.lower()
 assert "github branch-protection hard gate" in doc.lower()
+assert "work.actor_ref" in exact_doc.lower()
+assert "a live assignment is never released, stolen, overwritten, or rebound" in exact_doc.lower()
+assert "db_touching" in exact_doc.lower()
 assert "python scripts/validate_n_mason_pool.py" in workflow
 
 print("N-Mason Pool static validation: PASS")

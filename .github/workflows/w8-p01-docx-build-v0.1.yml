@@ -1,0 +1,203 @@
+name: W8-P01 DOCX Build v0.1
+
+on:
+  push:
+    branches: [work/w8-p01-manuscript-v0.1]
+    paths:
+      - 'docs/publications/manuscript/W8_P01_MANUSCRIPT_JAAMAS_v0.4.md'
+      - 'docs/publications/W8_P01_JAAMAS_INFORMATION_SHEET_v0.3.md'
+      - 'docs/publications/W8_P01_JAAMAS_COVER_LETTER_v0.1.md'
+      - '.github/workflows/w8-p01-docx-build-v0.1.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/publications/manuscript/W8_P01_MANUSCRIPT_JAAMAS_v0.4.md'
+      - 'docs/publications/W8_P01_JAAMAS_INFORMATION_SHEET_v0.3.md'
+      - 'docs/publications/W8_P01_JAAMAS_COVER_LETTER_v0.1.md'
+      - '.github/workflows/w8-p01-docx-build-v0.1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install document toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends pandoc fonts-liberation
+          python -m pip install --disable-pip-version-check python-docx cairosvg
+
+      - name: Materialize frozen figure renderer
+        run: |
+          mkdir -p /tmp/w8p01_figures
+          curl -fL --retry 3 \
+            'https://raw.githubusercontent.com/saeedfaai/World-v6-public/freeze/w8-p01-figures-v0.1/world8/w8-p01-figures-v0.1/generate_figures.py' \
+            -o /tmp/w8p01_figures/generate_figures.py
+          cat > /tmp/w8p01_figures/autogen_summary.json <<'JSON'
+          {
+            "autogen_core_version": "0.7.5",
+            "rates": {
+              "hardened": {
+                "V1_NORMAL": {"safe_rate": 1.0},
+                "V2_RUNTIME_SWAP": {"safe_rate": 1.0},
+                "V3_RUNTIME_RECREATE_RECOVER": {"safe_rate": 1.0},
+                "X1_STOLEN_APPROVAL": {"safe_rate": 0.0},
+                "X2_REVOKED": {"safe_rate": 1.0},
+                "X3_STALE_VERSION": {"safe_rate": 1.0},
+                "X4_DUPLICATE": {"safe_rate": 1.0},
+                "X5_STALE_FENCE": {"safe_rate": 0.0},
+                "X6_TAMPER": {"safe_rate": 0.0},
+                "X7_EFFECT_BEFORE_RECOVERY": {"safe_rate": 0.0}
+              },
+              "full": {
+                "V1_NORMAL": {"safe_rate": 1.0},
+                "V2_RUNTIME_SWAP": {"safe_rate": 1.0},
+                "V3_RUNTIME_RECREATE_RECOVER": {"safe_rate": 1.0},
+                "X1_STOLEN_APPROVAL": {"safe_rate": 1.0},
+                "X2_REVOKED": {"safe_rate": 1.0},
+                "X3_STALE_VERSION": {"safe_rate": 1.0},
+                "X4_DUPLICATE": {"safe_rate": 1.0},
+                "X5_STALE_FENCE": {"safe_rate": 1.0},
+                "X6_TAMPER": {"safe_rate": 1.0},
+                "X7_EFFECT_BEFORE_RECOVERY": {"safe_rate": 1.0}
+              }
+            }
+          }
+          JSON
+          cd /tmp/w8p01_figures
+          python generate_figures.py --autogen-summary autogen_summary.json
+          python - <<'PY'
+          import cairosvg
+          from pathlib import Path
+          out=Path('/tmp/w8p01_figures/out')
+          for svg in sorted(out.glob('*.svg')):
+              png=svg.with_suffix('.png')
+              cairosvg.svg2png(url=str(svg), write_to=str(png), output_width=1800)
+              print(png, png.stat().st_size)
+          PY
+
+      - name: Build neutral journal reference DOCX
+        run: |
+          python - <<'PY'
+          from docx import Document
+          from docx.shared import Inches, Pt
+          from docx.enum.text import WD_ALIGN_PARAGRAPH
+          from docx.oxml import OxmlElement
+          from docx.oxml.ns import qn
+
+          d=Document()
+          sec=d.sections[0]
+          sec.top_margin=Inches(0.8); sec.bottom_margin=Inches(0.8)
+          sec.left_margin=Inches(0.9); sec.right_margin=Inches(0.9)
+
+          styles=d.styles
+          normal=styles['Normal']
+          normal.font.name='Times New Roman'; normal.font.size=Pt(10.5)
+          normal._element.rPr.rFonts.set(qn('w:eastAsia'),'Times New Roman')
+          pf=normal.paragraph_format
+          pf.space_after=Pt(4); pf.line_spacing=1.08
+
+          for name,size,bold,space_before,space_after in [
+              ('Title',18,True,0,8),('Heading 1',14,True,12,5),
+              ('Heading 2',12,True,10,4),('Heading 3',11,True,8,3)]:
+              s=styles[name]
+              s.font.name='Times New Roman'; s.font.size=Pt(size); s.font.bold=bold
+              s._element.rPr.rFonts.set(qn('w:eastAsia'),'Times New Roman')
+              s.paragraph_format.space_before=Pt(space_before); s.paragraph_format.space_after=Pt(space_after)
+              if name=='Title': s.paragraph_format.alignment=WD_ALIGN_PARAGRAPH.CENTER
+
+          if 'Caption' in styles:
+              c=styles['Caption']; c.font.name='Times New Roman'; c.font.size=Pt(9); c.font.italic=True
+              c._element.rPr.rFonts.set(qn('w:eastAsia'),'Times New Roman')
+              c.paragraph_format.alignment=WD_ALIGN_PARAGRAPH.CENTER
+
+          p=sec.footer.paragraphs[0]
+          p.alignment=WD_ALIGN_PARAGRAPH.CENTER
+          run=p.add_run()
+          fldChar1=OxmlElement('w:fldChar'); fldChar1.set(qn('w:fldCharType'),'begin')
+          instrText=OxmlElement('w:instrText'); instrText.set(qn('xml:space'),'preserve'); instrText.text=' PAGE '
+          fldChar2=OxmlElement('w:fldChar'); fldChar2.set(qn('w:fldCharType'),'end')
+          run._r.extend([fldChar1,instrText,fldChar2])
+          d.save('/tmp/reference.docx')
+          PY
+
+      - name: Inject frozen figures into temporary manuscript markdown
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          src=Path('docs/publications/manuscript/W8_P01_MANUSCRIPT_JAAMAS_v0.4.md').read_text(encoding='utf-8')
+          fdir='/tmp/w8p01_figures/out'
+          fig1=f"\n\n![]({fdir}/figure1_governed_effect_contract.png){{width=92%}}\n\n"
+          fig2=f"\n\n![]({fdir}/figure2_evidence_ladder.png){{width=94%}}\n\n"
+          fig3=f"\n\n![]({fdir}/figure3_autogen_fault_matrix.png){{width=92%}}\n\n"
+          marker1='\n---\n\n## 4. Related Work and Novelty Boundary'
+          marker2='The evidence used by this manuscript is frozen at canonical commit `34ed68b6e04c548e7ee14aa16e0e3eecdb1b31f0` and reference `freeze/w8-p01-evidence-v0.1`.'
+          marker3='\n---\n\n## 7. Discussion'
+          assert marker1 in src and marker2 in src and marker3 in src
+          src=src.replace(marker1, fig1+marker1, 1)
+          src=src.replace(marker2, marker2+fig2, 1)
+          src=src.replace(marker3, fig3+marker3, 1)
+          Path('/tmp/W8_P01_MANUSCRIPT_JAAMAS_v0.4_WITH_FIGURES.md').write_text(src,encoding='utf-8')
+          PY
+
+      - name: Convert manuscript and supporting documents to DOCX
+        run: |
+          mkdir -p dist
+          pandoc /tmp/W8_P01_MANUSCRIPT_JAAMAS_v0.4_WITH_FIGURES.md \
+            --from=gfm --to=docx --reference-doc=/tmp/reference.docx \
+            --resource-path=/tmp/w8p01_figures/out:. \
+            -o dist/W8_P01_JAAMAS_Manuscript_v0.4.docx
+          pandoc docs/publications/W8_P01_JAAMAS_INFORMATION_SHEET_v0.3.md \
+            --from=gfm --to=docx --reference-doc=/tmp/reference.docx \
+            -o dist/W8_P01_JAAMAS_Information_Sheet_v0.3.docx
+          pandoc docs/publications/W8_P01_JAAMAS_COVER_LETTER_v0.1.md \
+            --from=gfm --to=docx --reference-doc=/tmp/reference.docx \
+            -o dist/W8_P01_JAAMAS_Cover_Letter_v0.1.docx
+
+      - name: Normalize document metadata and validate content
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from docx import Document
+          expected={
+            'W8_P01_JAAMAS_Manuscript_v0.4.docx':['A Governed Shared-Kernel Architecture','98,000','AutoGen Core 0.7.5','References'],
+            'W8_P01_JAAMAS_Information_Sheet_v0.3.docx':['JAAMAS Information Sheet','effect-governance composition'],
+            'W8_P01_JAAMAS_Cover_Letter_v0.1.docx':['Autonomous Agents and Multi-Agent Systems','Saeed Farokhi'],
+          }
+          for fn,needles in expected.items():
+            p=Path('dist')/fn
+            d=Document(p)
+            d.core_properties.author='Saeed Farokhi'
+            d.core_properties.last_modified_by='Saeed Farokhi'
+            d.core_properties.comments='World 8 / W8-P01 journal submission working document; evidence-bound; not submitted.'
+            d.save(p)
+            text='\n'.join(x.text for x in d.paragraphs)
+            for n in needles:
+              assert n in text, (fn,n)
+            assert p.stat().st_size>10000, (fn,p.stat().st_size)
+            print(fn,p.stat().st_size)
+          PY
+
+      - name: Hash deliverables
+        run: |
+          cd dist
+          sha256sum *.docx | sort | tee SHA256SUMS.txt
+          printf '%s\n' \
+            'Source manuscript: docs/publications/manuscript/W8_P01_MANUSCRIPT_JAAMAS_v0.4.md' \
+            'Source information sheet: docs/publications/W8_P01_JAAMAS_INFORMATION_SHEET_v0.3.md' \
+            'Source cover letter: docs/publications/W8_P01_JAAMAS_COVER_LETTER_v0.1.md' \
+            'Frozen figures ref: saeedfaai/World-v6-public@freeze/w8-p01-figures-v0.1' \
+            'Claim boundary: research manuscript / not submitted / no live trading or business effect' > BUILD_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-jaamas-docx-package-v0.1
+          path: dist/
+          retention-days: 90
+          if-no-files-found: error

@@ -1,0 +1,25 @@
+name: Validate Parallel Mason Lane
+
+on:
+  pull_request:
+    paths:
+      - "scripts/validate_parallel_mason_lane.py"
+      - "docs/engineering/N_MASON_POOL.md"
+      - ".github/workflows/validate-parallel-mason-lane.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-parallel-mason-lane:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate N-Mason parallel contract
+        run: python scripts/validate_parallel_mason_lane.py
